@@ -1,5 +1,5 @@
 import { AbstractBus } from "./AbstractBus";
 
-class EventOutBus extends AbstractBus {
+export class EventOutBus extends AbstractBus {
 
 }

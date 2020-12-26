@@ -1,3 +1,3 @@
-interface IEventData {
+export interface IEventData {
     message: string;
 }

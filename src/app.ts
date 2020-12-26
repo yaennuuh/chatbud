@@ -1,6 +1,6 @@
 // import { app, BrowserWindow } from 'electron';
 // import Main from './main';
-
+/*
 import { EventInBus } from "./core/busses/EventInBus";
 
 class BotPlugin implements IPlugin {
@@ -24,16 +24,7 @@ class CustomEventData implements IEventData {
     }
 }
 
-class CustomEvent implements IEvent {
-    type: IEventType;
-    data: IEventData;
 
-    constructor(type: IEventType, data: IEventData) {
-        this.type = type;
-        this.data = data;
-    }
-    
-}
 
 const customEventType = new CustomEventType("custom");
 const customEventData = new CustomEventData("Hallo Custom");
@@ -49,6 +40,47 @@ bus.subscribe(new BotPlugin(), [customEventType]);
 bus.subscribe(new BotPlugin(), [customEventType, customEventTypeTwo]);
 
 bus.notify(customEvent);
-bus.notify(customEventTwo);
+bus.notify(customEventTwo);*/
+
+import { CoreBot } from "./core/CoreBot";
+import { EventTypeEnum, getEventType } from "./core/events/EventTypeEnum";
+import { IEvent } from "./core/events/IEvent";
+import { IEventData } from "./core/events/IEventData";
+import { IEventType } from "./core/events/IEventType";
+import { IPluginManager } from "./core/plugins/IPluginManager";
+import { PluginManager } from "./core/plugins/PluginManager";
+
+class CustomEvent implements IEvent {
+    type: IEventType;
+    data: IEventData;
+
+    constructor(type: IEventType, data: IEventData) {
+        this.type = type;
+        this.data = data;
+    } 
+}
+
+class CustomEventData implements IEventData {
+    message:string;
+    constructor(message: string) {
+        this.message = message;
+    }
+}
+
+const pluginManager: IPluginManager = new PluginManager();
+pluginManager.loadCustomPlugins();
+
+const coreBot = CoreBot.getInstance();
+coreBot.notifyPluginsOnEventBusIn(
+    new CustomEvent(
+        getEventType(EventTypeEnum.CUSTOM),
+        new CustomEventData("one thing to custom"))
+);
+
+coreBot.notifyPluginsOnEventBusIn(
+    new CustomEvent(
+        getEventType(EventTypeEnum.SPECIAL),
+        new CustomEventData("oh its for special"))
+);
 
 //Main.main(app, BrowserWindow);
