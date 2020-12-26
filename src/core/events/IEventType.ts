@@ -1,0 +1,3 @@
+interface IEventType {
+    name: string;
+}
