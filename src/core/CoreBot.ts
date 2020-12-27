@@ -43,6 +43,7 @@ export class CoreBot implements ICoreBot {
     }
 
     notifyNotifiableOnEventBusOut(event: IEvent): void {
+        // Intercept with filter
         this.eventBusOut.notify(event);
     }
 }

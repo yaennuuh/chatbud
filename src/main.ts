@@ -1,4 +1,6 @@
 import { BrowserWindow } from 'electron';
+import { IPluginManager } from './core/plugins/IPluginManager';
+import { PluginManager } from './core/plugins/PluginManager';
 
 export default class Main {
     static mainWindow: Electron.BrowserWindow;
@@ -20,6 +22,14 @@ export default class Main {
         Main.mainWindow
             .loadURL('file://' + __dirname + '/index.html');
         Main.mainWindow.on('closed', Main.onClose);
+
+        Main.startBot();
+    }
+
+    static startBot() {
+        const pluginManager: IPluginManager = new PluginManager();
+        pluginManager.loadConnectors();
+        pluginManager.loadPlugins();
     }
 
     static main(app: Electron.App, browserWindow: typeof BrowserWindow) {
