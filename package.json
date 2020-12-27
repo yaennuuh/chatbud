@@ -6,7 +6,9 @@
   "main": "./dist/app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "watch": "tsc --watch && copyfiles -f src/index.html dist",
     "start": "npm run compile && electron-forge start",
+    "dev": "npm run watch && electron-forge start",
     "package": "electron-forge package",
     "make": "electron-forge make",
     "compile": "tsc && copyfiles -f src/index.html dist"
@@ -28,7 +30,9 @@
   "dependencies": {
     "glob": "^7.1.6",
     "lodash": "^4.17.20",
-    "rxjs": "^6.6.3"
+    "rxjs": "^6.6.3",
+    "tmi.js": "^1.7.1",
+    "yaml": "^1.10.0"
   },
   "config": {
     "forge": {
