@@ -1,18 +1,20 @@
 import { IConnector } from "../../core/connectors/IConnector";
 import { CoreBot } from "../../core/CoreBot";
-import { EventTypeEnum } from "../../core/events/EventTypeEnum";
 import { IEvent } from "../../core/events/IEvent";
+import { interval } from 'rxjs';
+import { EventData } from "../../core/events/EventData";
+import { Event } from "../../core/events/Event";
 
 class TwitchConnector implements IConnector {
     coreBot: CoreBot = CoreBot.getInstance();
+    source = interval(5000);
 
     start(): void {
-        throw new Error("Method not implemented.");
+        this.source.subscribe(val => this.coreBot.notifyPluginsOnEventBusIn(new Event('twitch-chat-message', new EventData('hallo neue nachricht von mir =)'))));
     }
 
-    register(eventTypes: EventTypeEnum): EventTypeEnum[] {
-        console.log('hi');
-        throw new Error("Method not implemented.");
+    register(): string[] {
+        return [];
     }
 
     execute(event: IEvent): void {

@@ -19,10 +19,9 @@ export class PluginManager implements IPluginManager {
             // Check if API exists
             // this.pluginApi.set('pluginname-from-config.json', new CustomPluginApi(customPluginInstance));
             // END Check if API exists
-            const eventTypesToRegister: EventTypeEnum[] = customPluginInstance.register(EventTypeEnum);
-            const eventTypeList: IEventType[] = getEventTypeList(eventTypesToRegister);
+            const eventTypesToRegister: string[] = customPluginInstance.register(EventTypeEnum);
             // check if function registerOut if yes, register to out bus
-            CoreBot.getInstance().registerPluginToEventBusIn(customPluginInstance, eventTypeList);
+            CoreBot.getInstance().registerPluginToEventBusIn(customPluginInstance, eventTypesToRegister);
         });
     }
     loadConnectors(): void {
@@ -33,9 +32,9 @@ export class PluginManager implements IPluginManager {
             // Check if API exists
             // this.pluginApi.set('pluginname-from-config.json', new CustomConnectorApi(customConnectorInstance));
             // END Check if API exists
-            const eventTypesToRegister: EventTypeEnum[] = customConnectorInstance.register(EventTypeEnum);
-            const eventTypeList: IEventType[] = getEventTypeList(eventTypesToRegister);
-            CoreBot.getInstance().registerNotifiableToEventBusOut(customConnectorInstance, eventTypeList);
+            const eventTypesToRegister: string[] = customConnectorInstance.register(EventTypeEnum);
+            CoreBot.getInstance().registerNotifiableToEventBusOut(customConnectorInstance, eventTypesToRegister);
+            customConnectorInstance.start();
         });
     };
 }

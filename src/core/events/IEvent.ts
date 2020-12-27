@@ -1,7 +1,6 @@
 import { IEventData } from "./IEventData";
-import { IEventType } from "./IEventType";
 
 export interface IEvent {
-    type: IEventType;
+    type: string;
     data: IEventData;
 }

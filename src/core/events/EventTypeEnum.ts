@@ -3,9 +3,10 @@ import { IEvent } from "./IEvent";
 import { IEventType } from "./IEventType";
 import * as _ from 'lodash';
 
+
 export enum EventTypeEnum {
     CUSTOM = 'custom',
-    SPECIAL = 'special',
+    SPECIAL = 'special'
 }
 
 export function getEventTypeList(eventTypes: EventTypeEnum[]): IEventType[] {
