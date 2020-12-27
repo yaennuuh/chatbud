@@ -10,7 +10,7 @@ class TwitchConnector implements IConnector {
     source = interval(5000);
 
     start(): void {
-        this.source.subscribe(val => this.coreBot.notifyPluginsOnEventBusIn(new Event('twitch-chat-message', new EventData('hallo neue nachricht von mir =)'))));
+       // this.source.subscribe(val => this.coreBot.notifyPluginsOnEventBusIn(new Event('twitch-chat-message', new EventData('hallo neue nachricht von mir =)'))));
     }
 
     register(): string[] {

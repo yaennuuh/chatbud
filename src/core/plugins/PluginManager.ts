@@ -4,6 +4,7 @@ import { CoreBot } from '../CoreBot';
 import { EventTypeEnum, getEventTypeList } from '../events/EventTypeEnum';
 import { IEventType } from '../events/IEventType';
 import { IPluginManager } from './IPluginManager';
+import { PluginHelper } from './PluginHelper';
 
 export class PluginManager implements IPluginManager {
     pluginApi: Map<string, any> = new Map();
@@ -11,6 +12,7 @@ export class PluginManager implements IPluginManager {
     loadCorePlugins(): void {
         throw new Error("Method not implemented.");
     }
+    
     loadPlugins(): void {
         const files: string[] = glob.sync(__dirname + "/../../plugins/**/plugin.js", null);
         _.each(files, (file) => {
@@ -19,11 +21,12 @@ export class PluginManager implements IPluginManager {
             // Check if API exists
             // this.pluginApi.set('pluginname-from-config.json', new CustomPluginApi(customPluginInstance));
             // END Check if API exists
-            const eventTypesToRegister: string[] = customPluginInstance.register(EventTypeEnum);
+            const eventTypesToRegister: string[] = customPluginInstance.register(new PluginHelper());
             // check if function registerOut if yes, register to out bus
             CoreBot.getInstance().registerPluginToEventBusIn(customPluginInstance, eventTypesToRegister);
         });
     }
+
     loadConnectors(): void {
         const files: string[] = glob.sync(__dirname + "/../../connectors/**/connector.js", null);
         _.each(files, (file) => {
@@ -32,7 +35,7 @@ export class PluginManager implements IPluginManager {
             // Check if API exists
             // this.pluginApi.set('pluginname-from-config.json', new CustomConnectorApi(customConnectorInstance));
             // END Check if API exists
-            const eventTypesToRegister: string[] = customConnectorInstance.register(EventTypeEnum);
+            const eventTypesToRegister: string[] = customConnectorInstance.register();
             CoreBot.getInstance().registerNotifiableToEventBusOut(customConnectorInstance, eventTypesToRegister);
             customConnectorInstance.start();
         });
