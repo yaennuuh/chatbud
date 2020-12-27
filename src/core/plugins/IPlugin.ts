@@ -1,7 +1,4 @@
-import { EventTypeEnum } from "../events/EventTypeEnum";
-import { IEvent } from "../events/IEvent";
+import { INotifiable } from "../INotifiable";
 
-export interface IPlugin {
-    register(eventTypes: EventTypeEnum): EventTypeEnum[];
-    execute(event: IEvent): void;
+export interface IPlugin extends INotifiable {
 }

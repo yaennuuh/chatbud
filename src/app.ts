@@ -68,7 +68,8 @@ class CustomEventData implements IEventData {
 }
 
 const pluginManager: IPluginManager = new PluginManager();
-pluginManager.loadCustomPlugins();
+pluginManager.loadConnectors();
+pluginManager.loadPlugins();
 
 const coreBot = CoreBot.getInstance();
 coreBot.notifyPluginsOnEventBusIn(

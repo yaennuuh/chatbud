@@ -3,6 +3,7 @@ import { EventOutBus } from "./busses/EventOutBus";
 import { IEvent } from "./events/IEvent";
 import { IEventType } from "./events/IEventType";
 import { ICoreBot } from "./ICoreBot";
+import { INotifiable } from "./INotifiable";
 import { IPlugin } from "./plugins/IPlugin";
 
 export class CoreBot implements ICoreBot {
@@ -38,11 +39,11 @@ export class CoreBot implements ICoreBot {
      * EVENT BUS OUT
      */
 
-    registerPluginToEventBusOut(plugin: IPlugin, eventTypeList: IEventType[]): void {
-        this.eventBusOut.subscribe(plugin, eventTypeList);
+    registerNotifiableToEventBusOut(notifiable: INotifiable, eventTypeList: IEventType[]): void {
+        this.eventBusOut.subscribe(notifiable, eventTypeList);
     }
 
-    notifyPluginsOnEventBusOut(event: IEvent): void {
+    notifyNotifiableOnEventBusOut(event: IEvent): void {
         this.eventBusOut.notify(event);
     }
 }
