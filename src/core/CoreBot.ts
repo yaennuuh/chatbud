@@ -5,15 +5,18 @@ import { ICoreBot } from "./ICoreBot";
 import { INotifiable } from "./INotifiable";
 import { IPlugin } from "./plugins/IPlugin";
 import * as _ from 'lodash';
+import { FunctionManager } from "./functions/FunctionManager";
 
 export class CoreBot implements ICoreBot {
     private static instance: CoreBot;
     private eventBusIn: EventInBus;
     private eventBusOut: EventOutBus;
+    private functionManager: FunctionManager;
 
     private constructor() {
         this.eventBusIn = new EventInBus();
         this.eventBusOut = new EventOutBus();
+        this.functionManager = new FunctionManager();
     }
 
     static getInstance(): CoreBot {
@@ -43,13 +46,58 @@ export class CoreBot implements ICoreBot {
         this.eventBusOut.subscribe(notifiable, eventTypeList);
     }
 
-    notifyNotifiableOnEventBusOut(event: IEvent): void {
+    async notifyNotifiableOnEventBusOut(event: IEvent): Promise<void> {
         // Intercept with filter
-        // intercept functions
-        this.eventBusOut.notify(event);
+
+        let functionKeywordList = this.functionManager.getFunctionKeyWords();
+
+        if (functionKeywordList && functionKeywordList.length) {
+            let packages: string[] = this.packaginator(event.data.message, functionKeywordList);
+
+            event.data.message = this.dispatchPackages(packages, functionKeywordList, '');
+        }
+
+        console.log(event.data.message);
+
+        //this.eventBusOut.notify(event);
+    }
+
+    dispatchPackages(packages: string[], functionKeywords: string[], outgoingMessage: string): string {
+        let packageLength = packages.length;
+        let message = outgoingMessage;
+
+        _.each(functionKeywords, (functionKeyword) => {
+            let firstPackage = _.first(packages);
+            if (this.packStartsWith(firstPackage, functionKeyword)) {
+                let { messageOutput, outputPackages } = this.functionManager.sendToFunction(functionKeyword, packages);
+                message = message.concat(messageOutput);
+                if (!outputPackages || outputPackages.length == 0) return false;
+                packages = outputPackages;
+            }
+        });
+
+        if (packages.length === packageLength) {
+            message = message.concat(_.first(packages));
+            if (packages.length > 1) {
+                packages = _.slice(packages, 1);
+            } else {
+                packages = [];
+            }
+        }
+
+        if (packages && packages.length > 0) return this.dispatchPackages(packages, functionKeywords, message);
+
+        return message;
+    }
+
+    packStartsWith(pack: string, keyword: string): boolean {
+        return _.startsWith(pack, `[#${keyword}`);
     }
 
     packaginator(message: string, keywords: string[]): string[] {
+
+        if (message === undefined || message.length == 0) return [];
+        if (keywords === undefined || keywords.length == 0) return [message];
 
         let begin: number[] = [];
         let end: number[] = [];
@@ -58,6 +106,8 @@ export class CoreBot implements ICoreBot {
             begin = _.concat(begin, this.locations(`[#${keyword}`, message));
             end = _.concat(end, this.locations(`[/#${keyword}]`, message));
         });
+
+        if (begin.length == 0 || end.length == 0) return [message];
 
         begin.sort((a, b) => a - b);
         end.sort((a, b) => a - b);
