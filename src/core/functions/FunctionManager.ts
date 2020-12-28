@@ -1,17 +1,33 @@
 import { IFunctionManager } from "./IFunctionManager";
+import { glob } from 'glob';
 import * as _ from 'lodash';
 
 export class FunctionManager implements IFunctionManager {
+    private static instance: FunctionManager;
 
     functionMap: Map<string, any>;
 
-    constructor() {
+    private constructor() {
         this.functionMap = new Map();
-        this.functionMap.set('loop', new LoopFunction());
-        this.functionMap.set('yannick', null);
     }
 
-    registerFunction(functionKeyword: string, functionInstance: any) {
+    static getInstance(): FunctionManager {
+        if (this.instance == null) {
+            this.instance = new FunctionManager();
+        }
+        return this.instance;
+    }
+
+    loadFunctions(): void {
+        const files: string[] = glob.sync(__dirname + "/../../functions/**/function.js", null);
+        _.each(files, (file) => {
+            const CustomFunction = require(file);
+            const customFunctionInstance = new CustomFunction();
+            this.registerFunction(customFunctionInstance.register(), customFunctionInstance);
+        });
+    };
+
+    registerFunction(functionKeyword: string, functionInstance: any): void {
         this.functionMap.set(functionKeyword, functionInstance);
     }
 
@@ -22,16 +38,5 @@ export class FunctionManager implements IFunctionManager {
     sendToFunction(functionKey: string, packages: string[]): string[] {
         let functionInstance: any = this.functionMap.get(functionKey);
         return functionInstance.execute(packages);
-    }
-}
-
-export class LoopFunction {
-    execute(packages: string[]): string[] {
-        let pack: string = packages.shift();
-        let stringToWork = pack.substring(7, pack.length - 8);
-        let params = Number.parseInt(stringToWork.substring(0, stringToWork.indexOf(']')));
-        let content = stringToWork.substring(stringToWork.indexOf(']') + 1, stringToWork.length);
-
-        return _.concat(_.times(params, _.constant(content)), packages);
     }
 }

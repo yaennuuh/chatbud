@@ -16,7 +16,7 @@ export class CoreBot implements ICoreBot {
     private constructor() {
         this.eventBusIn = new EventInBus();
         this.eventBusOut = new EventOutBus();
-        this.functionManager = new FunctionManager();
+        this.functionManager = FunctionManager.getInstance();
     }
 
     static getInstance(): CoreBot {
@@ -46,10 +46,11 @@ export class CoreBot implements ICoreBot {
         this.eventBusOut.subscribe(notifiable, eventTypeList);
     }
 
-    async notifyNotifiableOnEventBusOut(event: IEvent): Promise<void> {
+    notifyNotifiableOnEventBusOut(event: IEvent): void {
         // Intercept with filter
 
         let functionKeywordList = this.functionManager.getFunctionKeyWords();
+        console.log(functionKeywordList);
 
         if (functionKeywordList && functionKeywordList.length) {
             let packages: string[] = this.packaginator(event.data.message, functionKeywordList);
