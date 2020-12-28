@@ -1,11 +1,18 @@
 import { BrowserWindow } from 'electron';
 import { IPluginManager } from './core/plugins/IPluginManager';
 import { PluginManager } from './core/plugins/PluginManager';
+import * as _ from 'lodash';
+import { CoreBot } from './core/CoreBot';
 
 export default class Main {
     static mainWindow: Electron.BrowserWindow;
     static application: Electron.App;
     static BrowserWindow;
+    static list: string[] = [
+        "wait",
+        "if"
+    ];
+
     private static onWindowAllClosed() {
         if (process.platform !== 'darwin') {
             Main.application.quit();
@@ -18,12 +25,14 @@ export default class Main {
     }
 
     private static onReady() {
-        Main.mainWindow = new Main.BrowserWindow({ width: 800, height: 600 });
+        /*Main.mainWindow = new Main.BrowserWindow({ width: 800, height: 600 });
         Main.mainWindow
             .loadURL('file://' + __dirname + '/index.html');
         Main.mainWindow.on('closed', Main.onClose);
 
-        Main.startBot();
+        Main.startBot();*/
+        let packages = CoreBot.getInstance().packaginator("[#if user == hallo]dfsdfsfds[#else]asd[/#if] matching wait [#wait 5] not matching [/#wait] [#wait 2] matching wait [/#wait] sdfdsf[#if user == zwei] zweites if [#else] zweites else [/#if]",["wait", "if", "loop"])
+        console.log(packages);
     }
 
     static startBot() {
