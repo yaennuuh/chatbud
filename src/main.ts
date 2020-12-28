@@ -34,7 +34,7 @@ export default class Main {
 
         Main.startBot();*/
         //let packages = CoreBot.getInstance().packaginator("[#if user == hallo]dfsdfsfds[#else]asd[/#if] matching wait [#wait 5] not matching [/#wait] [#wait 2] matching wait [/#wait] sdfdsf[#if user == zwei] zweites if [#else] zweites else [/#if]",["wait", "if", "loop"]);
-        CoreBot.getInstance().notifyNotifiableOnEventBusOut(new Event('whatever', new EventData("[#loop 5] somethinig[/#loop][#if user == hallo]dfsdfsfds[#else]asd[/#if] matching wait [#wait 5] not matching [/#wait] [#wait 2] matching wait [/#wait] sdfdsf[#if user == zwei] zweites if [#else] zweites else [/#if]")));
+        CoreBot.getInstance().notifyNotifiableOnEventBusOut(new Event('whatever', new EventData("[#loop 2] something[#loop 2] nix[/#loop][/#loop][#if user == hallo]dfsdfsfds[#else]asd[/#if] matching wait [#wait 5] not matching [/#wait] [#wait 2] matching wait [/#wait] sdfdsf[#if user == zwei] zweites if [#else] zweites else [/#if]")));
         
     }
 

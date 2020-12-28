@@ -63,20 +63,22 @@ export class CoreBot implements ICoreBot {
     }
 
     dispatchPackages(packages: string[], functionKeywords: string[], outgoingMessage: string): string {
-        let packageLength = packages.length;
+        let hasModified = false;
         let message = outgoingMessage;
 
         _.each(functionKeywords, (functionKeyword) => {
             let firstPackage = _.first(packages);
             if (this.packStartsWith(firstPackage, functionKeyword)) {
-                let { messageOutput, outputPackages } = this.functionManager.sendToFunction(functionKeyword, packages);
-                message = message.concat(messageOutput);
-                if (!outputPackages || outputPackages.length == 0) return false;
-                packages = outputPackages;
+                hasModified = true;
+                packages = this.functionManager.sendToFunction(functionKeyword, packages);
+                let newMessage = _.map(packages).join('');
+                if (newMessage && newMessage.length) {
+                    packages = this.packaginator(newMessage, functionKeywords);
+                }
             }
         });
 
-        if (packages.length === packageLength) {
+        if (!hasModified) {
             message = message.concat(_.first(packages));
             if (packages.length > 1) {
                 packages = _.slice(packages, 1);

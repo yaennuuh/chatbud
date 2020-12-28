@@ -19,26 +19,19 @@ export class FunctionManager implements IFunctionManager {
         return Array.from(this.functionMap.keys());
     }
 
-    sendToFunction(functionKey: string, packages: string[]): { messageOutput: string, outputPackages: string[] } {
+    sendToFunction(functionKey: string, packages: string[]): string[] {
         let functionInstance: any = this.functionMap.get(functionKey);
         return functionInstance.execute(packages);
     }
 }
 
 export class LoopFunction {
-    execute(packages: string[]): { messageOutput: string, outputPackages: string[] } {
-        let messageOutput: string, outputPackages: string[];
-
+    execute(packages: string[]): string[] {
         let pack: string = packages.shift();
         let stringToWork = pack.substring(7, pack.length - 8);
         let params = Number.parseInt(stringToWork.substring(0, stringToWork.indexOf(']')));
         let content = stringToWork.substring(stringToWork.indexOf(']') + 1, stringToWork.length);
 
-        messageOutput = _.map(_.times(params, _.constant(content))).join('');
-
-        return {
-            messageOutput,
-            outputPackages: packages
-        };
+        return _.concat(_.times(params, _.constant(content)), packages);
     }
 }
