@@ -39,7 +39,7 @@ export class FunctionManager implements IFunctionManager {
         const functionInstance: any = this.functionMap.get(functionKey);
         const firstPack = packages.shift();
         const stringToWork = firstPack.substring(functionKey.length+3, firstPack.length - (functionKey.length+4));
-        const params = stringToWork.substring(0, stringToWork.indexOf(']'));
+        const params = _.split(stringToWork.substring(0, stringToWork.indexOf(']')), ',');
         const content = stringToWork.substring(stringToWork.indexOf(']') + 1, stringToWork.length);
         return functionInstance.execute(params, content, packages);
     }

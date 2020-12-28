@@ -75,11 +75,10 @@ export class CoreBot implements ICoreBot {
 
     dispatchPackages(packages: string[], functionKeywords: string[], outgoingMessage: string): string {
         let hasModified = false;
-        let message = outgoingMessage;
 
         _.each(functionKeywords, (functionKeyword) => {
             let firstPackage = _.first(packages);
-            if (this.packStartsWith(firstPackage, functionKeyword)) {
+            if (_.startsWith(firstPackage, `[#${functionKeyword}`)) {
                 hasModified = true;
                 packages = this.functionManager.sendToFunction(functionKeyword, packages);
                 let newMessage = _.map(packages).join('');
@@ -90,21 +89,14 @@ export class CoreBot implements ICoreBot {
         });
 
         if (!hasModified) {
-            message = message.concat(_.first(packages));
-            if (packages.length > 1) {
-                packages = _.slice(packages, 1);
-            } else {
-                packages = [];
-            }
+            outgoingMessage = outgoingMessage.concat(packages.shift());
         }
 
-        if (packages && packages.length > 0) return this.dispatchPackages(packages, functionKeywords, message);
+        if (packages && packages.length > 0) {
+            return this.dispatchPackages(packages, functionKeywords, outgoingMessage);
+        }
 
-        return message;
-    }
-
-    packStartsWith(pack: string, keyword: string): boolean {
-        return _.startsWith(pack, `[#${keyword}`);
+        return outgoingMessage;
     }
 
     packaginator(message: string, keywords: string[]): string[] {
@@ -116,8 +108,8 @@ export class CoreBot implements ICoreBot {
         let end: number[] = [];
 
         _.each(keywords, (keyword) => {
-            begin = _.concat(begin, this.locations(`[#${keyword}`, message));
-            end = _.concat(end, this.locations(`[/#${keyword}]`, message));
+            begin = _.concat(begin, this.getLocations(`[#${keyword}`, message));
+            end = _.concat(end, this.getLocations(`[/#${keyword}]`, message));
         });
 
         if (begin.length == 0 || end.length == 0) return [message];
@@ -170,9 +162,11 @@ export class CoreBot implements ICoreBot {
         return packages;
     }
 
-    locations(substring: string, message: string): number[] {
-        let a = [], i = -1;
-        while ((i = message.indexOf(substring, i + 1)) >= 0) a.push(i);
-        return a;
+    getLocations(substring: string, message: string): number[] {
+        let locations = [], i = -1;
+        while ((i = message.indexOf(substring, i + 1)) >= 0) {
+            locations.push(i);
+        }
+        return locations;
     }
 }
