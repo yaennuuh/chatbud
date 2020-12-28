@@ -9,15 +9,13 @@ import { IConnectorManager } from './core/connectors/IConnectorManager';
 import { ConnectorManager } from './core/connectors/ConnectorManager';
 import { IFunctionManager } from './core/functions/IFunctionManager';
 import { FunctionManager } from './core/functions/FunctionManager';
+import { IFilterManager } from './core/filters/IFilterManager';
+import { FilterManager } from './core/filters/FilterManager';
 
 export default class Main {
     static mainWindow: Electron.BrowserWindow;
     static application: Electron.App;
     static BrowserWindow;
-    static list: string[] = [
-        "wait",
-        "if"
-    ];
 
     private static onWindowAllClosed() {
         if (process.platform !== 'darwin') {
@@ -38,8 +36,6 @@ export default class Main {
         Main.mainWindow.on('closed', Main.onClose);
         
         Main.startBot();
-        //let packages = CoreBot.getInstance().packaginator("[#if user == hallo]dfsdfsfds[#else]asd[/#if] matching wait [#wait 5] not matching [/#wait] [#wait 2] matching wait [/#wait] sdfdsf[#if user == zwei] zweites if [#else] zweites else [/#if]",["wait", "if", "loop"]);
-
     }
 
     static startBot() {
@@ -49,9 +45,11 @@ export default class Main {
         pluginManager.loadPlugins();
         const functionManager: IFunctionManager = FunctionManager.getInstance();
         functionManager.loadFunctions();
+        const filterManager: IFilterManager = FilterManager.getInstance();
+        filterManager.loadFilters();
 
         setTimeout(function () {
-            CoreBot.getInstance().notifyNotifiableOnEventBusOut(new Event('whatever', new EventData("[#loop 2] something[#loop 2] nix[/#loop][/#loop][#if user == hallo]dfsdfsfds[#else]asd[/#if] matching wait [#wait 5] not matching [/#wait] [#wait 2] matching wait [/#wait] sdfdsf[#if user == zwei] zweites if [#else] zweites else [/#if]")));
+            CoreBot.getInstance().notifyNotifiableOnEventBusOut(new Event('whatever', new EventData("[#loop 2] something[#loop 2] nix[/#loop][/#loop][#if $username == $username]dfsdfsfds[#else]asd[/#if] matching wait [#wait 5] not matching [/#wait] [#wait 2] matching wait [/#wait] sdfdsf[#if user == zwei] zweites if [#else] zweites else [/#if]")));
         }, 5000);
     }
 

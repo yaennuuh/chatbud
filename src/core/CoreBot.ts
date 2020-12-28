@@ -6,17 +6,20 @@ import { INotifiable } from "./INotifiable";
 import { IPlugin } from "./plugins/IPlugin";
 import * as _ from 'lodash';
 import { FunctionManager } from "./functions/FunctionManager";
+import { FilterManager } from "./filters/FilterManager";
 
 export class CoreBot implements ICoreBot {
     private static instance: CoreBot;
     private eventBusIn: EventInBus;
     private eventBusOut: EventOutBus;
     private functionManager: FunctionManager;
+    private filterManager: FilterManager;
 
     private constructor() {
         this.eventBusIn = new EventInBus();
         this.eventBusOut = new EventOutBus();
         this.functionManager = FunctionManager.getInstance();
+        this.filterManager = FilterManager.getInstance();
     }
 
     static getInstance(): CoreBot {
@@ -47,10 +50,17 @@ export class CoreBot implements ICoreBot {
     }
 
     notifyNotifiableOnEventBusOut(event: IEvent): void {
-        // Intercept with filter
+        let filterKeywordList = this.filterManager.getFilterKeyWords();
+
+        if (filterKeywordList && filterKeywordList.length) {
+            _.each(filterKeywordList, (filterKeyword) => {
+                if (event.data.message.indexOf(filterKeyword) != -1) {
+                    event.data.message = this.filterManager.applyFilter(filterKeyword, event);
+                }
+            });
+        }
 
         let functionKeywordList = this.functionManager.getFunctionKeyWords();
-        console.log(functionKeywordList);
 
         if (functionKeywordList && functionKeywordList.length) {
             let packages: string[] = this.packaginator(event.data.message, functionKeywordList);
