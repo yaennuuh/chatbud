@@ -63,7 +63,7 @@ describe('FunctionManager', () =>
             let anotherDummy = new DummyFunction();
             functionManager.registerFunction("anotherDummy", anotherDummy);
         });
-        it('should return all filter keywords', () =>
+        it('should return all function keywords', () =>
         {
             let functionManager = FunctionManager.getInstance();
             expect(functionManager.getFunctionKeyWords())
