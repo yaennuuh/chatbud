@@ -32,10 +32,10 @@ export default class Main {
         
         Main.mainWindow = new Main.BrowserWindow({ width: 800, height: 600 });
         Main.mainWindow
-            .loadURL('file://' + __dirname + '/index.html');
+            .loadURL('file://' + __dirname + '/ui/main.html');
         Main.mainWindow.on('closed', Main.onClose);
         
-        Main.startBot();
+        //Main.startBot();
     }
 
     static startBot() {
