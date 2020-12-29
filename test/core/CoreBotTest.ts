@@ -49,7 +49,7 @@ describe('CoreBot', () =>
         it('should return all start indexes of the substring within the message', () =>
         {
             let coreBot = CoreBot.getInstance();
-            expect(coreBot.locations("abc", "abc def abc ghi aha"))
+            expect(coreBot.getLocations("abc", "abc def abc ghi aha"))
                 .to
                 .eqls([0, 8]);
         });
