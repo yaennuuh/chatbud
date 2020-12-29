@@ -16,14 +16,14 @@ class DummyFilter {
 
 describe('FilterManager', () =>
 {
+    before(function() {
+        let filterManager = FilterManager.getInstance();
+        let dummy = new DummyFilter();
+        filterManager.registerFilter(dummy.register(), dummy);
+    });
+
     describe('test applyFilter', () =>
     {
-        before(function() {
-            let filterManager = FilterManager.getInstance();
-            let dummy = new DummyFilter();
-            filterManager.registerFilter(dummy.register(), dummy);
-        });
-
         it('should replace $dummy with genius', () =>
         {
             let filterManager = FilterManager.getInstance();
@@ -41,5 +41,14 @@ describe('FilterManager', () =>
                 .eqls("this is genius, isn't it genius");
         });
     });
-
+    describe('test getFilterKeyWords', () =>
+    {
+        it('should return all filter keywords', () =>
+        {
+            let filterManager = FilterManager.getInstance();
+            expect(filterManager.getFilterKeyWords())
+                .to
+                .eqls(['dummy']);
+        });
+    });
 });
