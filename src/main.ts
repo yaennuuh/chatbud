@@ -1,4 +1,4 @@
-import { BrowserWindow } from 'electron';
+import { BrowserWindow, ipcMain } from 'electron';
 import { IPluginManager } from './core/plugins/IPluginManager';
 import { PluginManager } from './core/plugins/PluginManager';
 import * as _ from 'lodash';
@@ -29,14 +29,31 @@ export default class Main {
     }
 
     private static onReady() {
-        
-        Main.mainWindow = new Main.BrowserWindow({ width: 800, height: 600 });
+
+        Main.mainWindow = new Main.BrowserWindow({
+            width: 800,
+            height: 600,
+            frame: false,
+            webPreferences: {
+                nodeIntegration: true
+            }
+        });
+        Main.mainWindow.setMenuBarVisibility(false);
         Main.mainWindow
             .loadURL('file://' + __dirname + '/ui/main.html');
         Main.mainWindow.on('closed', Main.onClose);
-        
+        Main.init();
+
         //Main.startBot();
     }
+
+    static init() {
+        console.log('triggers initialized');
+        ipcMain.on('close-application', function (event, data) {
+            console.log('triggered');
+            Main.mainWindow.close();
+        });
+    };
 
     static startBot() {
         const connectorManager: IConnectorManager = new ConnectorManager();

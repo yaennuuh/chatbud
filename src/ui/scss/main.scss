@@ -1,5 +1,8 @@
-@import "../../../node_modules/bootstrap/scss/bootstrap.scss";
 
-body {
-    background-color: red;
-}
+$body-bg: #212121;
+$body-color: #FFFFFF;
+
+$primary: #243B53;
+$danger: green;
+
+@import "../../../node_modules/bootstrap/scss/bootstrap.scss";
