@@ -21,7 +21,21 @@ describe('FilterManager', () =>
         let dummy = new DummyFilter();
         filterManager.registerFilter(dummy.register(), dummy);
     });
-
+    describe('test registerFilter', () =>
+    {
+        before(function() {
+            let filterManager = FilterManager.getInstance();
+            let anotherDummy = new DummyFilter();
+            filterManager.registerFilter("anotherDummy", anotherDummy);
+        });
+        it('should have two registered filters', () =>
+        {
+            let filterManager = FilterManager.getInstance();
+            expect(filterManager.filterMap.size)
+                .to
+                .eql(2);
+        });
+    });
     describe('test applyFilter', () =>
     {
         it('should replace $dummy with genius', () =>
@@ -43,12 +57,17 @@ describe('FilterManager', () =>
     });
     describe('test getFilterKeyWords', () =>
     {
+        before(function() {
+            let filterManager = FilterManager.getInstance();
+            let anotherDummy = new DummyFilter();
+            filterManager.registerFilter("anotherDummy", anotherDummy);
+        });
         it('should return all filter keywords', () =>
         {
             let filterManager = FilterManager.getInstance();
             expect(filterManager.getFilterKeyWords())
                 .to
-                .eqls(['dummy']);
+                .eqls(['dummy', 'anotherDummy']);
         });
     });
 });
