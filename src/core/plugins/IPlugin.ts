@@ -1,7 +1,7 @@
 import { INotifiable } from "../INotifiable";
-import { PluginHelper } from "./PluginHelper";
+var PluginHelper = require("./PluginHelper");
 
 export interface IPlugin extends INotifiable {
-    pluginHelper: PluginHelper;
-    register(pluginHelper: PluginHelper): string[];
+    pluginHelper: typeof PluginHelper;
+    register(pluginHelper: typeof PluginHelper): string[];
 }

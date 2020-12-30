@@ -3,6 +3,9 @@ var _ = require('lodash');
 var fs = require('fs');
 var glob = require('glob');
 var YAML = require('yaml');
+var PluginHelper = require('../core/plugins/PluginHelper');
+
+console.log(__dirname);
 
 window.onload = function () {
     var closeButton = document.getElementById('close-button');
@@ -36,7 +39,6 @@ function loadConfigs() {
 
             if (parsedConfig &&
                 parsedConfig.hasOwnProperty('name') &&
-                parsedConfig.hasOwnProperty('folder') &&
                 parsedConfig.hasOwnProperty('ui-html') &&
                 parsedConfig.hasOwnProperty('ui-js')
             ) {
@@ -58,7 +60,7 @@ function loadCustomTag(pluginName) {
 }
 
 function createWebComponent(plugin) {
-    fetch(`../plugins/${plugin['folder']}/${plugin['ui-html']}`)
+    fetch(`../plugins/${plugin['name']}/${plugin['ui-html']}`)
         .then(stream => stream.text())
         .then(text => {
             createTemplateTag(text, plugin);
@@ -93,8 +95,16 @@ function loadTemplate(plugin) {
             }
 
             connectedCallback() {
-                var CustomFunction = require(`../plugins/${this._plugin['folder']}/${this._plugin['ui-js']}`);
-                new CustomFunction(this._shadowRoot);
+                var CustomPluginUI = require(`../plugins/${this._plugin['name']}/${this._plugin['ui-js']}`);
+                let anything = new PluginHelper(this._plugin);
+                new CustomPluginUI(this._shadowRoot, {
+                    config: anything.config,
+                    loadData: anything.loadData,
+                    sendEventToBusOut: anything.sendEventToBusOut,
+                    getOwnPluginApi: anything.getOwnPluginApi,
+                    pluginApiByName: anything.pluginApiByName,
+                    saveData: anything.saveData,
+                });
             }
         }
     );

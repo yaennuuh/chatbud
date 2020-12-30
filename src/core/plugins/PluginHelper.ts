@@ -3,24 +3,42 @@ import { IEvent } from "../events/IEvent";
 import { IPluginHelper } from "./IPluginHelper";
 import * as YAML from 'yaml';
 import * as fs from "fs";
+import { PluginManager } from "./PluginManager";
 
-export class PluginHelper implements IPluginHelper {
+class PluginHelper implements IPluginHelper {
+    config: any;
+    test = 'test';
 
-    sendEventToBusOut(event: IEvent): void {
+    constructor(config: any) {
+        this.config = config;
+    }
+
+    sendEventToBusOut = function (event: IEvent): void {
         CoreBot.getInstance().notifyNotifiableOnEventBusOut(event);
     }
 
-    loadData(filePath: string): any {
-        if (fs.existsSync(filePath)) {
-            const file = fs.readFileSync(filePath, 'utf8')
+    getOwnPluginApi = function (): any {
+        return PluginManager.getInstance().getPluginApiByName(this.config['name']);
+    }
+
+    pluginApiByName = function (pluginName: string): any {
+        return PluginManager.getInstance().getPluginApiByName(pluginName);
+    }
+
+    loadData = function (): any {
+        let dataPath = `${__dirname}/../../plugins/${this.config['name']}/${this.config['data-yaml']}`;
+        if (fs.existsSync(dataPath)) {
+            const file = fs.readFileSync(dataPath, 'utf8')
             return YAML.parse(file);
         }
         return YAML.parse('');
     }
     
-    saveData(filePath: string, data: any): void {
-        fs.writeFile(filePath, YAML.stringify(data), function (err) {
+    saveData = function (data: any): void {
+        let dataPath = `${__dirname}/../../plugins/${this.config['name']}/${this.config['data-yaml']}`;
+        fs.writeFile(dataPath, YAML.stringify(data), function (err) {
             if (err) throw err;
         });
     }
 }
+module.exports = PluginHelper;

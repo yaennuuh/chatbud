@@ -42,25 +42,24 @@ export default class Main {
         Main.mainWindow
             .loadURL('file://' + __dirname + '/ui/main.html');
         Main.mainWindow.on('closed', Main.onClose);
-        Main.mainWindow.maximize();
+        // Main.mainWindow.maximize();
         // Main.mainWindow.webContents.openDevTools();
         Main.init();
 
-        //Main.startBot();
+        Main.startBot();
     }
 
     static init() {
         console.log('triggers initialized');
         ipcMain.on('close-application', function (event, data) {
-            console.log('triggered');
             Main.mainWindow.close();
         });
     };
 
     static startBot() {
-        const connectorManager: IConnectorManager = new ConnectorManager();
-        connectorManager.loadConnectors();
-        const pluginManager: IPluginManager = new PluginManager();
+        /*const connectorManager: IConnectorManager = new ConnectorManager();
+        connectorManager.loadConnectors();*/
+        const pluginManager: IPluginManager = PluginManager.getInstance();
         pluginManager.loadPlugins();
         const functionManager: IFunctionManager = FunctionManager.getInstance();
         functionManager.loadFunctions();

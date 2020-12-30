@@ -1,14 +1,16 @@
 class DummyPluginUI {
 
     shadowRoot;
+    pluginHelper;
 
-    constructor(shadowRoot) {
+    constructor(shadowRoot, pluginHelper) {
         this.shadowRoot = shadowRoot;
+        this.pluginHelper = pluginHelper;
         this.initialize();
     }
 
     initialize() {
-        console.log('dummy');
+        console.log(this.pluginHelper.loadData());
     }
 }
 

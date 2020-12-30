@@ -1,4 +1,4 @@
 name: DummyPlugin
-folder: DummyPlugin
 ui-html: dummy.html
-ui-js:  dummy.js
+ui-js: dummy.js
+data-yaml: data.yaml
