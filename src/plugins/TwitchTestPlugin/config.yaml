@@ -1,0 +1,4 @@
+name: TwitchTestPlugin
+folder: TwitchTestPlugin
+ui-html: ui.html
+ui-js:  ui.js
