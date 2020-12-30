@@ -11,6 +11,7 @@ class TwitchTestPlugin implements IPlugin {
 
     register(pluginHelper: typeof PluginHelper) {
         this.pluginHelper = pluginHelper;
+        console.log('here', this.pluginHelper.loadData());
         return ['twitch-chat-message'];
     }
 

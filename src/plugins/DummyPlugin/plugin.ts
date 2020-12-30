@@ -2,7 +2,7 @@ import { IEvent } from "../../core/events/IEvent";
 import { IPlugin } from "../../core/plugins/IPlugin";
 var PluginHelper = require("../../core/plugins/PluginHelper");
 
-class TwitchTestPlugin implements IPlugin {
+class DummyPlugin implements IPlugin {
     DATA_FILE_PATH: string = __dirname + '\\data.yaml';
     pluginHelper: typeof PluginHelper;
     data: any;
@@ -16,4 +16,4 @@ class TwitchTestPlugin implements IPlugin {
     }
 }
 
-module.exports = TwitchTestPlugin;
+module.exports = DummyPlugin;
