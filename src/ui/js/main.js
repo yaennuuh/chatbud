@@ -1,27 +1,36 @@
 var ipc = require('electron').ipcRenderer;
 var _ = require('lodash');
+var fs = require('fs');
+var glob = require('glob');
+var YAML = require('yaml');
 
 window.onload = function () {
     var closeButton = document.getElementById('close-button');
     closeButton.addEventListener('click', function () {
         ipc.send('close-application', '');
     });
-    var pluginList = [{
-        "name": "TwitchTestPlugin",
-        "folder": "TwitchTestPlugin",
-        "ui-html": "ui.html",
-        "ui-js":  "ui.js"
-    }];
-    pluginList.forEach(plugin => {
-        plugin.tagname = _.kebabCase(plugin.name);
-        createWebComponent(plugin);
-    });
-    //createWebComponent('ui');
+
+    loadConfigs();
+    
     var addButton = document.getElementById('add-button');
     addButton.addEventListener('click', function () {
         var componentnamefield = document.getElementById('componentname');
-        console.log(componentnamefield.value);
         loadCustomTag(componentnamefield.value);
+    });
+}
+
+function loadConfigs() {
+    const fileConfigs = [];
+    const configFiles = glob.sync(__dirname + "/../plugins/**/config.yaml", null);
+    _.each(configFiles, (configPath) => {
+        if (fs.existsSync(configPath)) {
+            const file = fs.readFileSync(configPath, 'utf8')
+            const parsedConfig = YAML.parse(file)
+            fileConfigs.push(parsedConfig);
+
+            parsedConfig.tagname = _.kebabCase(parsedConfig.name);
+            createWebComponent(parsedConfig);
+        }
     });
 }
 
