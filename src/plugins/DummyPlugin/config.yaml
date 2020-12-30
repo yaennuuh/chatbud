@@ -1,0 +1,4 @@
+name: DummyPlugin
+folder: DummyPlugin
+ui-html: dummy.html
+ui-js:  dummy.js
