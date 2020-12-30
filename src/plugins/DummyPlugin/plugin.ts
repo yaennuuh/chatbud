@@ -14,6 +14,10 @@ class DummyPlugin implements IPlugin {
 
     execute(event: IEvent) {
     }
+
+    getDummy(): string {
+        return 'dummy';
+    }
 }
 
 module.exports = DummyPlugin;

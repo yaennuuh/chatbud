@@ -2,3 +2,5 @@ name: DummyPlugin
 ui-html: dummy.html
 ui-js: dummy.js
 data-yaml: data.yaml
+plugin-js: plugin.js
+plugin-api-js: api.js

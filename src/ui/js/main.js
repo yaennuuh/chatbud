@@ -5,8 +5,6 @@ var glob = require('glob');
 var YAML = require('yaml');
 var PluginHelper = require('../core/plugins/PluginHelper');
 
-console.log(__dirname);
-
 window.onload = function () {
     var closeButton = document.getElementById('close-button');
     closeButton.addEventListener('click', function () {

@@ -10,7 +10,8 @@ class DummyPluginUI {
     }
 
     initialize() {
-        console.log(this.pluginHelper.loadData());
+        let api = this.pluginHelper.getOwnPluginApi();
+        this.shadowRoot.getElementById("dummy").innerHTML = api.getDummy();
     }
 }
 

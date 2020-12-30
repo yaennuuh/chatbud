@@ -1,4 +1,4 @@
 export interface IPluginManager {
     loadCorePlugins(): void;
-    loadPlugins(): void;
+    loadPlugins(ui: boolean): void;
 }
