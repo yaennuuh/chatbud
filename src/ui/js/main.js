@@ -10,12 +10,19 @@ window.onload = function () {
         ipc.send('close-application', '');
     });
 
-    loadConfigs();
+    var pluginConfigList = loadConfigs();
 
-    var addButton = document.getElementById('add-button');
-    addButton.addEventListener('click', function () {
-        var componentnamefield = document.getElementById('componentname');
-        loadCustomTag(componentnamefield.value);
+    var dropDownPlugins = document.getElementById('dropdown-plugins');
+    pluginConfigList.forEach(pluginConfig => {
+        var itemElement = document.createElement('li');
+        itemElement.classList.add('dropdown-item');
+        var itemATag = document.createElement('a');
+        itemATag.appendChild(document.createTextNode(pluginConfig.name));
+        itemElement.appendChild(itemATag);
+        itemElement.addEventListener('click', () => {
+            loadCustomTag(pluginConfig.name);
+        });
+        dropDownPlugins.appendChild(itemElement);
     });
 }
 
@@ -25,13 +32,21 @@ function loadConfigs() {
     _.each(configFiles, (configPath) => {
         if (fs.existsSync(configPath)) {
             const file = fs.readFileSync(configPath, 'utf8')
-            const parsedConfig = YAML.parse(file)
-            fileConfigs.push(parsedConfig);
+            const parsedConfig = YAML.parse(file);
 
-            parsedConfig.tagname = _.kebabCase(parsedConfig.name);
-            createWebComponent(parsedConfig);
+            if (parsedConfig &&
+                parsedConfig.hasOwnProperty('name') &&
+                parsedConfig.hasOwnProperty('folder') &&
+                parsedConfig.hasOwnProperty('ui-html') &&
+                parsedConfig.hasOwnProperty('ui-js')
+            ) {
+                parsedConfig.tagname = _.kebabCase(parsedConfig.name);
+                fileConfigs.push(parsedConfig);
+                createWebComponent(parsedConfig);
+            }
         }
     });
+    return fileConfigs;
 }
 
 function loadCustomTag(pluginName) {

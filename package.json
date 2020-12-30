@@ -11,7 +11,7 @@
     "dev": "npm run watch && electron-forge start",
     "package": "electron-forge package",
     "make": "electron-forge make",
-    "compile": "tsc && npm run scss && npm run copy-html && npm run copy-css && npm run copy-js && npm run copy-bootstrap-js",
+    "compile": "tsc && npm run copy-plugins && npm run scss && npm run copy-html && npm run copy-css && npm run copy-js && npm run copy-bootstrap-js",
     "scss-watch": "node-sass -w src/ui/scss -o src/ui/css",
     "scss": "node-sass src/ui/scss -o src/ui/css",
     "copy-html": "copyfiles -f src/ui/*.html dist/ui",

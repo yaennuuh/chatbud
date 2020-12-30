@@ -28,12 +28,17 @@
   <!-- As a heading -->
   <nav class="navbar navbar-dark" style="background-color: #102A43;">
     <div class="container-fluid">
-      <span class="navbar-brand mb-0 h1">Main menu</span>
+      <div class="dropdown">
+        <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton"
+          data-bs-toggle="dropdown" aria-expanded="false">
+          Plugins
+        </button>
+        <ul id="dropdown-plugins" class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+        </ul>
+      </div>
+      <div class="d-flex"></div>
     </div>
   </nav>
-
-  <input type="text" id="componentname"></input>
-  <button id="add-button">Load</button>
 
   <div id="content">
   </div>
