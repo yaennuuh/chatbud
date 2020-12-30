@@ -1,8 +1,19 @@
-
 $body-bg: #212121;
-$body-color: #FFFFFF;
+$body-color: #ffffff;
 
-$primary: #243B53;
+$primary: #243b53;
 $danger: green;
+
+body {
+    height: 100vh;
+    display: flex;
+    flex-flow: column;
+}
+
+#content {
+    flex: 1;
+    overflow: auto;
+    padding: 10px;
+}
 
 @import "../../../node_modules/bootstrap/scss/bootstrap.scss";

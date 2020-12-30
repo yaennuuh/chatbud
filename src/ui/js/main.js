@@ -11,7 +11,7 @@ window.onload = function () {
     });
 
     loadConfigs();
-    
+
     var addButton = document.getElementById('add-button');
     addButton.addEventListener('click', function () {
         var componentnamefield = document.getElementById('componentname');
@@ -53,7 +53,12 @@ function createWebComponent(plugin) {
 function createTemplateTag(html, plugin) {
     var templateTag = document.createElement('template');
     templateTag.id = `custom-${plugin['tagname']}-template`;
-    templateTag.innerHTML = html;
+    templateTag.innerHTML = `
+        <style>
+            @import url('./css/main.css')
+        </style>
+        ${html}
+    `;
     document.getElementById("template-holder").appendChild(templateTag);
     loadTemplate(plugin);
 }
