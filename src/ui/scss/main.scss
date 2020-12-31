@@ -1,8 +1,10 @@
 $body-bg: #212121;
-$body-color: #ffffff;
+//$body-color: #ffffff;
 
 $primary: #243b53;
-$danger: green;
+
+@import "../../../node_modules/bootstrap/scss/bootstrap.scss";
+@import "../../../node_modules/bootstrap-icons/font/bootstrap-icons.css";
 
 body {
     height: 100vh;
@@ -16,5 +18,7 @@ body {
     padding: 10px;
 }
 
-@import "../../../node_modules/bootstrap/scss/bootstrap.scss";
-@import "../../../node_modules/bootstrap-icons/font/bootstrap-icons.css";
+input {
+    color: #212121;
+}
+

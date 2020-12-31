@@ -8,23 +8,16 @@ import { ConnectorHelper } from "../../core/connectors/ConnectorHelper";
 
 class TwitchBotConnector implements IConnector {
     connectorHelper: ConnectorHelper;
-
-    // Define configuration options
-    opts = {
-        identity: {
-            username: "sirbarrex",
-            password: "fa2bcfg0gfuyl7aqggxpae7nnh6ia5"
-        },
-        channels: [
-            "barrexgaming"
-        ]
-    };
-    client = new tmi.client(this.opts);
+    opts;
+    client;
+    data;
+    connected = false;
 
     start(): void {
-        this.client.on('message', this.onMessageHandler);
-        this.client.on('connected', this.onConnectedHandler);
-        this.client.connect();
+        this.data = this.connectorHelper.loadData();
+        if (this.data.hasOwnProperty('autoConnect') && this.data['autoConnect']) {
+            this.connectToTwitch();
+        }
     }
 
     register(connectorHelper: ConnectorHelper): string[] {
@@ -36,26 +29,61 @@ class TwitchBotConnector implements IConnector {
         this.client.say(this.opts.channels[0], event.data.message);
     }
 
+    connectToTwitch = (): void => {
+        this.configureClient();
+        this.connectClient();
+    }
+
+    isConnected = (): boolean => {
+        return this.connected;
+    }
+
+    configureClient() {
+        // Define configuration options
+        this.opts = {
+            identity: {
+                username: this.data['username'],
+                password: this.data['authkey']
+            },
+            channels: [
+                this.data['channel']
+            ]
+        };
+        this.client = new tmi.client(this.opts);
+    }
+
+    connectClient = (): void => {
+        this.client.on('message', this.onMessageHandler);
+        this.client.on('connected', this.onConnectedHandler);
+        this.client.connect();
+        this.connected = true;
+    }
+
+    disconnect = (): void => {
+        this.client.disconnect();
+        this.connected = false;
+    }
+
     onMessageHandler(channel, context, message, self): void {
         if (self) { return; } // Ignore messages from the bot
 
         // Remove whitespace from chat message
         message = message.trim();
         const eventData = new EventData(message);
-        
+
         eventData.displayName = context['display-name'],
-        eventData.username = context['username'],
-        eventData.emotes = context['emotes']
+            eventData.username = context['username'],
+            eventData.emotes = context['emotes']
 
         if (context['message-type'] === 'chat') {
             eventData.color = context['color'];
             eventData.mod = context['mod'];
             eventData.subscriber = context['subscriber'];
             eventData.turbo = context['turbo'];
-            
-           CoreBot.getInstance().notifyPluginsOnEventBusIn(new Event('twitch-chat-message', eventData));
+
+            CoreBot.getInstance().notifyPluginsOnEventBusIn(new Event('twitch-chat-message', eventData));
         } else {
-           CoreBot.getInstance().notifyPluginsOnEventBusIn(new Event('twitch-whisper-message', eventData));
+            CoreBot.getInstance().notifyPluginsOnEventBusIn(new Event('twitch-whisper-message', eventData));
         }
 
     }

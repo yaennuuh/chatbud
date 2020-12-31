@@ -1,3 +1,39 @@
-<div class="alert alert-success" role="alert">
-    Twtich bot connector
+<div>
+    <button id="connectButton" type="button" class="btn btn-success">Connect</button>
+    <button id="disconnectButton" type="button" class="btn btn-danger">Disconnect</button>
+</div>
+<div>
+    <form id="twitchbotform">
+        <div class="card">
+            <div class="card-header">
+                Twitchbot settings
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label for="twitchbotUsername" class="form-label">Username</label>
+                    <input type="text" class="form-control" id="twitchbotUsername"
+                        aria-describedby="twitchbotUsernameHelp">
+                    <div id="twitchbotUsernameHelp" class="form-text">Put the username of your chatbot here</div>
+                </div>
+                <div class="mb-3">
+                    <label for="twitchbotAuthKey" class="form-label">Authorization Key</label>
+                    <input type="text" class="form-control" id="twitchbotAuthKey"
+                        aria-describedby="twitchbotAuthKeyHelp">
+                    <div id="twitchbotAuthKeyHelp" class="form-text">Put the auth key of your chatbot account here
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="twitchbotChannel" class="form-label">Channel</label>
+                    <input type="text" class="form-control" id="twitchbotChannel"
+                        aria-describedby="twitchbotChannelHelp">
+                    <div id="twitchbotChannelHelp" class="form-text">Put the username of the channel your chatbot
+                        should
+                        join</div>
+                </div>
+            </div>
+            <div class="card-footer">
+                <button type="submit" class="btn btn-primary">Save</button>
+            </div>
+        </div>
+    </form>
 </div>

@@ -2,5 +2,5 @@ name: DummyConnector
 #ui-html: ui.html
 #ui-js: ui.js
 #data-yaml: data.yaml
-#connector-js: connector.js
+connector-js: connector.js
 #connector-api-js: api.js

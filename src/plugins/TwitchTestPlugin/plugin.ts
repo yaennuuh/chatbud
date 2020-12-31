@@ -15,6 +15,7 @@ class TwitchTestPlugin implements IPlugin {
     }
 
     execute(event: IEvent) {
+        console.log(event.data.message);
     }
 
     sendMessageToChatAsBot(message: string) {
