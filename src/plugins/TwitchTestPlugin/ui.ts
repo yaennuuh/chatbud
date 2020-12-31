@@ -1,10 +1,12 @@
 class TwitchTestPluginUI {
 
     shadowRoot;
+    pluginHelper;
     isOn = false;
 
-    constructor(shadowRoot) {
+    constructor(shadowRoot, pluginHelper) {
         this.shadowRoot = shadowRoot;
+        this.pluginHelper = pluginHelper;
         this.initialize();
     }
 
@@ -13,6 +15,12 @@ class TwitchTestPluginUI {
         button.addEventListener('click', () => {
             this.isOn = !this.isOn;
             this.shadowRoot.getElementById('toggleState').innerHTML = this.isOn;
+        });
+
+        var sendButton = this.shadowRoot.getElementById('sendbutton');
+        sendButton.addEventListener('click', () => {
+            let api = this.pluginHelper.getOwnPluginApi();
+            api.sendMessageToChatAsBot(this.shadowRoot.getElementById('twitchmessage').value);
         });
     }
 }

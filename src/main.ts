@@ -1,16 +1,4 @@
 import { BrowserWindow, ipcMain } from 'electron';
-import { IPluginManager } from './core/plugins/IPluginManager';
-import { PluginManager } from './core/plugins/PluginManager';
-import * as _ from 'lodash';
-import { CoreBot } from './core/CoreBot';
-import { Event } from './core/events/Event';
-import { EventData } from './core/events/EventData';
-import { IConnectorManager } from './core/connectors/IConnectorManager';
-import { ConnectorManager } from './core/connectors/ConnectorManager';
-import { IFunctionManager } from './core/functions/IFunctionManager';
-import { FunctionManager } from './core/functions/FunctionManager';
-import { IFilterManager } from './core/filters/IFilterManager';
-import { FilterManager } from './core/filters/FilterManager';
 
 export default class Main {
     static mainWindow: Electron.BrowserWindow;
@@ -35,7 +23,8 @@ export default class Main {
             height: 600,
             frame: false,
             webPreferences: {
-                nodeIntegration: true
+                nodeIntegration: true, 
+                enableRemoteModule: true
             }
         });
         Main.mainWindow.setMenuBarVisibility(false);
@@ -45,8 +34,6 @@ export default class Main {
         Main.mainWindow.maximize();
         //Main.mainWindow.webContents.openDevTools();
         Main.init();
-
-        Main.startBot();
     }
 
     static init() {
@@ -54,21 +41,6 @@ export default class Main {
             Main.mainWindow.close();
         });
     };
-
-    static startBot() {
-        /*const connectorManager: IConnectorManager = new ConnectorManager();
-        connectorManager.loadConnectors();*/
-        const pluginManager: IPluginManager = PluginManager.getInstance();
-        pluginManager.loadPlugins(false);
-        const functionManager: IFunctionManager = FunctionManager.getInstance();
-        functionManager.loadFunctions();
-        const filterManager: IFilterManager = FilterManager.getInstance();
-        filterManager.loadFilters();
-
-        setTimeout(function () {
-            CoreBot.getInstance().notifyNotifiableOnEventBusOut(new Event('whatever', new EventData("[#loop 2] something[#loop 2] nix[/#loop][/#loop][#if $username == $username]dfsdfsfds[#else]asd[/#if] matching wait [#wait 5] not matching [/#wait] [#wait 2] matching wait [/#wait] sdfdsf[#if user == zwei] zweites if [#else] zweites else [/#if]")));
-        }, 5000);
-    }
 
     static main(app: Electron.App, browserWindow: typeof BrowserWindow) {
         // we pass the Electron.App object and the  

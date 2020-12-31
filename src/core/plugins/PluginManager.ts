@@ -4,7 +4,7 @@ import { CoreBot } from '../CoreBot';
 import { IPluginManager } from './IPluginManager';
 import * as fs from 'fs';
 import * as YAML from 'yaml';
-var PluginHelper = require('./PluginHelper');
+import { PluginHelper } from './PluginHelper';
 
 export class PluginManager implements IPluginManager {
     private static instance: PluginManager;
@@ -25,14 +25,14 @@ export class PluginManager implements IPluginManager {
         throw new Error("Method not implemented.");
     }
 
-    public loadPlugins(ui: boolean): void {
+    public loadPlugins(): void {
         const configFiles: string[] = glob.sync(__dirname + "/../../plugins/**/config.yaml", null);
         _.each(configFiles, (configPath) => {
             if (fs.existsSync(configPath)) {
                 const file = fs.readFileSync(configPath, 'utf8')
                 const parsedConfig = YAML.parse(file);
 
-                this.loadPlugin(parsedConfig, ui);
+                this.loadPlugin(parsedConfig);
                 this.pluginApi.set(parsedConfig['name'], this.loadPluginApi(parsedConfig));
             }
         });
@@ -48,7 +48,7 @@ export class PluginManager implements IPluginManager {
         return YAML.parse('');
     }
 
-    public loadPlugin(config: any, ui: boolean) {
+    public loadPlugin(config: any) {
         if (config &&
             config.hasOwnProperty('name') &&
             config.hasOwnProperty('plugin-js')
@@ -59,17 +59,15 @@ export class PluginManager implements IPluginManager {
                 const customPluginInstance = new CustomPlugin();
 
                 this.plugins.set(config['name'], customPluginInstance);
-                if (!ui) {
-                    const eventTypesToRegister: string[] = customPluginInstance.register(new PluginHelper(config));
-                    CoreBot.getInstance().registerPluginToEventBusIn(customPluginInstance, eventTypesToRegister);
-                }
+                const eventTypesToRegister: string[] = customPluginInstance.register(new PluginHelper(config));
+                CoreBot.getInstance().registerPluginToEventBusIn(customPluginInstance, eventTypesToRegister);
             }
         }
     }
 
     public getPluginApiByName(pluginName: string): any {
-        if(!this.plugins || this.plugins.size == 0) {
-            this.loadPlugins(true);
+        if (!this.plugins || this.plugins.size == 0) {
+            this.loadPlugins();
         }
         return this.pluginApi.get(pluginName);
     }

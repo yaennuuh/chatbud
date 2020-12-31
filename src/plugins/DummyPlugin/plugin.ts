@@ -1,13 +1,13 @@
 import { IEvent } from "../../core/events/IEvent";
 import { IPlugin } from "../../core/plugins/IPlugin";
-var PluginHelper = require("../../core/plugins/PluginHelper");
+import { PluginHelper } from "../../core/plugins/PluginHelper";
 
 class DummyPlugin implements IPlugin {
     DATA_FILE_PATH: string = __dirname + '\\data.yaml';
-    pluginHelper: typeof PluginHelper;
+    pluginHelper: PluginHelper;
     data: any;
 
-    register(pluginHelper: typeof PluginHelper) {
+    register(pluginHelper: PluginHelper) {
         this.pluginHelper = pluginHelper;
         return ['twitch-chat-message'];
     }

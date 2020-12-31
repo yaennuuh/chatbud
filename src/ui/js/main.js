@@ -1,31 +1,29 @@
-var ipc = require('electron').ipcRenderer;
+const ipc = require('electron').ipcRenderer;
+const remote = require('electron').remote;
 var _ = require('lodash');
 var fs = require('fs');
 var glob = require('glob');
 var YAML = require('yaml');
-var PluginHelper = require('../core/plugins/PluginHelper');
 
-window.onload = function () {
-    var closeButton = document.getElementById('close-button');
-    closeButton.addEventListener('click', function () {
-        ipc.send('close-application', '');
+var closeButton = document.getElementById('close-button');
+closeButton.addEventListener('click', function () {
+    ipc.send('close-application', '');
+});
+
+var pluginConfigList = loadConfigs();
+
+var dropDownPlugins = document.getElementById('dropdown-plugins');
+pluginConfigList.forEach(pluginConfig => {
+    var itemElement = document.createElement('li');
+    itemElement.classList.add('dropdown-item');
+    var itemATag = document.createElement('a');
+    itemATag.appendChild(document.createTextNode(pluginConfig.name));
+    itemElement.appendChild(itemATag);
+    itemElement.addEventListener('click', () => {
+        loadCustomTag(pluginConfig.name);
     });
-
-    var pluginConfigList = loadConfigs();
-
-    var dropDownPlugins = document.getElementById('dropdown-plugins');
-    pluginConfigList.forEach(pluginConfig => {
-        var itemElement = document.createElement('li');
-        itemElement.classList.add('dropdown-item');
-        var itemATag = document.createElement('a');
-        itemATag.appendChild(document.createTextNode(pluginConfig.name));
-        itemElement.appendChild(itemATag);
-        itemElement.addEventListener('click', () => {
-            loadCustomTag(pluginConfig.name);
-        });
-        dropDownPlugins.appendChild(itemElement);
-    });
-}
+    dropDownPlugins.appendChild(itemElement);
+});
 
 function loadConfigs() {
     const fileConfigs = [];
@@ -94,15 +92,9 @@ function loadTemplate(plugin) {
 
             connectedCallback() {
                 var CustomPluginUI = require(`../plugins/${this._plugin['name']}/${this._plugin['ui-js']}`);
-                let anything = new PluginHelper(this._plugin);
-                new CustomPluginUI(this._shadowRoot, {
-                    config: anything.config,
-                    loadData: anything.loadData,
-                    sendEventToBusOut: anything.sendEventToBusOut,
-                    getOwnPluginApi: anything.getOwnPluginApi,
-                    pluginApiByName: anything.pluginApiByName,
-                    saveData: anything.saveData,
-                });
+                ipc.sendSync('get-plugin-helper', [this._plugin['name'], this._plugin]);
+                const pluginHelper = remote.getGlobal(this._plugin['name']);
+                new CustomPluginUI(this._shadowRoot, pluginHelper);
             }
         }
     );
