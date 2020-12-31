@@ -39,8 +39,4 @@ setTimeout(function () {
 
     const filterManager: IFilterManager = FilterManager.getInstance();
     filterManager.loadFilters();
-
-    setTimeout(function () {
-        CoreBot.getInstance().notifyNotifiableOnEventBusOut(new Event('whatever', new EventData("[#loop 2] something[#loop 2] nix[/#loop][/#loop][#if $username == $username]dfsdfsfds[#else]asd[/#if] matching wait [#wait 5] not matching [/#wait] [#wait 2] matching wait [/#wait] sdfdsf[#if user == zwei] zweites if [#else] zweites else [/#if]")));
-    }, 5000);
 }, 5000);

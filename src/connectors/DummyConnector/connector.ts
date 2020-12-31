@@ -7,7 +7,7 @@ import {EventData} from "../../core/events/EventData";
 class DummyConnector implements IConnector {
 
     start(): void {
-        let eventData = new EventData("$username");
+        let eventData = new EventData("[#loop 2] something[#loop 2] nix[/#loop][/#loop][#if $username == $username]dfsdfsfds[#else]asd[/#if] matching wait [#wait 5] not matching [/#wait] [#wait 2] matching wait [/#wait] sdfdsf[#if user == zwei] zweites if [#else] zweites else [/#if]");
         setTimeout(function () {
             CoreBot.getInstance().notifyPluginsOnEventBusIn(new Event('twitch-chat-message', eventData));
         }, 5000);
