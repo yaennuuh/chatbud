@@ -3,7 +3,7 @@ class TwitchBotConnectorUI {
     data;
     api;
 
-    constructor(private shadowRoot, private connectorHelper) {
+    constructor(private connectorHelper) {
         this.initialize();
     }
 
@@ -17,13 +17,13 @@ class TwitchBotConnectorUI {
     }
 
     prepareListeners = (): void => {
-        this.shadowRoot.getElementById('twitchbotform').addEventListener('submit', this.saveToFile);
-        this.shadowRoot.getElementById("disconnectButton").addEventListener("click", this.disconnect);
-        this.shadowRoot.getElementById("connectButton").addEventListener("click", this.connect);
+        document.getElementById('twitchbotform').addEventListener('submit', this.saveToFile);
+        document.getElementById("disconnectButton").addEventListener("click", this.disconnect);
+        document.getElementById("connectButton").addEventListener("click", this.connect);
     }
 
     prepareUIForm = (): void => {
-        const formElement = this.shadowRoot.getElementById('twitchbotform');
+        const formElement: any = document.getElementById('twitchbotform');
         const isConnected = this.isConnected();
 
         var elements = formElement.elements;
@@ -40,9 +40,9 @@ class TwitchBotConnectorUI {
     }
 
     fillUIForm = (): void => {
-        this.shadowRoot.getElementById("twitchbotUsername").value = this.data['username'];
-        this.shadowRoot.getElementById("twitchbotAuthKey").value = this.data['authkey'];
-        this.shadowRoot.getElementById("twitchbotChannel").value = this.data['channel'];
+        (<HTMLInputElement>document.getElementById("twitchbotUsername")).value = this.data['username'];
+        (<HTMLInputElement>document.getElementById("twitchbotAuthKey")).value = this.data['authkey'];
+        (<HTMLInputElement>document.getElementById("twitchbotChannel")).value = this.data['channel'];
     }
 
     connectedStateChanged = (): void => {
@@ -54,18 +54,18 @@ class TwitchBotConnectorUI {
 
     prepareUIConnectedButtons = (): void => {
         if (this.isConnected()) {
-            this.shadowRoot.getElementById("disconnectButton").removeAttribute("disabled");
-            this.shadowRoot.getElementById("connectButton").setAttribute("disabled", "true");
+            document.getElementById("disconnectButton").removeAttribute("disabled");
+            document.getElementById("connectButton").setAttribute("disabled", "true");
         } else {
-            this.shadowRoot.getElementById("connectButton").removeAttribute("disabled");
-            this.shadowRoot.getElementById("disconnectButton").setAttribute("disabled", "true");
+            document.getElementById("connectButton").removeAttribute("disabled");
+            document.getElementById("disconnectButton").setAttribute("disabled", "true");
         }
     }
 
     saveToFile = (event: any): void => {
-        this.data['username'] = this.shadowRoot.getElementById("twitchbotUsername").value;
-        this.data['authkey'] = this.shadowRoot.getElementById("twitchbotAuthKey").value;
-        this.data['channel'] = this.shadowRoot.getElementById("twitchbotChannel").value;
+        this.data['username'] = (<HTMLInputElement>document.getElementById("twitchbotUsername")).value;
+        this.data['authkey'] = (<HTMLInputElement>document.getElementById("twitchbotAuthKey")).value;
+        this.data['channel'] = (<HTMLInputElement>document.getElementById("twitchbotChannel")).value;
 
         this.connectorHelper.saveData(this.data);
         event.preventDefault();

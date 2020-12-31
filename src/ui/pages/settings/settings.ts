@@ -1,11 +1,6 @@
 class CoreSettingsPageUI {
 
-    shadowRoot;
-    corePageHelper;
-
-    constructor(shadowRoot, corePageHelper) {
-        this.shadowRoot = shadowRoot;
-        this.corePageHelper = corePageHelper;
+    constructor(private corePageHelper) {
         this.initialize();
     }
 

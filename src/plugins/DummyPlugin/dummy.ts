@@ -1,17 +1,12 @@
 class DummyPluginUI {
 
-    shadowRoot;
-    pluginHelper;
-
-    constructor(shadowRoot, pluginHelper) {
-        this.shadowRoot = shadowRoot;
-        this.pluginHelper = pluginHelper;
+    constructor(private pluginHelper) {
         this.initialize();
     }
 
     initialize() {
         let api = this.pluginHelper.getOwnPluginApi();
-        this.shadowRoot.getElementById("dummy").innerHTML = api.getDummy();
+        document.getElementById("dummy").innerHTML = api.getDummy();
     }
 }
 

@@ -49,35 +49,39 @@ function createWebComponent(pageName) {
 function createTemplateTag(html, pageName) {
     var templateTag = document.createElement('template');
     templateTag.id = `core-${pageName}-template`;
-    templateTag.innerHTML = `
-        <style>
-            @import url('./css/main.css')
-        </style>
-        ${html}
-    `;
     document.getElementById("template-holder").appendChild(templateTag);
-    loadTemplate(pageName);
+    loadTemplate(html, pageName);
 }
 
-function loadTemplate(pageName) {
+function loadTemplate(html, pageName) {
     customElements.define(`core-${pageName}`,
         class extends HTMLElement {
 
             constructor() {
                 super();
-                const template = document
-                    .getElementById(`core-${pageName}-template`)
-                    .content;
                 this._shadowRoot = this.attachShadow({ mode: 'open' });
-                this._shadowRoot.appendChild(template.cloneNode(true));
+                this._shadowRoot.innerHTML = `<script src="./js/bootstrap.min.js"></script>
+                <slot name="bot-content-section"></slot>`;
                 this._pageName = pageName;
             }
 
             connectedCallback() {
+                const template = document.getElementById(`core-${pageName}-template`);
+
+                template.innerHTML = `
+                    <style>
+                        @import url('./css/main.css')
+                    </style>
+                    <section slot="bot-content-section">
+                        ${html}
+                    </section>
+                `;
+
+                this.appendChild(template.content.cloneNode(true));
                 var CorePageUI = require(`./pages/${pageName}/${pageName}.js`);
                 /* const pluginManager = remote.getGlobal('pluginManager');
                 const pluginHelper = pluginManager.getPluginHelper(this._plugin); */
-                new CorePageUI(this._shadowRoot, {});
+                new CorePageUI({});
             }
         }
     );
@@ -145,35 +149,39 @@ function createWebComponentForConnector(connector) {
 function createTemplateTagForConnector(html, connector) {
     var templateTag = document.createElement('template');
     templateTag.id = `custom-${connector['tagname']}-template`;
-    templateTag.innerHTML = `
-        <style>
-            @import url('./css/main.css')
-        </style>
-        ${html}
-    `;
     document.getElementById("template-holder").appendChild(templateTag);
-    loadTemplateForConnector(connector);
+    loadTemplateForConnector(html, connector);
 }
 
-function loadTemplateForConnector(connector) {
+function loadTemplateForConnector(html, connector) {
     customElements.define(`custom-${connector['tagname']}`,
         class extends HTMLElement {
 
             constructor() {
                 super();
-                const template = document
-                    .getElementById(`custom-${connector['tagname']}-template`)
-                    .content;
                 this._shadowRoot = this.attachShadow({ mode: 'open' });
-                this._shadowRoot.appendChild(template.cloneNode(true));
+                this._shadowRoot.innerHTML = `<script src="./js/bootstrap.min.js"></script>
+                <slot name="bot-content-section"></slot>`;
                 this._connector = connector;
             }
 
             connectedCallback() {
+                const template = document.getElementById(`custom-${this._connector['tagname']}-template`);
+
+                template.innerHTML = `
+                    <style>
+                        @import url('./css/main.css')
+                    </style>
+                    <span slot="bot-content-section">
+                        ${html}
+                    </span>
+                `;
+
+                this.appendChild(template.content.cloneNode(true));
                 var CustomConnectorUI = require(`../connectors/${this._connector['name']}/${this._connector['ui-js']}`);
                 const connectorManager = remote.getGlobal('connectorManager');
                 const connectorHelper = connectorManager.getConnectorHelper(this._connector);
-                new CustomConnectorUI(this._shadowRoot, connectorHelper);
+                new CustomConnectorUI(connectorHelper);
             }
         }
     );
@@ -193,7 +201,7 @@ function initializePlugins() {
         itemATag.appendChild(document.createTextNode(pluginConfig.name));
         itemElement.appendChild(itemATag);
         itemElement.addEventListener('click', () => {
-            loadCustomTag(pluginConfig.name);
+            loadCustomTag(`custom-${pluginConfig.name}`);
         });
 
         dropDownPlugins.appendChild(itemElement);
@@ -233,35 +241,39 @@ function createWebComponentForPlugin(plugin) {
 function createTemplateTagForPlugin(html, plugin) {
     var templateTag = document.createElement('template');
     templateTag.id = `custom-${plugin['tagname']}-template`;
-    templateTag.innerHTML = `
-        <style>
-            @import url('./css/main.css')
-        </style>
-        ${html}
-    `;
     document.getElementById("template-holder").appendChild(templateTag);
-    loadTemplateForPlugin(plugin);
+    loadTemplateForPlugin(html, plugin);
 }
 
-function loadTemplateForPlugin(plugin) {
+function loadTemplateForPlugin(html, plugin) {
     customElements.define(`custom-${plugin['tagname']}`,
         class extends HTMLElement {
 
             constructor() {
                 super();
-                const template = document
-                    .getElementById(`custom-${plugin['tagname']}-template`)
-                    .content;
                 this._shadowRoot = this.attachShadow({ mode: 'open' });
-                this._shadowRoot.appendChild(template.cloneNode(true));
+                this._shadowRoot.innerHTML = `<script src="./js/bootstrap.min.js"></script>
+                <slot name="bot-content-section"></slot>`;
                 this._plugin = plugin;
             }
 
             connectedCallback() {
+                const template = document.getElementById(`custom-${this._plugin['tagname']}-template`);
+
+                template.innerHTML = `
+                    <style>
+                        @import url('./css/main.css')
+                    </style>
+                    <section slot="bot-content-section">
+                        ${html}
+                    </section>
+                `;
+
+                this.appendChild(template.content.cloneNode(true));
                 var CustomPluginUI = require(`../plugins/${this._plugin['name']}/${this._plugin['ui-js']}`);
                 const pluginManager = remote.getGlobal('pluginManager');
                 const pluginHelper = pluginManager.getPluginHelper(this._plugin);
-                new CustomPluginUI(this._shadowRoot, pluginHelper);
+                new CustomPluginUI(pluginHelper);
             }
         }
     );

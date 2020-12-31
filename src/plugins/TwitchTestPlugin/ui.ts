@@ -1,26 +1,21 @@
 class TwitchTestPluginUI {
-
-    shadowRoot;
-    pluginHelper;
     isOn = false;
 
-    constructor(shadowRoot, pluginHelper) {
-        this.shadowRoot = shadowRoot;
-        this.pluginHelper = pluginHelper;
+    constructor(private pluginHelper) {
         this.initialize();
     }
 
     initialize() {
-        var button = this.shadowRoot.getElementById('toggleButton');
+        var button = document.getElementById('toggleButton');
         button.addEventListener('click', () => {
             this.isOn = !this.isOn;
-            this.shadowRoot.getElementById('toggleState').innerHTML = this.isOn;
+            document.getElementById('toggleState').innerHTML = this.isOn + '';
         });
 
-        var sendButton = this.shadowRoot.getElementById('sendbutton');
+        var sendButton = document.getElementById('sendbutton');
         sendButton.addEventListener('click', () => {
             let api = this.pluginHelper.getOwnPluginApi();
-            api.sendMessageToChatAsBot(this.shadowRoot.getElementById('twitchmessage').value);
+            api.sendMessageToChatAsBot((<HTMLInputElement>document.getElementById('twitchmessage')).value);
         });
     }
 }
