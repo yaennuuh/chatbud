@@ -1,9 +1,9 @@
 import { glob } from 'glob';
 import * as _ from 'lodash';
-import { CoreBot } from '../CoreBot';
-import { IPluginManager } from './IPluginManager';
 import * as fs from 'fs';
 import * as YAML from 'yaml';
+import { CoreBot } from '../CoreBot';
+import { IPluginManager } from './IPluginManager';
 import { PluginHelper } from './PluginHelper';
 
 export class PluginManager implements IPluginManager {
@@ -11,6 +11,7 @@ export class PluginManager implements IPluginManager {
 
     pluginApi: Map<string, any> = new Map();
     plugins: Map<string, any> = new Map();
+    pluginHelpers: Map<string, any> = new Map();
 
     private constructor() { }
 
@@ -63,6 +64,15 @@ export class PluginManager implements IPluginManager {
                 CoreBot.getInstance().registerPluginToEventBusIn(customPluginInstance, eventTypesToRegister);
             }
         }
+    }
+
+    getPluginHelper = (config: any): any => {
+        if (this.pluginHelpers.has(config['name'])) {
+            return this.pluginHelpers.get(config['name']);
+        }
+        const tempPluginHelper = new PluginHelper(config);
+        this.pluginHelpers.set(config['name'], tempPluginHelper);
+        return tempPluginHelper;
     }
 
     public getPluginApiByName(pluginName: string): any {

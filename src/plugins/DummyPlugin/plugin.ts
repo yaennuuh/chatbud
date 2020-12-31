@@ -5,7 +5,6 @@ import { IPlugin } from "../../core/plugins/IPlugin";
 import { PluginHelper } from "../../core/plugins/PluginHelper";
 
 class DummyPlugin implements IPlugin {
-    DATA_FILE_PATH: string = __dirname + '\\data.yaml';
     pluginHelper: PluginHelper;
     data: any;
 

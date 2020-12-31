@@ -7,12 +7,6 @@ import { PluginManager } from "./PluginManager";
 
 export class PluginHelper implements IPluginHelper {
     config: any;
-    test = 'test';
-    /* sendEventToBusOut: (event: IEvent) => void;
-    getOwnPluginApi: () => any;
-    pluginApiByName: (pluginName: string) => any;
-    loadData: () => any;
-    saveData: (data: any) => void; */
 
     constructor(config: any) {
         this.config = config;
@@ -23,7 +17,7 @@ export class PluginHelper implements IPluginHelper {
     }
 
     getOwnPluginApi = (): any => {
-        return PluginManager.getInstance().getPluginApiByName(this.config['name']);
+        return this.pluginApiByName(this.config['name']);
     }
 
     pluginApiByName = (pluginName: string): any => {

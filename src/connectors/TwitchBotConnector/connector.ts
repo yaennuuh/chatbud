@@ -4,8 +4,10 @@ import { IEvent } from "../../core/events/IEvent";
 import { EventData } from "../../core/events/EventData";
 import { Event } from "../../core/events/Event";
 import * as tmi from 'tmi.js';
+import { ConnectorHelper } from "../../core/connectors/ConnectorHelper";
 
 class TwitchBotConnector implements IConnector {
+    connectorHelper: ConnectorHelper;
 
     // Define configuration options
     opts = {
@@ -25,7 +27,8 @@ class TwitchBotConnector implements IConnector {
         this.client.connect();
     }
 
-    register(): string[] {
+    register(connectorHelper: ConnectorHelper): string[] {
+        this.connectorHelper = connectorHelper;
         return ['twitch-send-chat-message'];
     }
 
