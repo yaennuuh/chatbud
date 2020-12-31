@@ -13,6 +13,7 @@ class DummyPlugin implements IPlugin {
     }
 
     execute(event: IEvent) {
+        this.pluginHelper.sendEventToBusOut(event);
     }
 
     getDummy(): string {
