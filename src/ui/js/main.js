@@ -9,20 +9,86 @@ var YAML = require('yaml');
 
 initializePlugins();
 initializeConnectors();
+initializeDashboard();
+
+initializeListeners();
 
 // General
 
-var closeButton = document.getElementById('close-button');
-closeButton.addEventListener('click', function () {
-    ipc.send('close-application', '');
-});
+function initializeListeners() {
+    var closeButton = document.getElementById('close-button');
+    closeButton.addEventListener('click', function () {
+        ipc.send('close-application', '');
+    });
+    var dashboardButton = document.getElementById('dashboard-button');
+    dashboardButton.addEventListener('click', function () {
+        loadCustomTag('core-dashboard');
+    });
+    var settingsButton = document.getElementById('settings-button');
+    settingsButton.addEventListener('click', function () {
+        loadCustomTag('core-settings');
+    });
+}
 
 function loadCustomTag(tagName) {
     tagName = _.kebabCase(tagName);
     content = document.getElementById('content');
     content.innerHTML = '';
     content.appendChild(
-        document.createElement(`custom-${tagName}`));
+        document.createElement(tagName));
+}
+
+function createWebComponent(pageName) {
+    fetch(`./pages/${pageName}/${pageName}.html`)
+        .then(stream => stream.text())
+        .then(text => {
+            createTemplateTag(text, pageName);
+        });
+}
+
+function createTemplateTag(html, pageName) {
+    var templateTag = document.createElement('template');
+    templateTag.id = `core-${pageName}-template`;
+    templateTag.innerHTML = `
+        <style>
+            @import url('./css/main.css')
+        </style>
+        ${html}
+    `;
+    document.getElementById("template-holder").appendChild(templateTag);
+    loadTemplate(pageName);
+}
+
+function loadTemplate(pageName) {
+    customElements.define(`core-${pageName}`,
+        class extends HTMLElement {
+
+            constructor() {
+                super();
+                const template = document
+                    .getElementById(`core-${pageName}-template`)
+                    .content;
+                this._shadowRoot = this.attachShadow({ mode: 'open' });
+                this._shadowRoot.appendChild(template.cloneNode(true));
+                this._pageName = pageName;
+            }
+
+            connectedCallback() {
+                var CorePageUI = require(`./pages/${pageName}/${pageName}.js`);
+                /* const pluginManager = remote.getGlobal('pluginManager');
+                const pluginHelper = pluginManager.getPluginHelper(this._plugin); */
+                new CorePageUI(this._shadowRoot, {});
+            }
+        }
+    );
+}
+
+// Dashboard
+
+function initializeDashboard() {
+    createWebComponent('dashboard');
+    createWebComponent('settings');
+    loadCustomTag('core-dashboard');
 }
 
 // Connectors
@@ -34,12 +100,12 @@ function initializeConnectors() {
     connectorConfigList.forEach(connectorConfig => {
         var itemElement = document.createElement('li');
         itemElement.classList.add('dropdown-item');
-        
+
         var itemATag = document.createElement('a');
         itemATag.appendChild(document.createTextNode(connectorConfig['name']));
         itemElement.appendChild(itemATag);
         itemElement.addEventListener('click', () => {
-            loadCustomTag(connectorConfig['name']);
+            loadCustomTag(`custom-${connectorConfig['name']}`);
         });
 
         dropDownConnectors.appendChild(itemElement);
