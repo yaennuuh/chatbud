@@ -105,9 +105,9 @@ function loadTemplateForConnector(connector) {
 
             connectedCallback() {
                 var CustomConnectorUI = require(`../connectors/${this._connector['name']}/${this._connector['ui-js']}`);
-                //ipc.sendSync('get-connector-helper', [this._connector['name'], this._connector]);
-                //const connectorHelper = remote.getGlobal(this._connector['name']);
-                new CustomConnectorUI(this._shadowRoot, {});
+                const connectorManager = remote.getGlobal('connectorManager');
+                const connectorHelper = connectorManager.getConnectorHelper(this._connector);
+                new CustomConnectorUI(this._shadowRoot, connectorHelper);
             }
         }
     );
@@ -193,8 +193,8 @@ function loadTemplateForPlugin(plugin) {
 
             connectedCallback() {
                 var CustomPluginUI = require(`../plugins/${this._plugin['name']}/${this._plugin['ui-js']}`);
-                ipc.sendSync('get-plugin-helper', [this._plugin['name'], this._plugin]);
-                const pluginHelper = remote.getGlobal(this._plugin['name']);
+                const pluginManager = remote.getGlobal('pluginManager');
+                const pluginHelper = pluginManager.getPluginHelper(this._plugin);
                 new CustomPluginUI(this._shadowRoot, pluginHelper);
             }
         }

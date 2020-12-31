@@ -1,6 +1,7 @@
 import { INotifiable } from "../INotifiable";
+import { ConnectorHelper } from "./ConnectorHelper";
 
 export interface IConnector extends INotifiable {
     start(): void;
-    register(): string[];
+    register(connectorHelper: ConnectorHelper): string[];
 }

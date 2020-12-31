@@ -1,3 +1,4 @@
+import { ConnectorHelper } from "../../core/connectors/ConnectorHelper";
 import { IConnector } from "../../core/connectors/IConnector";
 import { CoreBot } from "../../core/CoreBot";
 import { Event } from "../../core/events/Event";
@@ -5,6 +6,7 @@ import { EventData } from "../../core/events/EventData";
 import { IEvent } from "../../core/events/IEvent";
 
 class DummyConnector implements IConnector {
+    connectorHelper: ConnectorHelper;
 
     start(): void {
         setTimeout(function () {
@@ -12,7 +14,8 @@ class DummyConnector implements IConnector {
         }, 5000);
     }
 
-    register(): string[] {
+    register(connectorHelper: ConnectorHelper): string[] {
+        this.connectorHelper = connectorHelper;
         return ['dummy-chat-message'];
     }
 

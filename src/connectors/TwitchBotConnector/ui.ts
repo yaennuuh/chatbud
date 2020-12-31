@@ -1,11 +1,11 @@
 class TwitchBotConnectorUI {
 
     shadowRoot;
-    pluginHelper;
+    connectorHelper;
 
-    constructor(shadowRoot, pluginHelper) {
+    constructor(shadowRoot, connectorHelper) {
         this.shadowRoot = shadowRoot;
-        this.pluginHelper = pluginHelper;
+        this.connectorHelper = connectorHelper;
         this.initialize();
     }
 
