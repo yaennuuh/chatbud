@@ -52,11 +52,16 @@ class CommandsPluginUI {
         let saveCommand = this.saveCommand;
         commandEditModal.addEventListener('show.bs.modal', (event: any) => {
             const button = event.relatedTarget;
+
+            var el = document.getElementById('command-edit-modal-save'), elClone = el.cloneNode(true);
+            el.parentNode.replaceChild(elClone, el);
+
             let isNewCommand = false;
 
             const commandName = button.getAttribute('data-bs-command');
 
             const modalTitle = commandEditModal.querySelector('.modal-title');
+            const inputEnabled = (<HTMLInputElement>commandEditModal.querySelector('#input-enabled'));
             const inputCommand = (<HTMLInputElement>commandEditModal.querySelector('#input-command'));
             const inputCost = (<HTMLInputElement>commandEditModal.querySelector('#input-cost'));
             const inputGlobalCooldown = (<HTMLInputElement>commandEditModal.querySelector('#input-global-cooldown'));
@@ -69,6 +74,7 @@ class CommandsPluginUI {
                 command = {};
                 isNewCommand = true;
                 modalTitle.textContent = "Create command";
+                inputEnabled.checked = true;
                 inputCommand.value = '';
                 inputCost.value = '';
                 inputGlobalCooldown.value = '';
@@ -77,6 +83,7 @@ class CommandsPluginUI {
             } else {
                 isNewCommand = false;
                 modalTitle.textContent = 'Edit ' + command['command'];
+                inputEnabled.checked = command['enabled'];
                 inputCommand.value = command['command'];
                 inputCost.value = command['cost'];
                 inputGlobalCooldown.value = command['global-cooldown'];
@@ -89,14 +96,12 @@ class CommandsPluginUI {
             let saveCommand = this.saveCommand;
             saveButton.addEventListener('click', () => {
                 if (inputCommand.value && inputCommand.value.length) {
+                    command['enabled'] = inputEnabled.checked;
                     command['command'] = inputCommand.value;
                     command['cost'] = inputCost.value;
                     command['global-cooldown'] = inputGlobalCooldown.value;
                     command['user-cooldown'] = inputUserCooldown.value;
                     command['response'] = inputReponse.value;
-
-                    var el = document.getElementById('command-edit-modal-save'), elClone = el.cloneNode(true);
-                    el.parentNode.replaceChild(elClone, el);
 
                     saveCommand(command, isNewCommand);
                 }
