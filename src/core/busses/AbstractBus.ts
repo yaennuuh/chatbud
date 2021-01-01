@@ -20,12 +20,23 @@ export abstract class AbstractBus<T extends INotifiable> implements IBus<T> {
     }
 
     notify(event: IEvent): void {
-        if (event && this.subscribers.has(event.type)) {
-            _.each(this.subscribers.get(event.type), (notifiable: T) => {
-                if (typeof notifiable.execute === "function") {
-                    notifiable.execute(event);
-                }
+        if (event && _.size(this.subscribers) > 0) {
+            _.each(this.subscribersToNotify(event.type), (subscriber: string) => {
+                _.each(this.subscribers.get(subscriber), (notifiable: T) => {
+                    if (typeof notifiable.execute === "function") {
+                        notifiable.execute(event);
+                    }
+                });
             });
         }
+    }
+
+    subscribersToNotify(eventType: string): string[]{
+        return _.filter(Array.from(this.subscribers.keys()), function (item){
+            if(item.indexOf("*") > 0){
+                return _.startsWith(eventType, item.substr(0, item.indexOf("*")));
+            }
+            return _.isEqual('*', item) || _.isEqual(eventType, item) ;
+        });
     }
 }
