@@ -89,11 +89,19 @@ describe('EventInBus', () =>
                 .to
                 .eqls(1);
         });
+        it('should return 0 if no subscribers are registered', () =>
+        {
+            let eventInBus = new EventInBus();
+            expect(eventInBus.subscribers.size)
+                .to
+                .eqls(0);
+        });
     });
     describe('test subscriber notification', () =>
     {
-        let eventInBus = new EventInBus();
-        before(function() {
+        it('should notify 5 subscribers on dummy-test-message event', () =>
+        {
+            let eventInBus = new EventInBus();
             let dummyPlugin = new DummyPlugin();
             eventInBus.subscribe(dummyPlugin, ['*']);
             eventInBus.subscribe(dummyPlugin, ['dummy-test-message']);
@@ -102,12 +110,16 @@ describe('EventInBus', () =>
             eventInBus.subscribe(dummyPlugin, ['dummy-test-chat']);
             eventInBus.subscribe(dummyPlugin, ['d*']);
             eventInBus.subscribe(dummyPlugin, ['dummy-test']);
-        });
-        it('should notify 5 subscribers on dummy-test-message event', () =>
-        {
             expect(eventInBus.subscribersToNotify("dummy-test-message"))
                 .to
                 .eqls(['*', 'dummy-test-message', 'dummy-test*', 'dummy-*', 'd*']);
+        });
+        it('should not fail if no subscribers are registered', () =>
+        {
+            let eventInBus = new EventInBus();
+            expect(eventInBus.subscribersToNotify("dummy-test-message"))
+                .to
+                .eqls([]);
         });
     });
 });
