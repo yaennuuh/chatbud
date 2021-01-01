@@ -1,4 +1,5 @@
 name: TwitchConnector
+display-name: Twitch
 ui-html: ui.html
 ui-js: ui.js
 data-yaml: data.yaml

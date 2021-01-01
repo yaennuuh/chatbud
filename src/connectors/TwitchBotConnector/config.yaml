@@ -1,4 +1,5 @@
 name: TwitchBotConnector
+display-name: Twitch Bot
 ui-html: ui.html
 ui-js: ui.js
 data-yaml: data.yaml

@@ -1,4 +1,5 @@
 name: TwitchTestPlugin
+display-name: Twitch Test
 ui-html: ui.html
 ui-js: ui.js
 plugin-js: plugin.js

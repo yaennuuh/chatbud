@@ -106,7 +106,7 @@ function initializeConnectors() {
         itemElement.classList.add('dropdown-item');
 
         var itemATag = document.createElement('a');
-        itemATag.appendChild(document.createTextNode(connectorConfig['name']));
+        itemATag.appendChild(document.createTextNode(connectorConfig['display-name']));
         itemElement.appendChild(itemATag);
         itemElement.addEventListener('click', () => {
             loadCustomTag(`custom-${connectorConfig['name']}`);
@@ -198,7 +198,7 @@ function initializePlugins() {
         itemElement.classList.add('dropdown-item');
 
         var itemATag = document.createElement('a');
-        itemATag.appendChild(document.createTextNode(pluginConfig.name));
+        itemATag.appendChild(document.createTextNode(pluginConfig['display-name']));
         itemElement.appendChild(itemATag);
         itemElement.addEventListener('click', () => {
             loadCustomTag(`custom-${pluginConfig.name}`);

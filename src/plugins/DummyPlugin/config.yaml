@@ -1,4 +1,5 @@
 name: DummyPlugin
+display-name: Dummy
 ui-html: dummy.html
 ui-js: dummy.js
 data-yaml: data.yaml
