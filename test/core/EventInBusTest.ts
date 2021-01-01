@@ -90,4 +90,24 @@ describe('EventInBus', () =>
                 .eqls(1);
         });
     });
+    describe('test subscriber notification', () =>
+    {
+        let eventInBus = new EventInBus();
+        before(function() {
+            let dummyPlugin = new DummyPlugin();
+            eventInBus.subscribe(dummyPlugin, ['*']);
+            eventInBus.subscribe(dummyPlugin, ['dummy-test-message']);
+            eventInBus.subscribe(dummyPlugin, ['dummy-test*']);
+            eventInBus.subscribe(dummyPlugin, ['dummy-*']);
+            eventInBus.subscribe(dummyPlugin, ['dummy-test-chat']);
+            eventInBus.subscribe(dummyPlugin, ['d*']);
+            eventInBus.subscribe(dummyPlugin, ['dummy-test']);
+        });
+        it('should notify 5 subscribers on dummy-test-message event', () =>
+        {
+            expect(eventInBus.subscribersToNotify("dummy-test-message"))
+                .to
+                .eqls(['*', 'dummy-test-message', 'dummy-test*', 'dummy-*', 'd*']);
+        });
+    });
 });
