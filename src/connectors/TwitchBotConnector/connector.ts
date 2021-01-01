@@ -69,21 +69,22 @@ class TwitchBotConnector implements IConnector {
 
         // Remove whitespace from chat message
         message = message.trim();
-        const eventData = new EventData(message);
+        let event: IEvent = this.connectorHelper.getEmptyEvent();
+        event.data.message = message;
 
-        eventData.displayName = context['display-name'],
-            eventData.username = context['username'],
-            eventData.emotes = context['emotes']
+        event.data.displayName = context['display-name'];
+        event.data.username = context['username'];
+        event.data.emotes = context['emotes'];
 
         if (context['message-type'] === 'chat') {
-            eventData.color = context['color'];
-            eventData.mod = context['mod'];
-            eventData.subscriber = context['subscriber'];
-            eventData.turbo = context['turbo'];
+            event.data.color = context['color'];
+            event.data.mod = context['mod'];
+            event.data.subscriber = context['subscriber'];
+            event.data.turbo = context['turbo'];
 
-            CoreBot.getInstance().notifyPluginsOnEventBusIn(new Event('twitch-chat-message', eventData));
+            CoreBot.getInstance().notifyPluginsOnEventBusIn(new Event('twitch-chat-message', event.data));
         } else {
-            CoreBot.getInstance().notifyPluginsOnEventBusIn(new Event('twitch-whisper-message', eventData));
+            CoreBot.getInstance().notifyPluginsOnEventBusIn(new Event('twitch-whisper-message', event.data));
         }
 
     }

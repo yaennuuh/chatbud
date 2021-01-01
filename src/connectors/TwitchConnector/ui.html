@@ -1,0 +1,64 @@
+<style>
+    img {
+        background-image: url('https://image.freepik.com/free-vector/fluid-abstract-background-with-classic-blue-shapes_23-2148427356.jpg');
+    }
+</style>
+<div class="container text-center">
+    <div class="row">
+        <div class="col">
+            <h1>Twitch connector</h1>
+        </div>
+    </div>
+    <div class="row mb-1">
+        <div class="col">
+            <button id="connectButton" type="button" class="btn btn-success">Connect</button>
+            <button id="disconnectButton" type="button" class="btn btn-danger">Disconnect</button>
+        </div>
+    </div>
+</div>
+
+<div id="userinformation" style="display: none;" class="container text-center">
+    <div class="row">
+        <div class="col">
+            <!-- Logo -->
+            <div>
+                <img id="user-information-logo" src="https://static-cdn.jtvnw.net/jtv_user_pictures/5ee6b4a2-01a7-4366-bb3d-53c4320b7652-profile_image-300x300.png"
+                    class="rounded-circle" alt="...">
+            </div>
+            <div>
+                <!-- Display name -->
+                <h1 id="user-information-name"></h1>
+            </div>
+
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <div class="card">
+                <div class="card-body">
+                    <!-- followers -->
+                    <h1 id="user-information-followers"></h1>
+                    <h5>Follower</h5>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card">
+                <div class="card-body">
+                    <!-- views -->
+                    <h1 id="user-information-views"></h1>
+                    <h5>Views</h5>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card">
+                <div class="card-body">
+                    <!-- broadcasterType -->
+                    <h1 id="user-information-broadcaster-type"></h1>
+                    <h5>Status</h5>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

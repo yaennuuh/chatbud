@@ -9,4 +9,8 @@ export class Event implements IEvent {
         this.type = type;
         this.data = data;
     }
+
+    setEventType = (type: string): void => {
+        this.type = type;
+    }
 }

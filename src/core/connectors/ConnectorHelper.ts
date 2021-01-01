@@ -2,12 +2,24 @@ import * as YAML from 'yaml';
 import * as fs from "fs";
 import { ConnectorManager } from "./ConnectorManager";
 import { IConnectorHelper } from "./IConnectorHelper";
+import { CoreBot } from '../CoreBot';
+import { IEvent } from '../events/IEvent';
+import { Event } from '../events/Event';
+import { EventData } from '../events/EventData';
 
 export class ConnectorHelper implements IConnectorHelper {
     config: any;
 
     constructor(config: any) {
         this.config = config;
+    }
+
+    notifyPluginsOnEventBusIn = (event: IEvent): void => {
+        CoreBot.getInstance().notifyPluginsOnEventBusIn(event);
+    }
+
+    getEmptyEvent = (): IEvent => {
+        return new Event('', new EventData(''));
     }
 
     getOwnConnectorApi = (): any => {

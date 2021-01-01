@@ -18,12 +18,10 @@ class TwitchConnector implements IConnector {
     pubSubClient: PubSubClient;
     userId: string;
     connectorHelper: ConnectorHelper;
+    connected: boolean = false;
+    scopes: string[] = ['bits:read', 'channel:read:redemptions'];
 
     async start(): Promise<void> {
-        this.authProvider = new ElectronAuthProvider({
-            clientId: 'yfbmeopj35p9rkz0aiq3mugvqt24iu',
-            redirectUri: 'http://localhost/callback'
-        });
         await this.startFunction();
     }
 
@@ -38,18 +36,46 @@ class TwitchConnector implements IConnector {
     }
 
     async startFunction() {
-        await this.login();
+        let data = this.connectorHelper.loadData();
+        if (data.hasOwnProperty('autoConnect') && data['autoConnect']) {
+            await this.connect();
+        }
+    }
+
+    isConnected = (): boolean => {
+        return this.connected;
+    }
+
+    getOwnChannel = async(): Promise<any> => {
+        return this.apiClient.kraken.channels.getMyChannel();
+    }
+
+    async connect() {
+        this.authProvider = new ElectronAuthProvider({
+            clientId: 'yfbmeopj35p9rkz0aiq3mugvqt24iu',
+            redirectUri: 'http://localhost/callback'
+        });
+        await this.authProvider.getAccessToken(this.scopes);
+        let authProvider = this.authProvider;
+        this.apiClient = new ApiClient({ authProvider });
+        await this.initializeListeners();
+        this.connected = true;
+    }
+
+    disconnect = (): void => {
+        this.stop();
+        this.pubSubClient = undefined;
+        this.apiClient = undefined;
+        this.authProvider = undefined;
+        this.connected = false;
+    }
+
+    async initializeListeners() {
         await this.initializePubSub();
         await this.listenToChannelRedeem();
     }
 
-    async login() {
-        await this.authProvider.getAccessToken(['bits:read', 'channel:read:redemptions']);
-    }
-
     async initializePubSub(): Promise<void> {
-        let authProvider = this.authProvider;
-        this.apiClient = new ApiClient({ authProvider });
         this.pubSubClient = new PubSubClient();
         this.userId = await this.pubSubClient.registerUserListener(this.apiClient);
     }
