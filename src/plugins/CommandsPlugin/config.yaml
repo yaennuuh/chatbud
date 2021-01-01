@@ -1,0 +1,7 @@
+name: CommandsPlugin
+display-name: Commands
+ui-html: ui.html
+ui-js: ui.js
+plugin-js: plugin.js
+plugin-api-js: api.js
+data-yaml: data.yaml

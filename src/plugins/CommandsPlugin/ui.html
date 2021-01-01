@@ -1,0 +1,71 @@
+<div class="card">
+  <div class="card-header">
+    <div class="container-fluid">
+      <div class="d-flex">
+        Commands
+      </div>
+      <div class="d-flex">
+        <button id="dashboard-button" type="button" class="btn btn-primary" data-bs-toggle="modal"
+          data-bs-target="#commandEditModal" data-bs-command="">
+          <i class="bi bi-plus-square"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+  <div class="card-body">
+    <table class="table">
+      <thead>
+        <tr>
+          <th scope="col">Command</th>
+          <th scope="col">Response</th>
+          <th scope="col">Cost</th>
+          <th scope="col">GCD</th>
+          <th scope="col">UCD</th>
+          <th scope="col">Enabled</th>
+          <th scope="col">Actions</th>
+        </tr>
+      </thead>
+      <tbody id="commands-table-body">
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="modal fade" id="commandEditModal" tabindex="-1" aria-labelledby="commandModalTitle" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="commandModalTitle"></h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form>
+          <div class="mb-3">
+            <label for="input-command" class="col-form-label">Command</label>
+            <input id="input-command" type="text" class="form-control">
+          </div>
+          <div class="mb-3">
+            <label for="input-cost" class="col-form-label">Cost</label>
+            <input id="input-cost" type="number" class="form-control">
+          </div>
+          <div class="mb-3">
+            <label for="input-global-cooldown" class="col-form-label">Global cooldown</label>
+            <input id="input-global-cooldown" type="number" class="form-control">
+          </div>
+          <div class="mb-3">
+            <label for="input-user-cooldown" class="col-form-label">User cooldown</label>
+            <input id="input-user-cooldown" type="number" class="form-control">
+          </div>
+          <div class="mb-3">
+            <label for="input-response" class="col-form-label">Response</label>
+            <textarea class="form-control" id="input-response"></textarea>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button id="command-edit-modal-save" type="button" class="btn btn-primary">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
