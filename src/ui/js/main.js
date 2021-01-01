@@ -106,7 +106,8 @@ function initializeConnectors() {
         itemElement.classList.add('dropdown-item');
 
         var itemATag = document.createElement('a');
-        itemATag.appendChild(document.createTextNode(connectorConfig['display-name']));
+        const connectorName = connectorConfig.hasOwnProperty('display-name') ? connectorConfig['display-name'] : connectorConfig['name'];
+        itemATag.appendChild(document.createTextNode(connectorName));
         itemElement.appendChild(itemATag);
         itemElement.addEventListener('click', () => {
             loadCustomTag(`custom-${connectorConfig['name']}`);
@@ -198,7 +199,8 @@ function initializePlugins() {
         itemElement.classList.add('dropdown-item');
 
         var itemATag = document.createElement('a');
-        itemATag.appendChild(document.createTextNode(pluginConfig['display-name']));
+        const pluginName = pluginConfig.hasOwnProperty('display-name') ? pluginConfig['display-name'] : pluginConfig['name'];
+        itemATag.appendChild(document.createTextNode(pluginName));
         itemElement.appendChild(itemATag);
         itemElement.addEventListener('click', () => {
             loadCustomTag(`custom-${pluginConfig.name}`);
