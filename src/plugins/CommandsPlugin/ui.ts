@@ -4,7 +4,6 @@ class CommandsPluginUI {
     data: any;
 
     constructor(private pluginHelper) {
-        console.log('commands plugin started');
         this.data = this.pluginHelper.loadData();
         this.commandEditModalListener();
         this.fillListToView();
@@ -115,7 +114,7 @@ class CommandsPluginUI {
             commands.push(command);
             this.data.commands = commands;
         }
-        console.log('new command', this.data);
+        
         this.pluginHelper.saveData(this.data);
         this.fillListToView();
     }

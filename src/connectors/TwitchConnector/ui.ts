@@ -10,7 +10,7 @@ class TwitchConnectorUI {
     initialize = (): void => {
         this.data = this.connectorHelper.loadData();
         this.api = this.connectorHelper.getOwnConnectorApi();
-        console.log('api:', this.api);
+        
         this.prepareListeners();
         this.prepareUIConnectedButtons();
         if (this.isConnected()) {
