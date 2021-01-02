@@ -1,56 +1,57 @@
 import * as fs from "fs";
 
 class LoggerPluginUI {
-    data: any;
 
     constructor(private pluginHelper) {
-        this.data = this.pluginHelper.loadData();
         this.logfileViewModalListener();
         this.fillListToView();
     }
 
     fillListToView = (): void => {
         const logFilesPath = `${__dirname}/../../logs/`;
-        const logfileTableBody = document.getElementById('logfile-table-body');
-        logfileTableBody.innerHTML = '';
 
-        fs.readdir(logFilesPath, (err, files) => {
-            files.forEach(fileName => {
-                const file = `${logFilesPath}${fileName}`;
-                const trElement = document.createElement('tr');
-                const commandElement = document.createElement('th');
+        if(fs.existsSync(logFilesPath)) {
+            const logfileTableBody = document.getElementById('logfile-table-body');
+            logfileTableBody.innerHTML = '';
 
-                commandElement.setAttribute('scope', 'row');
-                commandElement.innerHTML = fileName;
-                trElement.appendChild(commandElement);
+            fs.readdir(logFilesPath, (err, files) => {
+                files.forEach(fileName => {
+                    const file = `${logFilesPath}${fileName}`;
+                    const trElement = document.createElement('tr');
+                    const commandElement = document.createElement('th');
 
-                this.addTdElementToElement(trElement, `${fs.statSync(file).size} Bytes`);
+                    commandElement.setAttribute('scope', 'row');
+                    commandElement.innerHTML = fileName;
+                    trElement.appendChild(commandElement);
 
-                const editButton = document.createElement('button');
-                editButton.setAttribute('type', 'button');
-                editButton.setAttribute('class', 'btn btn-primary');
-                editButton.setAttribute('data-bs-toggle', 'modal');
-                editButton.setAttribute('data-bs-target', '#logfileViewModal');
-                editButton.setAttribute('data-bs-command', file);
-                editButton.innerHTML = '<i class="bi bi-eye-fill"></i>';
+                    this.addTdElementToElement(trElement, `${fs.statSync(file).size} Bytes`);
 
-                const deleteButton = document.createElement('button');
-                deleteButton.setAttribute('type', 'button');
-                deleteButton.setAttribute('id', 'loggerfile-view-modal-view');
-                deleteButton.setAttribute('class', 'btn btn-primary');
-                deleteButton.setAttribute('data-bs-toggle', 'modal');
-                deleteButton.setAttribute('data-bs-target', '#logfileViewModal');
-                deleteButton.setAttribute('data-bs-command', file);
-                deleteButton.innerHTML = '<i class="bi bi-trash-fill"></i>';
+                    const editButton = document.createElement('button');
+                    editButton.setAttribute('type', 'button');
+                    editButton.setAttribute('class', 'btn btn-primary');
+                    editButton.setAttribute('data-bs-toggle', 'modal');
+                    editButton.setAttribute('data-bs-target', '#logfileViewModal');
+                    editButton.setAttribute('data-bs-command', file);
+                    editButton.innerHTML = '<i class="bi bi-eye-fill"></i>';
 
-                const editTdElement = document.createElement('td');
-                editTdElement.appendChild(editButton);
-                editTdElement.appendChild(deleteButton);
-                trElement.appendChild(editTdElement);
+                    const deleteButton = document.createElement('button');
+                    deleteButton.setAttribute('type', 'button');
+                    deleteButton.setAttribute('id', 'loggerfile-view-modal-view');
+                    deleteButton.setAttribute('class', 'btn btn-primary');
+                    deleteButton.setAttribute('data-bs-toggle', 'modal');
+                    deleteButton.setAttribute('data-bs-target', '#logfileViewModal');
+                    deleteButton.setAttribute('data-bs-command', file);
+                    deleteButton.innerHTML = '<i class="bi bi-trash-fill"></i>';
 
-                logfileTableBody.appendChild(trElement);
+                    const editTdElement = document.createElement('td');
+                    editTdElement.appendChild(editButton);
+                    editTdElement.appendChild(deleteButton);
+                    trElement.appendChild(editTdElement);
+
+                    logfileTableBody.appendChild(trElement);
+                });
             });
-        });
+        }
     }
 
     addTdElementToElement = (element: any, childContent: any): void => {
