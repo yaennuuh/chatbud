@@ -19,8 +19,8 @@ export default class Main {
     private static onReady() {
 
         Main.mainWindow = new Main.BrowserWindow({
-            width: 800,
-            height: 600,
+            width: 1280,
+            height: 720,
             frame: false,
             webPreferences: {
                 nodeIntegration: true, 
@@ -31,8 +31,8 @@ export default class Main {
         Main.mainWindow
             .loadURL('file://' + __dirname + '/ui/main.html');
         Main.mainWindow.on('closed', Main.onClose);
-        Main.mainWindow.maximize();
-        Main.mainWindow.webContents.openDevTools();
+        //Main.mainWindow.maximize();
+        //Main.mainWindow.webContents.openDevTools();
         Main.init();
     }
 

@@ -79,9 +79,8 @@ function loadTemplate(html, pageName) {
 
                 this.appendChild(template.content.cloneNode(true));
                 var CorePageUI = require(`./pages/${pageName}/${pageName}.js`);
-                /* const pluginManager = remote.getGlobal('pluginManager');
-                const pluginHelper = pluginManager.getPluginHelper(this._plugin); */
-                new CorePageUI({});
+                const coreHelper = remote.getGlobal('coreHelper');
+                new CorePageUI(coreHelper);
             }
         }
     );

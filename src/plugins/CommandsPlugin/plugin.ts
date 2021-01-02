@@ -15,12 +15,12 @@ class CommandsPlugin implements IPlugin {
     }
 
     execute = (event: IEvent): void => {
-        /* if (event.data.emotes) {
+        if (event.data.emotes) {
             for (const [key, value] of Object.entries(event.data.emotes)) {
                 let indexes = value[0].split('-');
                 console.log(`gefundenes emote: ${event.data.message.substring(indexes[0], (parseInt(indexes[1])+1))}`);
             }
-        } */
+        }
         const splittedMessage = event.data.message.split(' ');
         const data = this.pluginHelper.loadData();
         data.commands.forEach(command => {

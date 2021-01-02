@@ -11,6 +11,7 @@ import { IFilterManager } from './core/filters/IFilterManager';
 import { FilterManager } from './core/filters/FilterManager';
 import { IPluginManager } from './core/plugins/IPluginManager';
 import { PluginManager } from './core/plugins/PluginManager';
+import { CoreHelper } from './core/CoreHelper';
 
 Main.main(app, BrowserWindow);
 
@@ -19,6 +20,7 @@ const globalAny: any = global;
 // Globals
 globalAny['pluginManager'] = PluginManager.getInstance();
 globalAny['connectorManager'] = ConnectorManager.getInstance();
+globalAny['coreHelper'] = CoreHelper.getInstance();
 
 setTimeout(function () {
     const connectorManager: IConnectorManager = ConnectorManager.getInstance();
