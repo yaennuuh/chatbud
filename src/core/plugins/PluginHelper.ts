@@ -4,8 +4,6 @@ import { IPluginHelper } from "./IPluginHelper";
 import * as YAML from 'yaml';
 import * as fs from "fs";
 import { PluginManager } from "./PluginManager";
-import {Logger} from "@tsed/logger";
-import {LoggerHelper} from "../utils/LoggerHelper";
 
 export class PluginHelper implements IPluginHelper {
     resourcesPath: string;
@@ -41,9 +39,5 @@ export class PluginHelper implements IPluginHelper {
         fs.writeFile(dataPath, YAML.stringify(data), function (err) {
             if (err) throw err;
         });
-    }
-
-    getLogger = (name?: string): Logger => {
-        return new LoggerHelper().getLogger(name);
     }
 }

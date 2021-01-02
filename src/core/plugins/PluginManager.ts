@@ -66,7 +66,7 @@ export class PluginManager implements IPluginManager {
                 const customPluginInstance = new CustomPlugin();
 
                 this.plugins.set(config['name'], customPluginInstance);
-                const eventTypesToRegister: string[] = customPluginInstance.register(new PluginHelper(config));
+                const eventTypesToRegister: string[] = customPluginInstance.register(new PluginHelper(config), LoggerHelper.getLogger(config['name']));
                 CoreBot.getInstance().registerPluginToEventBusIn(customPluginInstance, eventTypesToRegister);
             }
         }

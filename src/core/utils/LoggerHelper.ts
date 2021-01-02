@@ -2,7 +2,7 @@ import {Logger} from "@tsed/logger";
 
 export class LoggerHelper {
 
-    getLogger = (name?: string): Logger => {
+    static getLogger = (name?: string): Logger => {
         const logger = new Logger(name);
         const logFilePath = `${__dirname}/../../logs/`;
         logger.appenders
