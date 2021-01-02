@@ -28,6 +28,7 @@ class LoggerPluginUI {
 
                     const editButton = document.createElement('button');
                     editButton.setAttribute('type', 'button');
+                    editButton.setAttribute('id', 'loggerfile-view-modal');
                     editButton.setAttribute('class', 'btn btn-primary');
                     editButton.setAttribute('data-bs-toggle', 'modal');
                     editButton.setAttribute('data-bs-target', '#logfileViewModal');
@@ -36,10 +37,7 @@ class LoggerPluginUI {
 
                     const deleteButton = document.createElement('button');
                     deleteButton.setAttribute('type', 'button');
-                    deleteButton.setAttribute('id', 'loggerfile-view-modal-view');
                     deleteButton.setAttribute('class', 'btn btn-primary');
-                    deleteButton.setAttribute('data-bs-toggle', 'modal');
-                    deleteButton.setAttribute('data-bs-target', '#logfileViewModal');
                     deleteButton.setAttribute('data-bs-command', file);
                     deleteButton.innerHTML = '<i class="bi bi-trash-fill"></i>';
 
@@ -65,13 +63,13 @@ class LoggerPluginUI {
 
         logfileViewModal.addEventListener('show.bs.modal', (event: any) => {
 
-            var el = document.getElementById('loggerfile-view-modal-view'), elClone = el.cloneNode(true);
+            var el = document.getElementById('loggerfile-view-modal'), elClone = el.cloneNode(true);
             el.parentNode.replaceChild(elClone, el);
 
             const button = event.relatedTarget;
             const file = button.getAttribute('data-bs-command');
             const modalTitle = logfileViewModal.querySelector('.modal-title');
-            modalTitle.textContent = file;
+            modalTitle.textContent = file.substr(file.lastIndexOf("/")+1, file.length);
 
             document.getElementById('modal-body').textContent = fs.readFileSync(`${file}`,'utf8');
         });
