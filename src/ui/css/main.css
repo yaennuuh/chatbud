@@ -5,6 +5,7 @@
  * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
  */
 @import url(../../../node_modules/bootstrap-icons/font/bootstrap-icons.css);
+@import url("https://fonts.googleapis.com/css2?family=Megrim&display=swap");
 :root {
   --bs-blue: #0d6efd;
   --bs-indigo: #6610f2;
@@ -7394,6 +7395,9 @@ body {
   height: 100vh;
   display: flex;
   flex-flow: column; }
+
+.chatbud-font {
+  font-family: "Megrim", cursive; }
 
 #content {
   flex: 1;

@@ -11,4 +11,4 @@ commands:
     "cost": 0
     "global-cooldown": 0
     "user-cooldown": 0
-    "response": ""
+    "response": "$3 $2 $1"

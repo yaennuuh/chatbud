@@ -68,9 +68,7 @@ export class CoreBot implements ICoreBot {
             event.data.message = this.dispatchPackages(packages, functionKeywordList, '');
         }
 
-        console.log(event.data.message);
-
-        //this.eventBusOut.notify(event);
+        this.eventBusOut.notify(event);
     }
 
     dispatchPackages(packages: string[], functionKeywords: string[], outgoingMessage: string): string {

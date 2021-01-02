@@ -13,19 +13,19 @@ class TwitchBotConnector implements IConnector {
     data;
     connected = false;
 
-    start(): void {
+    start = (): void => {
         this.data = this.connectorHelper.loadData();
         if (this.data.hasOwnProperty('autoConnect') && this.data['autoConnect']) {
             this.connectToTwitch();
         }
     }
 
-    register(connectorHelper: ConnectorHelper): string[] {
+    register = (connectorHelper: ConnectorHelper): string[] => {
         this.connectorHelper = connectorHelper;
         return ['twitch-send-chat-message'];
     }
 
-    execute(event: IEvent): void {
+    execute = (event: IEvent): void => {
         this.client.say(this.opts.channels[0], event.data.message);
     }
 
@@ -38,7 +38,7 @@ class TwitchBotConnector implements IConnector {
         return this.connected;
     }
 
-    configureClient() {
+    configureClient = (): void => {
         // Define configuration options
         this.opts = {
             identity: {
@@ -64,7 +64,7 @@ class TwitchBotConnector implements IConnector {
         this.connected = false;
     }
 
-    onMessageHandler(channel, context, message, self): void {
+    onMessageHandler = (channel, context, message, self): void => {
         if (self) { return; } // Ignore messages from the bot
 
         // Remove whitespace from chat message
@@ -89,7 +89,7 @@ class TwitchBotConnector implements IConnector {
 
     }
 
-    onConnectedHandler(addr, port): void {
+    onConnectedHandler = (addr, port): void => {
         console.log(`* Connected to ${addr}:${port}`);
     }
 }

@@ -5,11 +5,16 @@ $primary: #243b53;
 
 @import "../../../node_modules/bootstrap/scss/bootstrap.scss";
 @import "../../../node_modules/bootstrap-icons/font/bootstrap-icons.css";
+@import url("https://fonts.googleapis.com/css2?family=Megrim&display=swap");
 
 body {
     height: 100vh;
     display: flex;
     flex-flow: column;
+}
+
+.chatbud-font {
+    font-family: "Megrim", cursive;
 }
 
 #content {
@@ -21,4 +26,3 @@ body {
 input {
     color: #212121;
 }
-
