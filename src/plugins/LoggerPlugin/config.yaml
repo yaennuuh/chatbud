@@ -1,0 +1,7 @@
+name: LoggerPlugin
+display-name: Logger
+#ui-html: logger.html
+#ui-js: logger.js
+#data-yaml: data.yaml
+plugin-js: plugin.js
+#plugin-api-js: api.js
