@@ -14,7 +14,7 @@ export class CoreHelper implements ICoreHelper {
         return CoreHelper.instance;
     }
 
-    getResourcesPath = async(folder: string): Promise<string> => {
+    getResourcesPath = (folder: string): string => {
         const configuration = this.loadData();
         if (configuration && configuration.hasOwnProperty('resources-path') && configuration['resources-path'].length > 0 && fs.existsSync(configuration['resources-path']) && fs.existsSync(`${configuration['resources-path']}/${folder}`)) {
             return `${configuration['resources-path']}/${folder}`;

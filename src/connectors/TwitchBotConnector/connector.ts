@@ -67,6 +67,8 @@ class TwitchBotConnector implements IConnector {
     onMessageHandler = (channel, context, message, self): void => {
         if (self) { return; } // Ignore messages from the bot
 
+        console.log('twitch', context);
+
         // Remove whitespace from chat message
         message = message.trim();
         let event: IEvent = this.connectorHelper.getEmptyEvent();

@@ -5,6 +5,7 @@ import * as YAML from 'yaml';
 import { CoreBot } from '../CoreBot';
 import { IPluginManager } from './IPluginManager';
 import { PluginHelper } from './PluginHelper';
+import { CoreHelper } from '../CoreHelper';
 
 export class PluginManager implements IPluginManager {
     private static instance: PluginManager;
@@ -13,12 +14,17 @@ export class PluginManager implements IPluginManager {
     plugins: Map<string, any> = new Map();
     pluginHelpers: Map<string, any> = new Map();
 
+    resourcesPath: string;
+
     private constructor() { }
 
     public static getInstance(): PluginManager {
         if (!PluginManager.instance) {
             PluginManager.instance = new PluginManager();
         }
+        
+        PluginManager.instance.resourcesPath = CoreHelper.getInstance().getResourcesPath('plugins');
+
         return PluginManager.instance;
     }
 
@@ -27,7 +33,7 @@ export class PluginManager implements IPluginManager {
     }
 
     public loadPlugins(): void {
-        const configFiles: string[] = glob.sync(__dirname + "/../../plugins/**/config.yaml", null);
+        const configFiles: string[] = glob.sync(`${this.resourcesPath}/**/config.yaml`, null);
         _.each(configFiles, (configPath) => {
             if (fs.existsSync(configPath)) {
                 const file = fs.readFileSync(configPath, 'utf8')
@@ -40,7 +46,7 @@ export class PluginManager implements IPluginManager {
     }
 
     public loadPluginConfigByName(pluginName: string): any {
-        const configFiles: string[] = glob.sync(`${__dirname}/../../plugins/${pluginName}/config.yaml`, null);
+        const configFiles: string[] = glob.sync(`${this.resourcesPath}/${pluginName}/config.yaml`, null);
         if (fs.existsSync(configFiles[0])) {
             const file = fs.readFileSync(configFiles[0], 'utf8')
             const parsedConfig = YAML.parse(file);
@@ -54,7 +60,7 @@ export class PluginManager implements IPluginManager {
             config.hasOwnProperty('name') &&
             config.hasOwnProperty('plugin-js')
         ) {
-            var pluginPath = `${__dirname}/../../plugins/${config['name']}/${config['plugin-js']}`;
+            var pluginPath = `${this.resourcesPath}/${config['name']}/${config['plugin-js']}`;
             if (fs.existsSync(pluginPath)) {
                 const CustomPlugin = require(pluginPath);
                 const customPluginInstance = new CustomPlugin();
@@ -87,7 +93,7 @@ export class PluginManager implements IPluginManager {
             config.hasOwnProperty('name') &&
             config.hasOwnProperty('plugin-api-js')
         ) {
-            var pluginApiPath = `${__dirname}/../../plugins/${config['name']}/${config['plugin-api-js']}`;
+            var pluginApiPath = `${this.resourcesPath}/${config['name']}/${config['plugin-api-js']}`;
             if (fs.existsSync(pluginApiPath)) {
                 const CustomPluginApi = require(pluginApiPath);
                 const customPluginApiInstance = new CustomPluginApi(this.plugins.get(config['name']));

@@ -11,14 +11,13 @@
     "dev": "npm run watch && electron-forge start",
     "package": "electron-forge package",
     "make": "electron-forge make",
-    "compile": "tsc && npm run copy-core-config && npm run copy-connectors && npm run copy-plugins && npm run scss && npm run copy-html && npm run copy-css && npm run copy-js && npm run copy-bootstrap-js",
+    "compile": "tsc && npm run copy-core-config && npm run copy-connectors && npm run scss && npm run copy-html && npm run copy-css && npm run copy-js && npm run copy-bootstrap-js",
     "scss-watch": "node-sass -w src/ui/scss -o src/ui/css",
     "scss": "node-sass src/ui/scss -o src/ui/css",
     "copy-html": "copyfiles -u 1 src/**/*.html dist",
     "copy-css": "copyfiles -u 1 src/ui/css/**/*.css dist",
     "copy-js": "copyfiles -u 1 src/ui/js/**/*.js dist",
     "copy-bootstrap-js": "copyfiles -f node_modules/bootstrap/dist/js/bootstrap.min.js dist/ui/js",
-    "copy-plugins": "copyfiles -u 2 ./src/plugins/**/* dist/plugins -e ./src/plugins/**/*.ts",
     "copy-connectors": "copyfiles -u 2 ./src/connectors/**/* dist/connectors -e ./src/connectors/**/*.ts",
     "copy-core-config": "copyfiles -f ./src/core/configuration.yaml dist/core"
   },
@@ -57,6 +56,7 @@
     "rxjs": "^6.6.3",
     "tmi.js": "^1.7.1",
     "twitch-auth": "^4.3.8",
+    "twitch-chat-client": "^4.3.8",
     "twitch-electron-auth-provider": "^4.3.8",
     "twitch-pubsub-client": "^4.3.8",
     "yaml": "^1.10.0"

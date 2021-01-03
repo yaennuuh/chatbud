@@ -190,7 +190,9 @@ function loadTemplateForConnector(html, connector) {
 // Plugins
 
 function initializePlugins() {
-    var pluginConfigList = loadPluginConfigs();
+    const pluginManager = remote.getGlobal('pluginManager');
+    const resourcesPath = pluginManager.resourcesPath;
+    var pluginConfigList = loadPluginConfigs(resourcesPath);
 
     var dropDownPlugins = document.getElementById('dropdown-plugins');
     pluginConfigList.forEach(pluginConfig => {
@@ -209,9 +211,9 @@ function initializePlugins() {
     });
 }
 
-function loadPluginConfigs() {
+function loadPluginConfigs(resourcesPath) {
     const fileConfigs = [];
-    const configFiles = glob.sync(__dirname + "/../plugins/**/config.yaml", null);
+    const configFiles = glob.sync(`${resourcesPath}/**/config.yaml`, null);
     _.each(configFiles, (configPath) => {
         if (fs.existsSync(configPath)) {
             const file = fs.readFileSync(configPath, 'utf8')
@@ -224,15 +226,15 @@ function loadPluginConfigs() {
             ) {
                 parsedConfig.tagname = _.kebabCase(parsedConfig.name);
                 fileConfigs.push(parsedConfig);
-                createWebComponentForPlugin(parsedConfig);
+                createWebComponentForPlugin(resourcesPath, parsedConfig);
             }
         }
     });
     return fileConfigs;
 }
 
-function createWebComponentForPlugin(plugin) {
-    fetch(`../plugins/${plugin['name']}/${plugin['ui-html']}`)
+function createWebComponentForPlugin(resourcesPath, plugin) {
+    fetch(`${resourcesPath}/${plugin['name']}/${plugin['ui-html']}`)
         .then(stream => stream.text())
         .then(text => {
             createTemplateTagForPlugin(text, plugin);
@@ -271,9 +273,10 @@ function loadTemplateForPlugin(html, plugin) {
                 `;
 
                 this.appendChild(template.content.cloneNode(true));
-                var CustomPluginUI = require(`../plugins/${this._plugin['name']}/${this._plugin['ui-js']}`);
                 const pluginManager = remote.getGlobal('pluginManager');
                 const pluginHelper = pluginManager.getPluginHelper(this._plugin);
+
+                var CustomPluginUI = require(`${pluginManager.resourcesPath}/${this._plugin['name']}/${this._plugin['ui-js']}`);
                 new CustomPluginUI(pluginHelper);
             }
         }

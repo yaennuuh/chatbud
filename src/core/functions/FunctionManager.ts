@@ -1,11 +1,14 @@
 import { IFunctionManager } from "./IFunctionManager";
 import { glob } from 'glob';
 import * as _ from 'lodash';
+import { CoreHelper } from "../CoreHelper";
 
 export class FunctionManager implements IFunctionManager {
     private static instance: FunctionManager;
 
     functionMap: Map<string, any>;
+
+    resourcesPath: string;
 
     private constructor() {
         this.functionMap = new Map();
@@ -15,11 +18,14 @@ export class FunctionManager implements IFunctionManager {
         if (this.instance == null) {
             this.instance = new FunctionManager();
         }
+        
+        FunctionManager.instance.resourcesPath = CoreHelper.getInstance().getResourcesPath('functions');
+
         return this.instance;
     }
 
     loadFunctions(): void {
-        const files: string[] = glob.sync(__dirname + "/../../functions/**/function.js", null);
+        const files: string[] = glob.sync(`${this.resourcesPath}/**/function.js`, null);
         _.each(files, (file) => {
             const CustomFunction = require(file);
             const customFunctionInstance = new CustomFunction();
