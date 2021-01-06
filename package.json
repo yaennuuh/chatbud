@@ -50,6 +50,7 @@
     "typescript": "^4.1.3"
   },
   "dependencies": {
+    "@tsed/logger": "^5.5.4",
     "axios": "^0.21.1",
     "bootstrap": "^5.0.0-beta1",
     "bootstrap-icons": "^1.2.2",

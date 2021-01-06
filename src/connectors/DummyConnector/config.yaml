@@ -1,5 +1,5 @@
 name: DummyConnector
-display-name: Twitch Bot
+display-name: Dummy Connector
 #ui-html: ui.html
 #ui-js: ui.js
 #data-yaml: data.yaml
