@@ -7,8 +7,8 @@
   "scripts": {
     "test": "mocha -r ts-node/register test/**/*.ts",
     "watch": "tsc --watch && copyfiles -f \"src/ui/*.*\" \"dist/ui\"",
-    "dev": "npm run compile && electron-forge start",
-    "start": "npm run compile-build && electron-forge start",
+    "start": "npm run compile && electron-forge start",
+    "build-start": "npm run compile-build && electron-forge start",
     "efstart": "electron-forge start",
     "package": "electron-forge package",
     "make": "electron-forge make",

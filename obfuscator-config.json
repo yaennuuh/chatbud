@@ -1,2 +1,5 @@
 {
+    "deadCodeInjection": true,
+    "controlFlowFlattening": true,
+    "disableConsoleOutput": true
 }
