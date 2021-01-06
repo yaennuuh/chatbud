@@ -1,5 +1,0 @@
-name: LoggerPlugin
-display-name: Logger
-ui-html: logger.html
-ui-js: ui.js
-plugin-js: plugin.js
