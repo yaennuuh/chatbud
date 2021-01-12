@@ -1,51 +1,61 @@
 import { DatabaseHelper } from "./DatabaseHelper";
 import { UserManagementHelper } from "./UserManagementHelper";
-import moment from 'moment';
+import { ICommandCooldown } from './entities/ICommandCooldown';
+import { CommandCooldown } from './entities/CommandCooldown';
 
 export class CooldownHelper {
+    private static instance: CooldownHelper;
 
     private databaseHelper: DatabaseHelper;
-    repository: any; // Set real repository type
+    database: Datastore;
 
     private userManagementHelper: UserManagementHelper;
 
-    constructor() {
+    private constructor() {
         this.userManagementHelper = UserManagementHelper.getInstance();
         this.databaseHelper = DatabaseHelper.getInstance();
-        this.repository = this.databaseHelper.getDatabase('chatbud-core-cooldown');
+        this.database = this.databaseHelper.getDatabase('chatbud-core-cooldown');
+    }
+
+    static getInstance(): CooldownHelper {
+        if (CooldownHelper.instance == null) {
+            CooldownHelper.instance = new CooldownHelper();
+        }
+
+        return CooldownHelper.instance;
     }
 
     // GLOBAL
-    hasCooldownForGlobal = (command: string): boolean => {
+    hasCooldownForGlobal = async (command: string): Promise<boolean> => {
         return this.hasCooldown(command, 'global', undefined);
     }
 
-    getCooldownForGlobal = (command: string): Date => {
+    getCooldownForGlobal = async (command: string): Promise<number> => {
         return this.getCooldown(command, 'global', undefined);
     }
 
-    setCooldownForGlobal = (command: string, seconds: number): boolean => {
+    setCooldownForGlobal = async (command: string, seconds: number): Promise<void> => {
         return this.setCooldown(command, 'global', undefined, seconds);
     }
 
     // USER
-    hasCooldownForUser = (command: string, userId: string, isUsername?: boolean): boolean => {
+    hasCooldownForUser = async (command: string, userId: string, isUsername?: boolean): Promise<boolean> => {
         const realUserId = this.checkUserId(userId, isUsername);
-        return realUserId ? this.hasCooldown(command, 'user', realUserId): undefined;
+        return realUserId ? this.hasCooldown(command, 'user', realUserId) : undefined;
     }
 
-    getCooldownForUser = (command: string, userId: string, isUsername?: boolean): Date => {
+    getCooldownForUser = async (command: string, userId: string, isUsername?: boolean): Promise<number> => {
         const realUserId = this.checkUserId(userId, isUsername);
-        return realUserId ? this.getCooldown(command, 'user', userId): undefined;
+        return realUserId ? this.getCooldown(command, 'user', userId) : undefined;
     }
 
-    setCooldownForUser = (command: string, userId: string, seconds: number, isUsername?: boolean): boolean => {
+    setCooldownForUser = async (command: string, userId: string, seconds: number, isUsername?: boolean): Promise<void> => {
         const realUserId = this.checkUserId(userId, isUsername);
-        return realUserId ? this.setCooldown(command, 'user', userId, seconds): undefined;
+        return realUserId ? this.setCooldown(command, 'user', userId, seconds) : undefined;
     }
 
     // ENTITY
-    hasCooldownForEntity = (command: string, entityName: string, entityValue: string): boolean => {
+    hasCooldownForEntity = async (command: string, entityName: string, entityValue: string): Promise<boolean> => {
         if (entityName === 'global') {
             return this.hasCooldownForGlobal(command);
         } else if (entityName === 'user') {
@@ -54,7 +64,7 @@ export class CooldownHelper {
         return this.hasCooldown(command, entityName, entityValue);
     }
 
-    getCooldownForEntity = (command: string, entityName: string, entityValue: string): Date => {
+    getCooldownForEntity = async (command: string, entityName: string, entityValue: string): Promise<number> => {
         if (entityName === 'global') {
             return this.getCooldownForGlobal(command);
         } else if (entityName === 'user') {
@@ -63,7 +73,7 @@ export class CooldownHelper {
         return this.getCooldown(command, entityName, entityValue);
     }
 
-    setCooldownForEntity = (command: string, entityName: string, entityValue: string, seconds: number): boolean => {
+    setCooldownForEntity = async (command: string, entityName: string, entityValue: string, seconds: number): Promise<void> => {
         if (entityName === 'global') {
             return this.setCooldownForGlobal(command, seconds);
         } else if (entityName === 'user') {
@@ -73,20 +83,42 @@ export class CooldownHelper {
     }
 
     // Real entity cooldown
-    private hasCooldown = (command: string, entityName: string, entityValue: string): boolean => {
-        // TODO: call db
-        return moment().isBefore(moment()); // put in enddate of cooldown
+    private hasCooldown = async (command: string, entityName: string, entityValue: string): Promise<boolean> => {
+        const document = await this.getDocument(command, entityName, entityValue);
+        const commandCooldown = this.mapDocumentToCommandCooldown(document);
+        return commandCooldown && commandCooldown.isActive();
     }
 
-    private getCooldown = (command: string, entityName: string, entityValue: string): Date => {
-        // TODO: call db
-        return moment().toDate();
+    private getCooldown = async (command: string, entityName: string, entityValue: string): Promise<number> => {
+        const document = await this.getDocument(command, entityName, entityValue);
+        const commandCooldown = this.mapDocumentToCommandCooldown(document);
+        return commandCooldown.getCooldownTime();
     }
 
-    private setCooldown = (command: string, entityName: string, entityValue: string, seconds: number): boolean => {
-        // TODO: call db
-        const futureDate = moment().add(seconds, 'seconds').toDate();
-        return true;
+    private setCooldown = async (command: string, entityName: string, entityValue: string, seconds: number): Promise<void> => {
+        const document = await this.getDocument(command, entityName, entityValue);
+        let commandCooldown = this.mapDocumentToCommandCooldown(document);
+        if (!commandCooldown) {
+            commandCooldown = new CommandCooldown(command, entityName, entityValue);
+            commandCooldown.setEndDate(seconds);
+            await this.database.insert(this.mapCommandCooldownToDocument(commandCooldown));
+        } else {
+            commandCooldown.setEndDate(seconds);
+
+            let searchObject = { 'command': command, 'entityName': entityName };
+            if (entityValue != undefined) {
+                searchObject['entityValue'] = entityValue;
+            }
+            await this.database.update({ $and: [searchObject] }, this.mapCommandCooldownToDocument(commandCooldown));
+        }
+    }
+
+    private getDocument = (command: string, entityName: string, entityValue: string): Promise<Document> => {
+        let searchObject = { 'command': command, 'entityName': entityName };
+        if (entityValue != undefined) {
+            searchObject['entityValue'] = entityValue;
+        }
+        return this.database.findOne({ $and: [searchObject] });
     }
 
     private checkUserId = (userId: string, isUsername?: boolean): string => {
@@ -94,10 +126,25 @@ export class CooldownHelper {
 
         if (isUsername) {
             realUserId = this.userManagementHelper.getTwitchUserByUsername(userId);
-        } else if (this.userManagementHelper.checkIfTwitchUserIdExists(userId)){
+        } else if (this.userManagementHelper.checkIfTwitchUserIdExists(userId)) {
             realUserId = userId;
         }
 
         return realUserId;
+    }
+
+    private mapDocumentToCommandCooldown = (document: Object): ICommandCooldown => {
+        if (!document) return undefined;
+        return new CommandCooldown(document['command'], document['entityName'], document['entityValue'], new Date(document['endDate']));
+    }
+
+    private mapCommandCooldownToDocument = (commandCooldown: ICommandCooldown): Object => {
+        if (!commandCooldown) return undefined;
+        return {
+            'command': commandCooldown.getCommand(),
+            'entityName': commandCooldown.getEntityName(),
+            'entityValue': commandCooldown.getEntityValue(),
+            'endDate': commandCooldown.getEndDate()
+        };
     }
 }

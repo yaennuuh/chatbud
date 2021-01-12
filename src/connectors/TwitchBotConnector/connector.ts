@@ -26,7 +26,9 @@ class TwitchBotConnector implements IConnector {
     }
 
     execute = (event: IEvent): void => {
-        this.client.say(this.opts.channels[0], event.data.message);
+        if (this.client) {
+            this.client.say(this.opts.channels[0], event.data.message);
+        }
     }
 
     connectToTwitch = (): void => {
