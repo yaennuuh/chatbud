@@ -69,8 +69,6 @@ class TwitchBotConnector implements IConnector {
     onMessageHandler = (channel, context, message, self): void => {
         if (self) { return; } // Ignore messages from the bot
 
-        console.log('twitch', context);
-
         // Remove whitespace from chat message
         message = message.trim();
         let event: IEvent = this.connectorHelper.getEmptyEvent();
@@ -78,6 +76,7 @@ class TwitchBotConnector implements IConnector {
 
         event.data.displayName = context['display-name'];
         event.data.username = context['username'];
+        event.data.userId = context['user-id'];
         event.data.emotes = context['emotes'];
 
         if (context['message-type'] === 'chat') {

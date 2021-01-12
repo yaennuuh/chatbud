@@ -7,6 +7,7 @@ var YAML = require('yaml');
 
 // Load
 
+initializeCorePlugins();
 initializePlugins();
 initializeConnectors();
 initializeDashboard();
@@ -189,9 +190,19 @@ function loadTemplateForConnector(html, connector) {
 
 // Plugins
 
+function initializeCorePlugins() {
+    const pluginManager = remote.getGlobal('pluginManager');
+    const resourcesPath = pluginManager.resourcesPathCore;
+    loadPlugins(resourcesPath);
+}
+
 function initializePlugins() {
     const pluginManager = remote.getGlobal('pluginManager');
     const resourcesPath = pluginManager.resourcesPath;
+    loadPlugins(resourcesPath);
+}
+
+function loadPlugins(resourcesPath) {
     var pluginConfigList = loadPluginConfigs(resourcesPath);
 
     var dropDownPlugins = document.getElementById('dropdown-plugins');
@@ -237,18 +248,18 @@ function createWebComponentForPlugin(resourcesPath, plugin) {
     fetch(`${resourcesPath}/${plugin['name']}/${plugin['ui-html']}`)
         .then(stream => stream.text())
         .then(text => {
-            createTemplateTagForPlugin(text, plugin);
+            createTemplateTagForPlugin(text, plugin, resourcesPath);
         });
 }
 
-function createTemplateTagForPlugin(html, plugin) {
+function createTemplateTagForPlugin(html, plugin, resourcesPath) {
     var templateTag = document.createElement('template');
     templateTag.id = `custom-${plugin['tagname']}-template`;
     document.getElementById("template-holder").appendChild(templateTag);
-    loadTemplateForPlugin(html, plugin);
+    loadTemplateForPlugin(html, plugin, resourcesPath);
 }
 
-function loadTemplateForPlugin(html, plugin) {
+function loadTemplateForPlugin(html, plugin, resourcesPath) {
     customElements.define(`custom-${plugin['tagname']}`,
         class extends HTMLElement {
 
@@ -276,7 +287,7 @@ function loadTemplateForPlugin(html, plugin) {
                 const pluginManager = remote.getGlobal('pluginManager');
                 const pluginHelper = pluginManager.getPluginHelper(this._plugin);
 
-                var CustomPluginUI = require(`${pluginManager.resourcesPath}/${this._plugin['name']}/${this._plugin['ui-js']}`);
+                var CustomPluginUI = require(`${resourcesPath}/${this._plugin['name']}/${this._plugin['ui-js']}`);
                 new CustomPluginUI(pluginHelper);
             }
         }

@@ -31,7 +31,6 @@ export class CommandCooldown implements ICommandCooldown {
     }
 
     isActive(): boolean {
-        console.log(moment(this.endDate), moment(), moment(this.endDate).isAfter(moment()));
         return this.endDate && moment(this.endDate).isAfter(moment());
     }
 

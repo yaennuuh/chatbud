@@ -40,18 +40,18 @@ export class CooldownHelper {
 
     // USER
     hasCooldownForUser = async (command: string, userId: string, isUsername?: boolean): Promise<boolean> => {
-        const realUserId = this.checkUserId(userId, isUsername);
+        const realUserId = await this.checkUserId(userId, isUsername);
         return realUserId ? this.hasCooldown(command, 'user', realUserId) : undefined;
     }
 
     getCooldownForUser = async (command: string, userId: string, isUsername?: boolean): Promise<number> => {
-        const realUserId = this.checkUserId(userId, isUsername);
-        return realUserId ? this.getCooldown(command, 'user', userId) : undefined;
+        const realUserId = await this.checkUserId(userId, isUsername);
+        return realUserId ? this.getCooldown(command, 'user', realUserId) : undefined;
     }
 
     setCooldownForUser = async (command: string, userId: string, seconds: number, isUsername?: boolean): Promise<void> => {
-        const realUserId = this.checkUserId(userId, isUsername);
-        return realUserId ? this.setCooldown(command, 'user', userId, seconds) : undefined;
+        const realUserId = await this.checkUserId(userId, isUsername);
+        return realUserId ? this.setCooldown(command, 'user', realUserId, seconds) : undefined;
     }
 
     // ENTITY
@@ -121,11 +121,11 @@ export class CooldownHelper {
         return this.database.findOne({ $and: [searchObject] });
     }
 
-    private checkUserId = (userId: string, isUsername?: boolean): string => {
+    private checkUserId = async (userId: string, isUsername?: boolean): Promise<string> => {
         let realUserId = undefined;
 
         if (isUsername) {
-            realUserId = this.userManagementHelper.getTwitchUserByUsername(userId);
+            realUserId = await this.userManagementHelper.getTwitchUserByUsername(userId);
         } else if (this.userManagementHelper.checkIfTwitchUserIdExists(userId)) {
             realUserId = userId;
         }

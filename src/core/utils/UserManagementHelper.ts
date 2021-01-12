@@ -40,9 +40,11 @@ export class UserManagementHelper {
     addTwitchUser = async (userId: string, username: string): Promise<void> => {
         let twitchUser: ITwitchUser = await this.getTwitchUserById(userId);
         if (twitchUser && twitchUser.getUsername() != username) {
-            await this.updateTwitchUsername(userId, username);
+            await this.updateTwitchUsername(twitchUser, username);
+        } else if (twitchUser) {
+            await this.updateTwitchLastSeen(twitchUser, username);
         } else if (!twitchUser) {
-            await this.database.insert(this.mapTwitchUserToDocument(new TwitchUser(userId, username)));
+            await this.database.insert(this.mapTwitchUserToDocument(new TwitchUser(userId, username, new Date())));
         }
     }
 
@@ -58,8 +60,12 @@ export class UserManagementHelper {
         return this.getTwitchUserByUsername(username) != undefined;
     }
 
-    private updateTwitchUsername = (userId: string, username: string): Promise<number> => {
-        return this.database.update({ 'twitchUserId': userId }, { $set: { 'twitchUsername': username } });
+    private updateTwitchUsername = (twitchUser: ITwitchUser, username: string): Promise<number> => {
+        return this.database.update({ 'twitchUserId': twitchUser.getUserId() }, { $set: { 'twitchUsername': username, 'lastSeen': new Date() } });
+    }
+
+    private updateTwitchLastSeen = (twitchUser: ITwitchUser, username: string): Promise<number> => {
+        return this.database.update({ 'twitchUserId': twitchUser.getUserId() }, { $set: { 'lastSeen': new Date() } });
     }
 
     private mapAllDocumentsToTwitchUsers = (documents: Object[]): ITwitchUser[] => {
@@ -78,20 +84,13 @@ export class UserManagementHelper {
         return null;
     }
 
-    // private mapAllTwitchUsersToDocuments = (twitchUsers: ITwitchUser[]): Object[] => {
-    //     if (twitchUsers != undefined) {
-    //         return _.map(twitchUsers, (twitchUser: ITwitchUser): Object => {
-    //             return this.mapTwitchUserToDocument(twitchUser);
-    //         });
-    //     }
-    //     return null;
-    // }
-
     private mapTwitchUserToDocument = (twitchUser: ITwitchUser): Object => {
         if (twitchUser === undefined) return undefined;
         return {
             'twitchUserId': twitchUser.getUserId(),
-            'twitchUsername': twitchUser.getUsername()
+            'twitchUsername': twitchUser.getUsername(),
+            'firstSeen': twitchUser.getFirstSeen(),
+            'lastSeen': twitchUser.getLastSeen()
         };
     }
 }

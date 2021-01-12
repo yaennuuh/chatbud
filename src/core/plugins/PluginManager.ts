@@ -10,57 +10,54 @@ import { CoreHelper } from '../CoreHelper';
 export class PluginManager implements IPluginManager {
     private static instance: PluginManager;
 
-    pluginApi: Map<string, any> = new Map();
-    plugins: Map<string, any> = new Map();
-    pluginHelpers: Map<string, any> = new Map();
+    private pluginApi: Map<string, any> = new Map();
+    private plugins: Map<string, any> = new Map();
+    private pluginHelpers: Map<string, any> = new Map();
 
     resourcesPath: string;
+    resourcesPathCore: string;
 
-    private constructor() { }
+    private constructor() {
+        this.resourcesPathCore = `${__dirname}/../../plugins`;
+    }
 
     public static getInstance(): PluginManager {
         if (!PluginManager.instance) {
             PluginManager.instance = new PluginManager();
         }
-        
         PluginManager.instance.resourcesPath = CoreHelper.getInstance().getResourcesPath('plugins');
 
         return PluginManager.instance;
     }
 
     public loadCorePlugins(): void {
-        throw new Error("Method not implemented.");
+        this.loadAllPlugins(this.resourcesPathCore);
     }
 
     public loadPlugins(): void {
-        const configFiles: string[] = glob.sync(`${this.resourcesPath}/**/config.yaml`, null);
+        this.loadAllPlugins(this.resourcesPath);
+    }
+
+    private loadAllPlugins(basePath: string) {
+        const configFiles: string[] = glob.sync(`${basePath}/**/config.yaml`, null);
         _.each(configFiles, (configPath) => {
             if (fs.existsSync(configPath)) {
                 const file = fs.readFileSync(configPath, 'utf8')
                 const parsedConfig = YAML.parse(file);
 
-                this.loadPlugin(parsedConfig);
-                this.pluginApi.set(parsedConfig['name'], this.loadPluginApi(parsedConfig));
+                this.loadPlugin(basePath, parsedConfig);
+                this.pluginApi.set(parsedConfig['name'], this.loadPluginApi(basePath, parsedConfig));
             }
         });
     }
 
-    public loadPluginConfigByName(pluginName: string): any {
-        const configFiles: string[] = glob.sync(`${this.resourcesPath}/${pluginName}/config.yaml`, null);
-        if (fs.existsSync(configFiles[0])) {
-            const file = fs.readFileSync(configFiles[0], 'utf8')
-            const parsedConfig = YAML.parse(file);
-            return parsedConfig;
-        }
-        return YAML.parse('');
-    }
-
-    public loadPlugin(config: any) {
+    public loadPlugin(basePath: string, config: any) {
         if (config &&
             config.hasOwnProperty('name') &&
-            config.hasOwnProperty('plugin-js')
+            config.hasOwnProperty('plugin-js') &&
+            !this.plugins.has(config['name'])
         ) {
-            var pluginPath = `${this.resourcesPath}/${config['name']}/${config['plugin-js']}`;
+            var pluginPath = `${basePath}/${config['name']}/${config['plugin-js']}`;
             if (fs.existsSync(pluginPath)) {
                 const CustomPlugin = require(pluginPath);
                 const customPluginInstance = new CustomPlugin();
@@ -82,18 +79,20 @@ export class PluginManager implements IPluginManager {
     }
 
     public getPluginApiByName(pluginName: string): any {
-        if (!this.plugins || this.plugins.size == 0) {
-            this.loadPlugins();
-        }
+        // TODO: check later if still not needed and delete
+        // if (!this.plugins || this.plugins.size == 0) {
+        //     this.loadPlugins();
+        // }
         return this.pluginApi.get(pluginName);
     }
 
-    public loadPluginApi(config: any): any {
+    public loadPluginApi(basePath: string, config: any): any {
         if (config &&
             config.hasOwnProperty('name') &&
-            config.hasOwnProperty('plugin-api-js')
+            config.hasOwnProperty('plugin-api-js') &&
+            !this.pluginApi.has(config['name'])
         ) {
-            var pluginApiPath = `${this.resourcesPath}/${config['name']}/${config['plugin-api-js']}`;
+            var pluginApiPath = `${basePath}/${config['name']}/${config['plugin-api-js']}`;
             if (fs.existsSync(pluginApiPath)) {
                 const CustomPluginApi = require(pluginApiPath);
                 const customPluginApiInstance = new CustomPluginApi(this.plugins.get(config['name']));
