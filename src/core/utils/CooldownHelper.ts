@@ -12,7 +12,7 @@ export class CooldownHelper {
     constructor() {
         this.userManagementHelper = UserManagementHelper.getInstance();
         this.databaseHelper = DatabaseHelper.getInstance();
-        this.repository = this.databaseHelper.getRepository('cooldown');
+        this.repository = this.databaseHelper.getDatabase('chatbud-core-cooldown');
     }
 
     // GLOBAL
@@ -93,7 +93,7 @@ export class CooldownHelper {
         let realUserId = undefined;
 
         if (isUsername) {
-            realUserId = this.userManagementHelper.getTwitchUserIdByUsername(userId);
+            realUserId = this.userManagementHelper.getTwitchUserByUsername(userId);
         } else if (this.userManagementHelper.checkIfTwitchUserIdExists(userId)){
             realUserId = userId;
         }

@@ -1,15 +1,16 @@
 import { DatabaseHelper } from "./DatabaseHelper";
 import { ITwitchUser } from "./entities/ITwitchUser";
+import { TwitchUser } from './entities/TwitchUser';
 
 export class UserManagementHelper {
-    
+
     private static instance: UserManagementHelper;
     private databaseHelper: DatabaseHelper;
-    repository: any; // Set real repository type
+    database: Datastore;
 
     private constructor() {
         this.databaseHelper = DatabaseHelper.getInstance();
-        this.repository = this.databaseHelper.getRepository('usermanagement');
+        this.database = this.databaseHelper.getDatabase('chatbud-core-usermanagement');
     }
 
     static getInstance(): UserManagementHelper {
@@ -20,35 +21,34 @@ export class UserManagementHelper {
         return UserManagementHelper.instance;
     }
 
-    getTwitchUserById = (userId: string): ITwitchUser => {
-        return undefined;
+    getTwitchUserById = (userId: string): Promise<ITwitchUser> => {
+        return this.database.findOne({ 'twitchUserId': userId }).then((document): ITwitchUser => {
+            if (document) {
+                return new TwitchUser(document['twitchUserId'], document['twitchUsername']);
+            }
+            return undefined;
+        });
     }
 
-    getTwitchUserByName = (username: string): ITwitchUser => {
-        return undefined;
-    }
-
-    getTwitchUsernameById = (userId: string): string => {
+    getTwitchUserByUsername = (username: string): string => {
         return '';
     }
 
-    getTwitchUserIdByUsername = (username: string): string => {
-        return '';
-    }
-
-    addTwitchUser = (userId: string, username: string): boolean => {
-        let twitchUser: ITwitchUser = this.getTwitchUserById(userId);
+    addTwitchUser = async (userId: string, username: string): Promise<void> => {
+        let twitchUser: ITwitchUser = await this.getTwitchUserById(userId);
         if (twitchUser && twitchUser.getUsername() != username) {
-            this.updateTwitchUsername(userId, username);
+            await this.updateTwitchUsername(userId, username);
+        } else if (!twitchUser) {
+            await this.database.insert({ 'twitchUserId': userId, 'twitchUsername': username });
         }
-        return true;
     }
 
     checkIfTwitchUserIdExists = (userId: string): boolean => {
-        return !!this.getTwitchUsernameById(userId);
+        return !!this.getTwitchUserById(userId);
     }
 
-    private updateTwitchUsername = (userId: string, username: string): boolean => {
-        return true;
+    private updateTwitchUsername = (userId: string, username: string): Promise<number> => {
+        console.log('gonna update user');
+        return this.database.update({'twitchUserId': userId}, { $set: { 'twitchUsername': username } });
     }
 }

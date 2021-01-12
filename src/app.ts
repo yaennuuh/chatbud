@@ -12,10 +12,18 @@ import { FilterManager } from './core/filters/FilterManager';
 import { IPluginManager } from './core/plugins/IPluginManager';
 import { PluginManager } from './core/plugins/PluginManager';
 import { CoreHelper } from './core/CoreHelper';
+import { UserManagementHelper } from './core/utils/UserManagementHelper';
 
 Main.main(app, BrowserWindow);
 
 const globalAny: any = global;
+
+const usermanagementHelper = UserManagementHelper.getInstance();
+usermanagementHelper.addTwitchUser('1234', 'sirbarrex')
+    .then(() => usermanagementHelper.getTwitchUserById('1234'))
+    .then((data) => {
+        console.log('found user: ', data.getUsername());
+    })
 
 // Globals
 globalAny['pluginManager'] = PluginManager.getInstance();

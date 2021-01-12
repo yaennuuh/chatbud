@@ -1,10 +1,13 @@
+import Datastore from 'nedb-promises';
 export class DatabaseHelper {
-    
+
     private static instance: DatabaseHelper;
-    private connection: any; // TODO: set real type
+    private database: Object;
 
     private constructor() {
-        // TODO: implement database connection
+        // read all db files and prepare the datastore for them
+        // example db.users = new Datastore('path/to/users.db');
+        this.database = {};
     }
 
     static getInstance(): DatabaseHelper {
@@ -15,7 +18,11 @@ export class DatabaseHelper {
         return DatabaseHelper.instance;
     }
 
-    getRepository = (repositoryName: string):any => { // Set real return type
-        return {};
+    getDatabase = (repositoryName: string): any => { // Set real return type
+        if (!this.database.hasOwnProperty(repositoryName)) {
+            this.database[repositoryName] = Datastore.create(`${__dirname}/../../databases/${repositoryName}.db`);
+        }
+        this.database[repositoryName].load();
+        return this.database[repositoryName];
     }
 }
