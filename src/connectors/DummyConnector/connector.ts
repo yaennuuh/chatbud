@@ -9,9 +9,9 @@ class DummyConnector implements IConnector {
     connectorHelper: ConnectorHelper;
 
     start(): void {
-        setTimeout(function () {
-            CoreBot.getInstance().notifyPluginsOnEventBusIn(new Event('dummy-chat-message', new EventData('test')));
-        }, 5000);
+        // setTimeout(function () {
+        //     CoreBot.getInstance().notifyPluginsOnEventBusIn(new Event('dummy-chat-message', new EventData('test')));
+        // }, 5000);
     }
 
     register(connectorHelper: ConnectorHelper): string[] {

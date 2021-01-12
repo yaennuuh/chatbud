@@ -5,13 +5,18 @@ import * as YAML from 'yaml';
 import * as fs from "fs";
 import { PluginManager } from "./PluginManager";
 import {LoggerHelper} from "../utils/LoggerHelper";
+import { UserManagementHelper } from '../utils/UserManagementHelper';
+import { CooldownHelper } from '../utils/CooldownHelper';
 
 export class PluginHelper implements IPluginHelper {
-    resourcesPath: string;
-    pluginManager: PluginManager;
+    private pluginManager: PluginManager;
+    private userManagementHelper: UserManagementHelper;
+    private cooldownHelper: CooldownHelper;
 
     constructor(private config: any) {
         this.pluginManager = PluginManager.getInstance();
+        this.userManagementHelper = UserManagementHelper.getInstance();
+        this.cooldownHelper = CooldownHelper.getInstance();
     }
 
     sendEventToBusOut = (event: IEvent) => {
@@ -20,6 +25,14 @@ export class PluginHelper implements IPluginHelper {
 
     getOwnPluginApi = (): any => {
         return this.pluginApiByName(this.config['name']);
+    }
+
+    getUserManagementHelper = (): UserManagementHelper => {
+        return this.userManagementHelper;
+    }
+
+    getCooldownHelper = (): CooldownHelper => {
+        return this.cooldownHelper;
     }
 
     pluginApiByName = (pluginName: string): any => {

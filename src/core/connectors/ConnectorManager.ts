@@ -48,7 +48,8 @@ export class ConnectorManager implements IConnectorManager {
     public loadConnector(config: any) {
         if (config &&
             config.hasOwnProperty('name') &&
-            config.hasOwnProperty('connector-js')
+            config.hasOwnProperty('connector-js') &&
+            !this.connectors.has(config['name'])
         ) {
             var connectorPath = `${__dirname}/../../connectors/${config['name']}/${config['connector-js']}`;
             if (fs.existsSync(connectorPath)) {

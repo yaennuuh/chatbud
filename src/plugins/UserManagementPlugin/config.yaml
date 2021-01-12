@@ -1,0 +1,7 @@
+name: UserManagementPlugin
+display-name: Viewers
+ui-html: ui.html
+ui-js: ui.js
+plugin-js: plugin.js
+plugin-api-js: api.js
+data-yaml: data.yaml
