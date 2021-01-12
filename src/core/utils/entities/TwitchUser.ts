@@ -7,11 +7,11 @@ export class TwitchUser implements ITwitchUser {
     private firstSeen: Date;
     private lastSeen: Date;
 
-    constructor(twitchId: string, twitchUsername: string, firstSeen?: Date) {
+    constructor(twitchId: string, twitchUsername: string, firstSeen?: Date, lastSeen?: Date) {
         this.twitchId = twitchId;
         this.twitchUsername = twitchUsername;
         this.firstSeen = firstSeen;
-        this.lastSeen = firstSeen;
+        this.lastSeen = lastSeen ? lastSeen : firstSeen;
     }
 
     getUserId = (): string => {

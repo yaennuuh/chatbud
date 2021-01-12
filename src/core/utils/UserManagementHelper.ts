@@ -79,7 +79,7 @@ export class UserManagementHelper {
 
     private mapDocumentToTwitchUser = (document: Object): ITwitchUser => {
         if (document != undefined) {
-            return new TwitchUser(document['twitchUserId'], document['twitchUsername']);
+            return new TwitchUser(document['twitchUserId'], document['twitchUsername'], document['firstSeen'], document['lastSeen']);
         }
         return null;
     }

@@ -1,5 +1,5 @@
 name: UserManagementPlugin
-display-name: User Management
+display-name: Viewers
 ui-html: ui.html
 ui-js: ui.js
 plugin-js: plugin.js
