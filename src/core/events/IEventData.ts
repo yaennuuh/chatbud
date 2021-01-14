@@ -4,6 +4,7 @@ export interface IEventData {
     color?: string;
     displayName?: string;
     username?: string;
+    useId?: string;
     emotes?: any;
     mod?: boolean;
     subscriber?: boolean;

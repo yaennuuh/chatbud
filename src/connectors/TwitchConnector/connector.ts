@@ -84,7 +84,6 @@ class TwitchConnector implements IConnector {
             channels: ['barrexgaming']
         });
         await this.chatClient.connect();
-        console.log('hier');
         this.chatClient.onMessage(this.twitchEventHandlerMessage);
         this.chatClient.onChatClear((channel) => {
             console.log('cleared', channel);
@@ -121,6 +120,17 @@ class TwitchConnector implements IConnector {
     }
 
     twitchEventHandlerMessage = (channel, user, message, msg: TwitchPrivateMessage): void => {
+        if (msg.userInfo.isBroadcaster) return;
+        const eventData = new EventData(message, msg);
+        
+        eventData.displayName = msg.userInfo.displayName;
+        eventData.username = msg.userInfo.userName;
+        eventData.userId = msg.userInfo.userId;
+        eventData.mod = msg.userInfo.isMod;
+        eventData.subscriber = msg.userInfo.isSubscriber;
+        eventData.emotes = msg.parseEmotes();
+
+        CoreBot.getInstance().notifyPluginsOnEventBusIn(new Event('twitch-chat-message', eventData));
     }
 
     async listenToChannelRedeem() {
