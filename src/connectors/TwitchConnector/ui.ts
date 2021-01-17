@@ -25,7 +25,6 @@ class TwitchConnectorUI {
 
     loadStreamerInformations = async (): Promise<void> => {
         let channel = await this.api.getMyChannel();
-        console.log('channel', channel, await channel.getCheermotes());
         this.showUserInformation(channel);
     }
 

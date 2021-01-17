@@ -7,16 +7,11 @@ import { PluginManager } from "./PluginManager";
 import {LoggerHelper} from "../utils/LoggerHelper";
 import { UserManagementHelper } from '../utils/UserManagementHelper';
 import { CooldownHelper } from '../utils/CooldownHelper';
+import { CommandManagementHelper } from "../utils/CommandManagementHelper";
 
 export class PluginHelper implements IPluginHelper {
-    private pluginManager: PluginManager;
-    private userManagementHelper: UserManagementHelper;
-    private cooldownHelper: CooldownHelper;
 
     constructor(private config: any) {
-        this.pluginManager = PluginManager.getInstance();
-        this.userManagementHelper = UserManagementHelper.getInstance();
-        this.cooldownHelper = CooldownHelper.getInstance();
     }
 
     sendEventToBusOut = (event: IEvent) => {
@@ -28,19 +23,23 @@ export class PluginHelper implements IPluginHelper {
     }
 
     getUserManagementHelper = (): UserManagementHelper => {
-        return this.userManagementHelper;
+        return UserManagementHelper.getInstance();
+    }
+
+    getCommandManagementHelper = (): CommandManagementHelper => {
+        return CommandManagementHelper.getInstance();
     }
 
     getCooldownHelper = (): CooldownHelper => {
-        return this.cooldownHelper;
+        return CooldownHelper.getInstance();
     }
 
     pluginApiByName = (pluginName: string): any => {
-        return this.pluginManager.getPluginApiByName(pluginName);
+        return PluginManager.getInstance().getPluginApiByName(pluginName);
     }
 
     loadData = (): any => {
-        let dataPath = `${this.pluginManager.resourcesPath}/${this.config['name']}/${this.config['data-yaml']}`;
+        let dataPath = `${PluginManager.getInstance().resourcesPath}/${this.config['name']}/${this.config['data-yaml']}`;
         if (fs.existsSync(dataPath)) {
             const file = fs.readFileSync(dataPath, 'utf8')
             return YAML.parse(file);
@@ -49,7 +48,7 @@ export class PluginHelper implements IPluginHelper {
     }
 
     saveData = (data: any): void => {
-        let dataPath = `${this.pluginManager.resourcesPath}/${this.config['name']}/${this.config['data-yaml']}`;
+        let dataPath = `${PluginManager.getInstance().resourcesPath}/${this.config['name']}/${this.config['data-yaml']}`;
         fs.writeFile(dataPath, YAML.stringify(data), function (err) {
             if (err) throw err;
         });

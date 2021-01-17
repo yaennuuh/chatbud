@@ -4,6 +4,7 @@ var _ = require('lodash');
 var fs = require('fs');
 var glob = require('glob');
 var YAML = require('yaml');
+window.bootstrap = bootstrap;
 
 // Load
 
@@ -61,7 +62,7 @@ function loadTemplate(html, pageName) {
             constructor() {
                 super();
                 this._shadowRoot = this.attachShadow({ mode: 'open' });
-                this._shadowRoot.innerHTML = `<script src="./js/bootstrap.min.js"></script>
+                this._shadowRoot.innerHTML = `<script src="./js/bootstrap.bundle.min.js"></script>
                 <slot name="bot-content-section"></slot>`;
                 this._pageName = pageName;
             }
@@ -161,7 +162,7 @@ function loadTemplateForConnector(html, connector) {
             constructor() {
                 super();
                 this._shadowRoot = this.attachShadow({ mode: 'open' });
-                this._shadowRoot.innerHTML = `<script src="./js/bootstrap.min.js"></script>
+                this._shadowRoot.innerHTML = `<script src="./js/bootstrap.bundle.min.js"></script>
                 <slot name="bot-content-section"></slot>`;
                 this._connector = connector;
             }
@@ -266,7 +267,7 @@ function loadTemplateForPlugin(html, plugin, resourcesPath) {
             constructor() {
                 super();
                 this._shadowRoot = this.attachShadow({ mode: 'open' });
-                this._shadowRoot.innerHTML = `<script src="./js/bootstrap.min.js"></script>
+                this._shadowRoot.innerHTML = `<script src="./js/bootstrap.bundle.min.js"></script>
                 <slot name="bot-content-section"></slot>`;
                 this._plugin = plugin;
             }

@@ -6,12 +6,10 @@ import * as _ from 'lodash';
 export class UserManagementHelper {
 
     private static instance: UserManagementHelper;
-    private databaseHelper: DatabaseHelper;
     database: Datastore;
 
     private constructor() {
-        this.databaseHelper = DatabaseHelper.getInstance();
-        this.database = this.databaseHelper.getDatabase('chatbud-core-usermanagement');
+        this.database = DatabaseHelper.getInstance().getDatabase('chatbud-core-usermanagement');
     }
 
     static getInstance(): UserManagementHelper {

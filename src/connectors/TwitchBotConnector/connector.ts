@@ -67,7 +67,7 @@ class TwitchBotConnector implements IConnector {
         this.connected = false;
     }
 
-    onMessageHandler = (channel, context, message, self): void => {
+    /* onMessageHandler = (channel, context, message, self): void => {
         if (self) { return; } // Ignore messages from the bot
 
         // Remove whitespace from chat message
@@ -91,7 +91,7 @@ class TwitchBotConnector implements IConnector {
             CoreBot.getInstance().notifyPluginsOnEventBusIn(new Event('twitch-whisper-message', event.data));
         }
 
-    }
+    } */
 
     onConnectedHandler = (addr, port): void => {
         console.log(`* Connected to ${addr}:${port}`);

@@ -120,7 +120,7 @@ class TwitchConnector implements IConnector {
     }
 
     twitchEventHandlerMessage = (channel, user, message, msg: TwitchPrivateMessage): void => {
-        if (msg.userInfo.isBroadcaster) return;
+        //if (msg.userInfo.isBroadcaster) return;
         const eventData = new EventData(message, msg);
         
         eventData.displayName = msg.userInfo.displayName;
