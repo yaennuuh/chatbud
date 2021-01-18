@@ -5,3 +5,15 @@ ui-js: ui.js
 plugin-js: plugin.js
 plugin-api-js: api.js
 data-yaml: data.yaml
+
+command:
+  fields:
+    - id: isUsername
+      label: Is Username
+      type: text
+      description: 'Type in a twitch username'
+  conditions:
+    - id: isUsername
+      name: Check twitch username
+      function: isMessageFromUsername
+      fieldId: isUsername

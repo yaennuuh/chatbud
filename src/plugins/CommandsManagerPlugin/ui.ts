@@ -11,16 +11,20 @@ class CommandsManagerPluginUI {
         this.init();
     }
     init = async (): Promise<void> => {
-        await this.loadData();
+        await this.loadCommands();
 
         //console.log(this._window.bootstrap);
         document.getElementById('refresh-button').addEventListener('click', this.loadData);
     }
 
+    loadCommands = async (): Promise<void> => {
+        await this.loadData();
+        this._addEditModalListener();
+    }
+
     loadData = async (): Promise<void> => {
         this.commands = await this.commandManagementHelper.getAllCommands();
         this.populateTable();
-        this._addEditModalListener();
     }
 
     private _addEditModalListener = (): void => {
@@ -55,17 +59,27 @@ class CommandsManagerPluginUI {
             modalTitle.textContent = 'Create command';
         }
 
-        this._fillModalData(command);
+        let pluginCommands = this._loadAllPluginCommands();
+
+        this._fillModalData(command, pluginCommands);
     }
 
-    private _fillModalData = (command: any): void => {
+    private _loadAllPluginCommands = (): any[] => {
+        return this.commandManagementHelper.getPluginCommands();
+    }
+
+    private _fillModalData = (command: any, pluginCommands: any): void => {
 
         var commandEditModal = document.getElementById('commandEditModal');
-        let loadData = this.loadData;
+        let loadCommands = this.loadCommands;
 
         // Fill command input
         var modalInputCommand = <HTMLInputElement>commandEditModal.querySelector('.modal-body input#command-command');
         modalInputCommand.value = command.getCommand();
+
+        // Conditions
+        this._prepareModalSelectConditions(commandEditModal, pluginCommands);
+
 
         let el = commandEditModal.querySelector('.modal-footer #modal-button-save'), elClone = el.cloneNode(true);
         el.parentNode.replaceChild(elClone, el);
@@ -76,13 +90,72 @@ class CommandsManagerPluginUI {
         modalButtonSave.addEventListener('click', async () => {
             command.setCommand(modalInputCommand.value);
             await this.commandManagementHelper.updateCommand(command);
-            loadData();
+            loadCommands();
+        });
+    }
+
+    private _prepareModalSelectConditions = (commandEditModal: any, pluginCommands: any): void => {
+        let el = commandEditModal.querySelector('.modal-body #button-add-condition'), elClone = el.cloneNode(true);
+        el.parentNode.replaceChild(elClone, el);
+
+        var modalButtonAddCondition = <HTMLButtonElement>commandEditModal.querySelector('.modal-body #button-add-condition');
+
+        var modalSelectCondition = <HTMLSelectElement>commandEditModal.querySelector('.modal-body #select-condition');
+
+        pluginCommands.forEach(pluginCommand => {
+            if (pluginCommand.command && pluginCommand.command.conditions) {
+                pluginCommand.command.conditions.forEach(condition => {
+                    let conditionOption = document.createElement('option');
+                    conditionOption.value = `${pluginCommand.plugin}-${condition.id}`;
+                    conditionOption.text = condition.name;
+                    modalSelectCondition.options.add(conditionOption);
+                });
+            }
+        });
+
+        modalButtonAddCondition.addEventListener('click', function () {
+            if (modalSelectCondition.options[modalSelectCondition.selectedIndex]) {
+                // <li class="list-group-item">Cras justo odio</li>
+                let conditionsList = commandEditModal.querySelector('.modal-body #conditions-list');
+                let conditionListElement = document.createElement('li');
+                conditionListElement.classList.add('list-group-item');
+                conditionListElement.innerText = modalSelectCondition.options[modalSelectCondition.selectedIndex].value;
+                conditionsList.appendChild(conditionListElement);
+                modalSelectCondition.options.remove(modalSelectCondition.selectedIndex);
+
+                // check if and add related fields to UI in plugin section
+
+                /* 
+                    <ul class="list-group">
+                        <li class="list-group-item">
+                            <input class="form-check-input me-1" type="checkbox" value="" aria-label="...">
+                            Cras justo odio
+                        </li>
+                        <li class="list-group-item">
+                            <input class="form-check-input me-1" type="checkbox" value="" aria-label="...">
+                            Dapibus ac facilisis in
+                        </li>
+                        <li class="list-group-item">
+                            <input class="form-check-input me-1" type="checkbox" value="" aria-label="...">
+                            Morbi leo risus
+                        </li>
+                        <li class="list-group-item">
+                            <input class="form-check-input me-1" type="checkbox" value="" aria-label="...">
+                            Porta ac consectetur ac
+                        </li>
+                        <li class="list-group-item">
+                            <input class="form-check-input me-1" type="checkbox" value="" aria-label="...">
+                            Vestibulum at eros
+                        </li>
+                    </ul>
+                */
+            }
         });
     }
 
     deleteCommand = async (documentId: string) => {
         await this.commandManagementHelper.deleteCommand(documentId);
-        this.loadData();
+        this.loadCommands();
     }
 
     populateTable = () => {

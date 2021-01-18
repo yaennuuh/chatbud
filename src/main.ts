@@ -31,8 +31,10 @@ export default class Main {
         Main.mainWindow
             .loadURL('file://' + __dirname + '/ui/main.html');
         Main.mainWindow.on('closed', Main.onClose);
-        //Main.mainWindow.maximize();
-        //Main.mainWindow.webContents.openDevTools();
+
+        Main.mainWindow.maximize();
+        Main.mainWindow.webContents.openDevTools();
+        
         Main.init();
     }
 

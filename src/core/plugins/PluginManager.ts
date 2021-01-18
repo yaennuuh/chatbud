@@ -38,15 +38,37 @@ export class PluginManager implements IPluginManager {
         this.loadAllPlugins(this.resourcesPath);
     }
 
+    getAllCommandsConfigs = (): any[] => {
+        let corePluginConfigs = this._getPluginsConfigs(this.resourcesPathCore);
+        let customPluginConfigs = this._getPluginsConfigs(this.resourcesPath);
+
+        let commandConfigs = [];
+        _.each(_.concat(corePluginConfigs, customPluginConfigs), (config) => {
+            if (config.hasOwnProperty('command')) {
+                commandConfigs.push({
+                    plugin: config.name,
+                    command: config.command
+                });
+            }
+        });
+
+        return commandConfigs;
+    }
+
     private loadAllPlugins(basePath: string) {
+        const configs = this._getPluginsConfigs(basePath);
+        _.each(configs, (config) => {
+            this.loadPlugin(basePath, config);
+            this.pluginApi.set(config['name'], this.loadPluginApi(basePath, config));
+        });
+    }
+
+    private _getPluginsConfigs = (basePath: string): any[] => {
         const configFiles: string[] = glob.sync(`${basePath}/**/config.yaml`, null);
-        _.each(configFiles, (configPath) => {
+        return _.map(configFiles, (configPath) => {
             if (fs.existsSync(configPath)) {
                 const file = fs.readFileSync(configPath, 'utf8')
-                const parsedConfig = YAML.parse(file);
-
-                this.loadPlugin(basePath, parsedConfig);
-                this.pluginApi.set(parsedConfig['name'], this.loadPluginApi(basePath, parsedConfig));
+                return YAML.parse(file);
             }
         });
     }

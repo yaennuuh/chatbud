@@ -6,14 +6,17 @@ import { CommandAction } from "./entities/CommandAction";
 import { CommandCondition } from "./entities/CommandCondition";
 import { ICommandCondition } from "./entities/ICommandCondition";
 import { ICommandAction } from "./entities/ICommandAction";
+import { PluginManager } from "../plugins/PluginManager";
 
 export class CommandManagementHelper {
 
     private static instance: CommandManagementHelper;
     database: Datastore;
+    pluginManager: PluginManager;
 
     private constructor() {
         this.database = DatabaseHelper.getInstance().getDatabase('chatbud-core-commandmanagement');
+        this.pluginManager = PluginManager.getInstance();
     }
 
     static getInstance(): CommandManagementHelper {
@@ -22,6 +25,10 @@ export class CommandManagementHelper {
         }
 
         return CommandManagementHelper.instance;
+    }
+
+    getPluginCommands = (): any[] => {
+        return this.pluginManager.getAllCommandsConfigs();
     }
 
     getEmptyCommand = (documentId: string): ICommand => {
