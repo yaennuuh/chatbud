@@ -1,24 +1,35 @@
 import { ICommandAction } from "./ICommandAction";
 import { ICommandCondition } from "./ICommandCondition";
+import { ICommandField } from "./ICommandField";
 
 export interface ICommand {
-    getCommand(): string,
+    getCommand(): string;
     setCommand(command: string): void;
 
-    getDocumentId(): string,
+    getDocumentId(): string;
     setDocumentId(documentId: string): void;
 
-    getConditions(): ICommandCondition[],
-    setConditions(conditions: ICommandCondition[]): void,
+    createNewCondition(id: string, pluginId: string): ICommandCondition;
+    getConditions(): ICommandCondition[];
+    setConditions(conditions: ICommandCondition[]): void;
     addCondition(condition: ICommandCondition): void;
+    removeCondition(condition: ICommandCondition): void;
 
-    getActions(): ICommandAction[],
-    setActions(actions: ICommandAction[]): void,
+    createNewAction(id: string, pluginId: string, conditionId?: string): ICommandAction;
+    getActions(): ICommandAction[];
+    setActions(actions: ICommandAction[]): void;
     addAction(action: ICommandAction): void;
+    removeAction(action: ICommandAction): void;
 
-    getDescription(): string,
+    createNewField(id: string, pluginId: string, value: string): ICommandField;
+    getFields(): ICommandField[];
+    setFields(fields: ICommandField[]): void;
+    addField(field: ICommandField): void;
+    removeField(field: ICommandField): void;
+
+    getDescription(): string;
     setDescription(description: string): void;
 
-    isActive(): boolean
+    isActive(): boolean;
     setIsActive(active: boolean): void;
 }

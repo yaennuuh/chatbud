@@ -4,6 +4,7 @@ class CommandsManagerPluginUI {
     commands: any[];
     commandManagementHelper: any;
     toastList: any[];
+    temporaryCommand: any;
 
     constructor(private pluginHelper: any) {
         this.commandManagementHelper = this.pluginHelper.getCommandManagementHelper();
@@ -38,44 +39,44 @@ class CommandsManagerPluginUI {
         })
     }
 
-    private _prepareModalCommand = (documentId: string) => {
+    private _prepareModalCommand = async (documentId: string) => {
         var commandEditModal = document.getElementById('commandEditModal');
-        let command: any = this.commandManagementHelper.getEmptyCommand(documentId);
+        this.temporaryCommand = this.commandManagementHelper.getEmptyCommand(documentId);
         var modalTitle = commandEditModal.querySelector('.modal-title');
 
         if (documentId) {
             modalTitle.textContent = 'Update command';
             this.commands.forEach((item: any) => {
                 if (item.getDocumentId() == documentId) {
-                    command.setDocumentId(item.getDocumentId());
-                    command.setCommand(item.getCommand());
-                    command.setActions(item.getActions());
-                    command.setConditions(item.getConditions());
-                    command.setDescription(item.getDescription());
-                    command.setIsActive(item.isActive());
+                    this.temporaryCommand.setDocumentId(item.getDocumentId());
+                    this.temporaryCommand.setCommand(item.getCommand());
+                    this.temporaryCommand.setActions(item.getActions());
+                    this.temporaryCommand.setConditions(item.getConditions());
+                    this.temporaryCommand.setFields(item.getFields());
+                    this.temporaryCommand.setDescription(item.getDescription());
+                    this.temporaryCommand.setIsActive(item.isActive());
                 }
             });
         } else {
             modalTitle.textContent = 'Create command';
         }
 
-        let pluginCommands = this._loadAllPluginCommands();
+        let pluginCommands = await this._loadAllPluginCommands();
 
-        this._fillModalData(command, pluginCommands);
+        this._fillModalData(pluginCommands);
     }
 
-    private _loadAllPluginCommands = (): any[] => {
+    private _loadAllPluginCommands = async (): Promise<any[]> => {
         return this.commandManagementHelper.getPluginCommands();
     }
 
-    private _fillModalData = (command: any, pluginCommands: any): void => {
-
+    private _fillModalData = (pluginCommands: any): void => {
         var commandEditModal = document.getElementById('commandEditModal');
-        let loadCommands = this.loadCommands;
+        let loadData = this.loadData;
 
         // Fill command input
         var modalInputCommand = <HTMLInputElement>commandEditModal.querySelector('.modal-body input#command-command');
-        modalInputCommand.value = command.getCommand();
+        modalInputCommand.value = this.temporaryCommand.getCommand();
 
         // Clear custom fields section
         let el = commandEditModal.querySelector('.modal-body #custom-fields-section');
@@ -94,34 +95,62 @@ class CommandsManagerPluginUI {
         var modalButtonSave = <HTMLButtonElement>commandEditModal.querySelector('.modal-footer #modal-button-save');
 
         modalButtonSave.addEventListener('click', async () => {
-            command.setCommand(modalInputCommand.value);
-            await this.commandManagementHelper.updateCommand(command);
-            loadCommands();
+            // Command
+            this.temporaryCommand.setCommand(modalInputCommand.value);
+
+            // Custom Fields
+            let customFields = commandEditModal.querySelectorAll(`#custom-fields-section [id$='wrapper']`);
+            let customFieldList = [];
+            customFields.forEach((customField) => {
+                let field = <HTMLInputElement>customField.childNodes.item(1);
+
+                let pluginId = field.getAttribute('data-bs-plugin-id');
+                let fieldId = field.getAttribute('data-bs-field-id');
+
+
+                let createdField = this.temporaryCommand.createNewField(fieldId, pluginId, field.value);
+                customFieldList.push(createdField);
+            });
+            this.temporaryCommand.setFields(customFieldList);
+
+
+            await this.commandManagementHelper.updateCommand(this.temporaryCommand);
+            loadData();
         });
     }
 
-    private conditionCheckboxClicked = (input: HTMLInputElement, condition: any, pluginCommand: any): void => {
-        console.log('got clicked', input.checked, condition);
+    private conditionCheckboxClicked = (input: HTMLInputElement, condition: any, plugin: any): void => {
         if (input.checked) {
-            // add condition
-            
+
+            // TODO: check if condition is already used
+            let newDatabaseCondition = this.temporaryCommand.createNewCondition(condition.id, plugin.plugin)
+            this.temporaryCommand.addCondition(newDatabaseCondition);
+
             if (condition.fieldId) {
-                let customField = pluginCommand.fields.find(field => field.id === condition.fieldId);
-                let customFieldId = `custom-input-${pluginCommand.plugin}-${condition.fieldId}`;
-                var customFieldWrapper = document.querySelector(`.modal-body #${customFieldId}-wrapper`);
-                if (!customFieldWrapper) {
-                    this.addCustomField(customFieldId, customField.type, customField.label, '', customField.description);
-                }
+                this._addCustomFieldWrapper(condition, plugin);
             }
         } else {
-            // remove condition
-            
+            // check if condition is still needed
+            let newDatabaseCondition = this.temporaryCommand.createNewCondition(condition.id, plugin.plugin)
+            this.temporaryCommand.removeCondition(newDatabaseCondition);
+
             if (condition.fieldId) {
-                // check if field still needed
-                
-                let customFieldId = `custom-input-${pluginCommand.plugin}-${condition.fieldId}`;
+                // TODO: check if field still needed
+
+                let customFieldId = `custom-input-${plugin.plugin}-${condition.fieldId}`;
                 this.removeCustomField(customFieldId);
             }
+        }
+    }
+
+    private _addCustomFieldWrapper = (condition: any, pluginCommand: any): void => {
+        let customField = pluginCommand.command.fields.find(field => field.id === condition.fieldId);
+        let customFieldId = `custom-input-${pluginCommand.plugin}-${condition.fieldId}`;
+        var customFieldWrapper = document.querySelector(`.modal-body #${customFieldId}-wrapper`);
+        var savedField = this.temporaryCommand.getFields().find((field) => field.getId() === condition.fieldId && field.getPluginId() === pluginCommand.plugin);
+        let fieldValue = savedField ? savedField.getValue() : '';
+        if (!customFieldWrapper) {
+            this.addCustomField(customFieldId, customField.type, customField.label, fieldValue, pluginCommand.plugin, condition.fieldId, customField.description);
         }
     }
 
@@ -130,10 +159,10 @@ class CommandsManagerPluginUI {
         customFieldWrapper.remove();
     }
 
-    private addCustomField = (id: string, type: string, label: string, value: any, description?: string): void => {
+    private addCustomField = (id: string, type: string, label: string, value: any, pluginId: string, fieldId: string, description?: string): void => {
         let customFieldWrapper = document.createElement('div');
         customFieldWrapper.id = `${id}-wrapper`;
-        
+
         let customLableElement = document.createElement('label');
         customLableElement.setAttribute("for", id);
         customLableElement.classList.add("col-form-label");
@@ -146,12 +175,14 @@ class CommandsManagerPluginUI {
         customInputElement.classList.add('form-control');
         customInputElement.id = id;
         customInputElement.value = value;
+
+        customInputElement.setAttribute('data-bs-plugin-id', pluginId);
+        customInputElement.setAttribute('data-bs-field-id', fieldId);
+
         customFieldWrapper.appendChild(customInputElement);
 
         var customFieldsSections = document.querySelector(`.modal-body #custom-fields-section`);
         customFieldsSections.appendChild(customFieldWrapper);
-        // <label for="command-command" class="col-form-label">Command:</label>
-        // <input type="text" class="form-control" id="command-command">
     }
 
     private _prepareModalSelectConditions = (commandEditModal: any, pluginCommands: any): void => {
@@ -163,26 +194,39 @@ class CommandsManagerPluginUI {
         pluginCommands.forEach(pluginCommand => {
             if (pluginCommand.command && pluginCommand.command.conditions) {
                 pluginCommand.command.conditions.forEach(condition => {
-                    let conditionListElement = document.createElement('li');
-                    conditionListElement.classList.add('list-group-item');
-
-                    let conditionListElementInput = document.createElement('input');
-                    conditionListElementInput.classList.add('form-check-input');
-                    conditionListElementInput.type = 'checkbox';
-                    conditionListElementInput.value = `${pluginCommand.plugin}-${condition.id}`;
-                    conditionListElementInput.onclick = () => {
-                        this.conditionCheckboxClicked(conditionListElementInput, condition, pluginCommand.command);
-                    };
-
-                    let conditionListElementText = document.createElement('span');
-                    conditionListElementText.innerHTML = `&nbsp;${condition.name} (${pluginCommand.plugin})`;
-
-                    conditionListElement.appendChild(conditionListElementInput);
-                    conditionListElement.appendChild(conditionListElementText);
-                    conditionsList.appendChild(conditionListElement);
+                    this.addConditionToConditionsList(condition, conditionsList, pluginCommand);
                 });
             }
         });
+    }
+
+    private addConditionToConditionsList = (condition: any, conditionsList: any, pluginCommand: any): void => {
+
+        let conditionListElement = document.createElement('li');
+        conditionListElement.classList.add('list-group-item');
+
+        let conditionAlreadyExists = !!this.temporaryCommand.getConditions().find(condition => (condition.getId() === condition.id && condition.getPluginId() === pluginCommand.plugin));
+
+        let conditionListElementInput = document.createElement('input');
+        conditionListElementInput.classList.add('form-check-input');
+        conditionListElementInput.type = 'checkbox';
+        conditionListElementInput.id = `${pluginCommand.plugin}-${condition.id}`;
+        conditionListElementInput.checked = conditionAlreadyExists;
+        conditionListElementInput.onclick = () => {
+            this.conditionCheckboxClicked(conditionListElementInput, condition, pluginCommand);
+        };
+
+        let conditionListElementText = document.createElement('span');
+        conditionListElementText.innerHTML = `&nbsp;${condition.name} (${pluginCommand.plugin})`;
+
+        conditionListElement.appendChild(conditionListElementInput);
+        conditionListElement.appendChild(conditionListElementText);
+        conditionsList.appendChild(conditionListElement);
+
+        // add field
+        if (condition.fieldId && !!this.temporaryCommand.getFields().find((field) => field.getId() === condition.fieldId && field.getPluginId() === pluginCommand.plugin)) {
+            this._addCustomFieldWrapper(condition, pluginCommand);
+        }
     }
 
     deleteCommand = async (documentId: string) => {

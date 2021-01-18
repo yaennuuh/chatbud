@@ -1,12 +1,17 @@
+import { CommandAction } from "./CommandAction";
+import { CommandCondition } from "./CommandCondition";
+import { CommandField } from "./CommandField";
 import { ICommand } from "./ICommand";
 import { ICommandAction } from "./ICommandAction";
 import { ICommandCondition } from "./ICommandCondition";
+import { ICommandField } from "./ICommandField";
 
 export class Command implements ICommand {
     private documentId: string;
     private command: string;
     private conditions: ICommandCondition[];
     private actions: ICommandAction[];
+    private fields: ICommandField[];
     private description: string;
     private active: boolean;
 
@@ -15,6 +20,7 @@ export class Command implements ICommand {
         this.command = '';
         this.conditions = [];
         this.actions = [];
+        this.fields = [];
         this.description = '';
         this.active = !!active ? active : false;
     }
@@ -22,7 +28,6 @@ export class Command implements ICommand {
     getDocumentId = (): string => {
         return this.documentId;
     }
-
     setDocumentId = (documentId: string): void => {
         this.documentId = documentId;
     }
@@ -30,38 +35,69 @@ export class Command implements ICommand {
     getCommand = (): string => {
         return this.command;
     }
-    getConditions = (): ICommandCondition[] => {
-        return this.conditions;
-    }
-    getActions = (): ICommandAction[] => {
-        return this.actions;
-    }
-    setConditions = (conditions: ICommandCondition[]): void => {
-        this.conditions = conditions;
-    }
-    setActions = (actions: ICommandAction[]): void => {
-        this.actions = actions;
-    }
-    getDescription = (): string => {
-        return this.description;
-    }
-    isActive = (): boolean => {
-        return this.active;
-    }
-
     setCommand = (command: string): void => {
         this.command = command;
     }
-    addCondition = (condition: ICommandCondition): void => {
-        this.conditions.push(condition);
-    }
-    addAction = (action: ICommandAction): void => {
-        this.actions.push(action);
+
+    getDescription = (): string => {
+        return this.description;
     }
     setDescription = (description: string): void => {
         this.description = description;
     }
+
+    isActive = (): boolean => {
+        return this.active;
+    }
     setIsActive = (active: boolean): void => {
         this.active = active;
+    }
+
+    createNewCondition = (id: string, pluginId: string): ICommandCondition => {
+        return new CommandCondition(id, pluginId);
+    }
+    getConditions = (): ICommandCondition[] => {
+        return this.conditions;
+    }
+    setConditions = (conditions: ICommandCondition[]): void => {
+        this.conditions = conditions;
+    }
+    addCondition = (condition: ICommandCondition): void => {
+        this.conditions.push(condition);
+    }
+    removeCondition = (condition: ICommandCondition): void => {
+        this.conditions.splice(this.conditions.indexOf(condition), 1);
+    }
+
+    createNewAction = (id: string, pluginId: string, conditionId?: string): ICommandAction => {
+        return new CommandAction(id, pluginId, conditionId);
+    }
+    getActions = (): ICommandAction[] => {
+        return this.actions;
+    }
+    setActions = (actions: ICommandAction[]): void => {
+        this.actions = actions;
+    }
+    addAction = (action: ICommandAction): void => {
+        this.actions.push(action);
+    }
+    removeAction = (action: ICommandAction): void => {
+        this.actions.splice(this.actions.indexOf(action), 1);
+    }
+
+    createNewField = (id: string, pluginId: string, value: string): ICommandField => {
+        return new CommandField(id, pluginId, value);
+    }
+    getFields = (): ICommandField[] => {
+        return this.fields;
+    }
+    setFields = (fields: ICommandField[]): void => {
+        this.fields = fields;
+    }
+    addField = (field: ICommandField): void => {
+        this.fields.push(field);
+    }
+    removeField = (field: ICommandField): void => {
+        this.fields.splice(this.fields.indexOf(field), 1);
     }
 }

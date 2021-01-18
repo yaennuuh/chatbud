@@ -3,12 +3,10 @@ import { ICommandCondition } from "./ICommandCondition";
 export class CommandCondition implements ICommandCondition {
     private id: string;
     private pluginId: string;
-    private actionId: string;
 
-    constructor(id: string, pluginId: string, actionId?: string) {
+    constructor(id: string, pluginId: string) {
         this.id = id;
         this.pluginId = pluginId;
-        this.actionId = actionId;
     }
 
     getId(): string {
@@ -16,9 +14,6 @@ export class CommandCondition implements ICommandCondition {
     }
     getPluginId(): string {
         return this.pluginId;
-    }
-    getActionId(): string {
-        return this.actionId;
     }
     
 }

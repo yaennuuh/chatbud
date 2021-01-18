@@ -7,6 +7,8 @@ import { CommandCondition } from "./entities/CommandCondition";
 import { ICommandCondition } from "./entities/ICommandCondition";
 import { ICommandAction } from "./entities/ICommandAction";
 import { PluginManager } from "../plugins/PluginManager";
+import { ICommandField } from "./entities/ICommandField";
+import { CommandField } from "./entities/CommandField";
 
 export class CommandManagementHelper {
 
@@ -81,12 +83,17 @@ export class CommandManagementHelper {
 
             let conditions = document['conditions'];
             conditions.forEach((condition) => {
-                command.addCondition(new CommandCondition(condition['id'], condition['pluginId'], condition['actionId'] || null));
+                command.addCondition(new CommandCondition(condition['id'], condition['pluginId']));
             });
 
             let actions = document['actions'];
             actions.forEach((action) => {
-                command.addAction(new CommandAction(action['id'], action['pluginId']));
+                command.addAction(new CommandAction(action['id'], action['pluginId'], action['conditionId']));
+            });
+
+            let fields = document['fields'];
+            fields.forEach((field) => {
+                command.addField(new CommandField(field['id'], field['pluginId'], field['value']));
             });
 
             command.setDescription(document['description'] || '');
@@ -102,14 +109,21 @@ export class CommandManagementHelper {
             'conditions': _.map(command.getConditions(), (condition: ICommandCondition): Object => {
                 return {
                     'id': condition.getId(),
-                    'pluginId': condition.getPluginId(),
-                    'actionId': condition.getActionId()
+                    'pluginId': condition.getPluginId()
                 };
             }),
             'actions': _.map(command.getActions(), (action: ICommandAction): Object => {
                 return {
                     'id': action.getId(),
-                    'pluginId': action.getPluginId()
+                    'pluginId': action.getPluginId(),
+                    'conditionId': action.getConditionId()
+                };
+            }),
+            'fields': _.map(command.getFields(), (field: ICommandField): Object => {
+                return {
+                    'id': field.getId(),
+                    'pluginId': field.getPluginId(),
+                    'value': field.getValue()
                 };
             }),
             'description': command.getDescription(),
