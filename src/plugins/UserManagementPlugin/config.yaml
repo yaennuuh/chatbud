@@ -8,7 +8,7 @@ data-yaml: data.yaml
 
 command:
   fields:
-    - id: isUsername
+    - id: is-username
       label: Is Username
       type: text
       description: 'Type in a twitch username'
@@ -16,4 +16,4 @@ command:
     - id: isUsername
       name: Check twitch username
       function: isMessageFromUsername
-      fieldId: isUsername
+      fieldId: is-username

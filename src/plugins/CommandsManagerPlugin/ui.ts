@@ -77,11 +77,17 @@ class CommandsManagerPluginUI {
         var modalInputCommand = <HTMLInputElement>commandEditModal.querySelector('.modal-body input#command-command');
         modalInputCommand.value = command.getCommand();
 
+        // Clear custom fields section
+        let el = commandEditModal.querySelector('.modal-body #custom-fields-section');
+        let elClone = el.cloneNode(false);
+        el.parentNode.replaceChild(elClone, el);
+
         // Conditions
         this._prepareModalSelectConditions(commandEditModal, pluginCommands);
 
 
-        let el = commandEditModal.querySelector('.modal-footer #modal-button-save'), elClone = el.cloneNode(true);
+        el = commandEditModal.querySelector('.modal-footer #modal-button-save');
+        elClone = el.cloneNode(true);
         el.parentNode.replaceChild(elClone, el);
 
         // Save action
@@ -94,61 +100,87 @@ class CommandsManagerPluginUI {
         });
     }
 
+    private conditionCheckboxClicked = (input: HTMLInputElement, condition: any, pluginCommand: any): void => {
+        console.log('got clicked', input.checked, condition);
+        if (input.checked) {
+            // add condition
+            
+            if (condition.fieldId) {
+                let customField = pluginCommand.fields.find(field => field.id === condition.fieldId);
+                let customFieldId = `custom-input-${pluginCommand.plugin}-${condition.fieldId}`;
+                var customFieldWrapper = document.querySelector(`.modal-body #${customFieldId}-wrapper`);
+                if (!customFieldWrapper) {
+                    this.addCustomField(customFieldId, customField.type, customField.label, '', customField.description);
+                }
+            }
+        } else {
+            // remove condition
+            
+            if (condition.fieldId) {
+                // check if field still needed
+                
+                let customFieldId = `custom-input-${pluginCommand.plugin}-${condition.fieldId}`;
+                this.removeCustomField(customFieldId);
+            }
+        }
+    }
+
+    private removeCustomField = (id: string): void => {
+        var customFieldWrapper = document.querySelector(`.modal-body #custom-fields-section #${id}-wrapper`);
+        customFieldWrapper.remove();
+    }
+
+    private addCustomField = (id: string, type: string, label: string, value: any, description?: string): void => {
+        let customFieldWrapper = document.createElement('div');
+        customFieldWrapper.id = `${id}-wrapper`;
+        
+        let customLableElement = document.createElement('label');
+        customLableElement.setAttribute("for", id);
+        customLableElement.classList.add("col-form-label");
+        customLableElement.innerText = label;
+
+        customFieldWrapper.appendChild(customLableElement);
+
+        let customInputElement = document.createElement('input');
+        customInputElement.type = type;
+        customInputElement.classList.add('form-control');
+        customInputElement.id = id;
+        customInputElement.value = value;
+        customFieldWrapper.appendChild(customInputElement);
+
+        var customFieldsSections = document.querySelector(`.modal-body #custom-fields-section`);
+        customFieldsSections.appendChild(customFieldWrapper);
+        // <label for="command-command" class="col-form-label">Command:</label>
+        // <input type="text" class="form-control" id="command-command">
+    }
+
     private _prepareModalSelectConditions = (commandEditModal: any, pluginCommands: any): void => {
-        let el = commandEditModal.querySelector('.modal-body #button-add-condition'), elClone = el.cloneNode(true);
-        el.parentNode.replaceChild(elClone, el);
+        let conditionsList = commandEditModal.querySelector('.modal-body #accordionConditionsActions .list-group');
 
-        var modalButtonAddCondition = <HTMLButtonElement>commandEditModal.querySelector('.modal-body #button-add-condition');
-
-        var modalSelectCondition = <HTMLSelectElement>commandEditModal.querySelector('.modal-body #select-condition');
+        // clear condition list
+        conditionsList.innerHTML = '';
 
         pluginCommands.forEach(pluginCommand => {
             if (pluginCommand.command && pluginCommand.command.conditions) {
                 pluginCommand.command.conditions.forEach(condition => {
-                    let conditionOption = document.createElement('option');
-                    conditionOption.value = `${pluginCommand.plugin}-${condition.id}`;
-                    conditionOption.text = condition.name;
-                    modalSelectCondition.options.add(conditionOption);
+                    let conditionListElement = document.createElement('li');
+                    conditionListElement.classList.add('list-group-item');
+
+                    let conditionListElementInput = document.createElement('input');
+                    conditionListElementInput.classList.add('form-check-input');
+                    conditionListElementInput.type = 'checkbox';
+                    conditionListElementInput.value = `${pluginCommand.plugin}-${condition.id}`;
+                    conditionListElementInput.onclick = () => {
+                        this.conditionCheckboxClicked(conditionListElementInput, condition, pluginCommand.command);
+                    };
+
+                    let conditionListElementText = document.createElement('span');
+                    conditionListElementText.innerHTML = `&nbsp;${condition.name} (${pluginCommand.plugin})`;
+
+                    conditionListElement.appendChild(conditionListElementInput);
+                    conditionListElement.appendChild(conditionListElementText);
+                    conditionsList.appendChild(conditionListElement);
                 });
-            }
-        });
-
-        modalButtonAddCondition.addEventListener('click', function () {
-            if (modalSelectCondition.options[modalSelectCondition.selectedIndex]) {
-                // <li class="list-group-item">Cras justo odio</li>
-                let conditionsList = commandEditModal.querySelector('.modal-body #conditions-list');
-                let conditionListElement = document.createElement('li');
-                conditionListElement.classList.add('list-group-item');
-                conditionListElement.innerText = modalSelectCondition.options[modalSelectCondition.selectedIndex].value;
-                conditionsList.appendChild(conditionListElement);
-                modalSelectCondition.options.remove(modalSelectCondition.selectedIndex);
-
-                // check if and add related fields to UI in plugin section
-
-                /* 
-                    <ul class="list-group">
-                        <li class="list-group-item">
-                            <input class="form-check-input me-1" type="checkbox" value="" aria-label="...">
-                            Cras justo odio
-                        </li>
-                        <li class="list-group-item">
-                            <input class="form-check-input me-1" type="checkbox" value="" aria-label="...">
-                            Dapibus ac facilisis in
-                        </li>
-                        <li class="list-group-item">
-                            <input class="form-check-input me-1" type="checkbox" value="" aria-label="...">
-                            Morbi leo risus
-                        </li>
-                        <li class="list-group-item">
-                            <input class="form-check-input me-1" type="checkbox" value="" aria-label="...">
-                            Porta ac consectetur ac
-                        </li>
-                        <li class="list-group-item">
-                            <input class="form-check-input me-1" type="checkbox" value="" aria-label="...">
-                            Vestibulum at eros
-                        </li>
-                    </ul>
-                */
             }
         });
     }
