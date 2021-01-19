@@ -66,11 +66,13 @@ export class Command implements ICommand {
         this.conditions.push(condition);
     }
     removeCondition = (condition: ICommandCondition): void => {
-        this.conditions.splice(this.conditions.indexOf(condition), 1);
+        this.conditions = this.conditions.filter(function(filterCondition, index, arr){ 
+            return filterCondition.getPluginId() != condition.getPluginId() || filterCondition.getId() != condition.getId();
+        });
     }
 
-    createNewAction = (id: string, pluginId: string, conditionId?: string): ICommandAction => {
-        return new CommandAction(id, pluginId, conditionId);
+    createNewAction = (id: string, pluginId: string, conditions?: string[]): ICommandAction => {
+        return new CommandAction(id, pluginId, conditions);
     }
     getActions = (): ICommandAction[] => {
         return this.actions;
@@ -82,7 +84,9 @@ export class Command implements ICommand {
         this.actions.push(action);
     }
     removeAction = (action: ICommandAction): void => {
-        this.actions.splice(this.actions.indexOf(action), 1);
+        this.actions = this.actions.filter(function(filterAction, index, arr){ 
+            return filterAction.getPluginId() != action.getPluginId() || filterAction.getId() != action.getId();
+        });
     }
 
     createNewField = (id: string, pluginId: string, value: string): ICommandField => {
@@ -98,6 +102,8 @@ export class Command implements ICommand {
         this.fields.push(field);
     }
     removeField = (field: ICommandField): void => {
-        this.fields.splice(this.fields.indexOf(field), 1);
+        this.fields = this.fields.filter(function(filterField, index, arr){ 
+            return filterField.getPluginId() != field.getPluginId() || filterField.getId() != field.getId();
+        });
     }
 }

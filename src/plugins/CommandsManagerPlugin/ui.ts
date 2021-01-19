@@ -91,13 +91,15 @@ class CommandsManagerPluginUI {
 
         this._populateConditionsList();
 
+        this._populateActionsList();
+
         const el = commandEditModal.querySelector('.modal-footer #modal-button-save');
         const elClone = el.cloneNode(true);
         el.parentNode.replaceChild(elClone, el);
 
 
-        // TODO: make save action nice
-        // Save action
+        // TODO: make save nice
+        // Save
         const modalButtonSave = <HTMLButtonElement>commandEditModal.querySelector('.modal-footer #modal-button-save');
 
         modalButtonSave.addEventListener('click', async () => {
@@ -128,6 +130,9 @@ class CommandsManagerPluginUI {
         document.querySelector('.modal-body #custom-fields-section').innerHTML = '';
     }
 
+    /**
+     * Modal conditions
+     */
     private _populateConditionsList = (): void => {
         const commandEditModal = document.getElementById('commandEditModal');
         const conditionsList = commandEditModal.querySelector('.modal-body #collapseConditions .list-group');
@@ -169,7 +174,6 @@ class CommandsManagerPluginUI {
         const newDatabaseCondition = this._currentCommand.createNewCondition(condition.id, pluginCommand.plugin);
         if (checkboxElement.checked) {
 
-            // TODO: check if condition is already used (because of action)
             this._currentCommand.addCondition(newDatabaseCondition);
 
             if (condition.fieldId) {
@@ -179,28 +183,121 @@ class CommandsManagerPluginUI {
             // TODO: check if condition is still needed (because of action)
             this._currentCommand.removeCondition(newDatabaseCondition);
 
-            if (condition.fieldId) {
-                // TODO: check if field still needed (because of action)
+            if (condition.fieldId && !this._isCustomFieldStillNeeded(pluginCommand, condition.fieldId)) {
                 let customFieldId = `custom-input-${pluginCommand.plugin}-${condition.fieldId}`;
                 this._removeCustomField(customFieldId);
             }
         }
     }
 
+    /**
+     * Modal actions
+     */
+    private _populateActionsList = (): void => {
+        const commandEditModal = document.getElementById('commandEditModal');
+        const actionsList = commandEditModal.querySelector('.modal-body #collapseActions .list-group');
+        actionsList.innerHTML = '';
+
+        this._availablePluginCommands.forEach(pluginCommand => {
+            if (pluginCommand.command && pluginCommand.command.actions) {
+                pluginCommand.command.actions.forEach(action => {
+                    this._addActionToActionsList(action, pluginCommand);
+                });
+            }
+        });
+    }
+
+    private _addActionToActionsList = (action: any, pluginCommand: any): void => {
+        const commandEditModal = document.getElementById('commandEditModal');
+        const actionsList = commandEditModal.querySelector('.modal-body #collapseActions .list-group');
+
+        let actionListElement = this._htmlToElement('<li class="list-group-item"></li>');
+
+        let actionAlreadyExists = this._checkIfActionAlreadyExists(action.id, pluginCommand.plugin);
+
+        let actionCheckbox = <HTMLInputElement>this._htmlToElement(`<input data-bs-id="${pluginCommand.plugin}-${action.id}" class="form-check-input me-1" type="checkbox">`);
+        actionCheckbox.checked = actionAlreadyExists;
+        actionCheckbox.onclick = () => {
+            this._actionCheckboxClicked(actionCheckbox, action, pluginCommand);
+        };
+
+        actionListElement.appendChild(actionCheckbox);
+        actionListElement.appendChild(this._htmlToElement(`${action.name} (${pluginCommand.plugin})`));
+        actionsList.appendChild(actionListElement);
+
+        if (action.fieldId && actionAlreadyExists) {
+            this._addCustomFieldWrapperIfNotExists(action.fieldId, pluginCommand);
+        }
+    }
+
+    private _actionCheckboxClicked = (checkboxElement: HTMLInputElement, action: any, pluginCommand: any): void => {
+        const newDatabaseAction = this._currentCommand.createNewAction(action.id, pluginCommand.plugin, action.requiredConditions);
+        if (checkboxElement.checked) {
+
+            // TODO: check if related condition has to be updated (added & disabled in list)
+            this._currentCommand.addAction(newDatabaseAction);
+
+            if (action.fieldId) {
+                this._addCustomFieldWrapperIfNotExists(action.fieldId, pluginCommand);
+            }
+        } else {
+            // TODO: check if an active condition has to be removed (enabled & removed in list)
+            this._currentCommand.removeAction(newDatabaseAction);
+
+            if (action.fieldId && !this._isCustomFieldStillNeeded(pluginCommand, action.fieldId)) {
+                let customFieldId = `custom-input-${pluginCommand.plugin}-${action.fieldId}`;
+                this._removeCustomField(customFieldId);
+            }
+        }
+    }
+
+
+    /**
+     * Modal custom fields
+     */
     private _removeCustomField = (id: string): void => {
         const customFieldWrapper = document.querySelector(`.modal-body #custom-fields-section #${id}-wrapper`);
         customFieldWrapper.remove();
     }
 
+    private _isCustomFieldStillNeeded = (pluginCommand: any, fieldId: string): boolean => {
+        const commandActions = this._currentCommand.getActions();
+        let customFieldNeeded = commandActions ? !!commandActions.find(action => (action.getPluginId() === pluginCommand.plugin && this._hasCustomFieldOnCommandAction(pluginCommand, action, fieldId))) : false;
+        
+        if (customFieldNeeded) {
+            return true;
+        }
+
+        const commandConditions = this._currentCommand.getConditions();
+        customFieldNeeded = commandConditions ? !!commandConditions.find(condition => (condition.getPluginId() === pluginCommand.plugin && this._hasCustomFieldOnCommandCondition(pluginCommand, condition, fieldId))) : false;
+        
+        return customFieldNeeded;
+    }
+
+    private _hasCustomFieldOnCommandAction = (pluginCommand: any, action: any, fieldId: string): boolean => {
+        let pluginActions = pluginCommand.command.actions;
+        let pluginAction = pluginActions ? pluginActions.find((pluginAction) => (pluginAction.id === action.getId() && pluginAction.fieldId === fieldId)) : undefined;
+        return !!pluginAction;
+    }
+
+    private _hasCustomFieldOnCommandCondition = (pluginCommand: any, action: any, fieldId: string): boolean => {
+        let pluginConditions = pluginCommand.command.conditions;
+        let pluginCondition = pluginConditions ? pluginConditions.find((pluginCondition) => (pluginCondition.id === action.getId() && pluginCondition.fieldId === fieldId)) : undefined;
+        return !!pluginCondition;
+    }
+
     private _addCustomFieldWrapperIfNotExists = (fieldId: string, pluginCommand: any): void => {
         const customField = pluginCommand.command.fields.find(field => field.id === fieldId);
-        const customFieldId = `custom-input-${pluginCommand.plugin}-${fieldId}`;
-        const customFieldWrapper = document.querySelector(`.modal-body #${customFieldId}-wrapper`);
-        const savedField = this._currentCommand.getFields().find((field) => field.getId() === fieldId && field.getPluginId() === pluginCommand.plugin);
-        const fieldValue = savedField ? savedField.getValue() : '';
 
-        if (!customFieldWrapper) {
-            this._addCustomFieldIfNotExists(customFieldId, customField.type, customField.label, fieldValue, pluginCommand.plugin, fieldId, customField.description);
+        if (customField) {
+            const customFieldId = `custom-input-${pluginCommand.plugin}-${fieldId}`;
+            const customFieldWrapper = document.querySelector(`.modal-body #${customFieldId}-wrapper`);
+
+            if (!customFieldWrapper) {
+                const savedField = this._currentCommand.getFields().find((field) => field.getId() === fieldId && field.getPluginId() === pluginCommand.plugin);
+                const fieldValue = savedField ? savedField.getValue() : '';
+                this._addCustomFieldIfNotExists(customFieldId, customField.type, customField.label, fieldValue, pluginCommand.plugin, fieldId, customField.description);
+            }
         }
     }
 
@@ -251,10 +348,15 @@ class CommandsManagerPluginUI {
 
     private _loadCurrentCommand = async (documentId: string): Promise<void> => {
         this._currentCommand = documentId ? (await this._getCommands()).find((command) => command.getDocumentId() === documentId) : this._commandManagementHelper.getEmptyCommand();
+        console.log(this._currentCommand);
     }
 
     private _checkIfConditionAlreadyExists = (conditionId: string, pluginId: string): boolean => {
         return !!this._currentCommand.getConditions().find(condition => (condition.getId() === conditionId && condition.getPluginId() === pluginId))
+    }
+
+    private _checkIfActionAlreadyExists = (actionId: string, pluginId: string): boolean => {
+        return !!this._currentCommand.getActions().find(action => (action.getId() === actionId && action.getPluginId() === pluginId))
     }
 
 

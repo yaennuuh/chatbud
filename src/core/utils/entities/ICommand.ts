@@ -15,7 +15,7 @@ export interface ICommand {
     addCondition(condition: ICommandCondition): void;
     removeCondition(condition: ICommandCondition): void;
 
-    createNewAction(id: string, pluginId: string, conditionId?: string): ICommandAction;
+    createNewAction(id: string, pluginId: string, conditions?: string[]): ICommandAction;
     getActions(): ICommandAction[];
     setActions(actions: ICommandAction[]): void;
     addAction(action: ICommandAction): void;

@@ -12,8 +12,29 @@ command:
       label: Is Username
       type: text
       description: 'Type in a twitch username'
+    - id: points
+      label: Points
+      type: text
+      description: 'Type in a twitch username'
   conditions:
     - id: isUsername
       name: Check twitch username
       function: isMessageFromUsername
       fieldId: is-username
+    - id: hasPoints
+      name: Has points
+      function: hasPoints
+      fieldId: points
+  actions:
+    - id: addPoints
+      name: Add points
+      function: addPoints
+      fieldId: points
+      requiredConditions:
+        - hasPoints
+    - id: removePoints
+      name: Remove points
+      function: removePoints
+      fieldId: points
+      requiredConditions:
+        - hasPoints

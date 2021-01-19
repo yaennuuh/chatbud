@@ -88,7 +88,7 @@ export class CommandManagementHelper {
 
             let actions = document['actions'];
             actions.forEach((action) => {
-                command.addAction(new CommandAction(action['id'], action['pluginId'], action['conditionId']));
+                command.addAction(new CommandAction(action['id'], action['pluginId'], action['conditions']));
             });
 
             let fields = document['fields'];
@@ -116,7 +116,7 @@ export class CommandManagementHelper {
                 return {
                     'id': action.getId(),
                     'pluginId': action.getPluginId(),
-                    'conditionId': action.getConditionId()
+                    'conditions': action.getConditions()
                 };
             }),
             'fields': _.map(command.getFields(), (field: ICommandField): Object => {
