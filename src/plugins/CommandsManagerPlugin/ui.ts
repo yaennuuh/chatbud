@@ -1,314 +1,263 @@
 class CommandsManagerPluginUI {
-    _window: any = window;
 
-    commands: any[];
-    commandManagementHelper: any;
-    toastList: any[];
-    temporaryCommand: any;
+    private _commandManagementHelper: any;
+    private _currentCommand: any;
+    private _availablePluginCommands: any[];
 
     constructor(private pluginHelper: any) {
-        this.commandManagementHelper = this.pluginHelper.getCommandManagementHelper();
-        this.commands = [];
-        this.init();
-    }
-    init = async (): Promise<void> => {
-        await this.loadCommands();
-
-        //console.log(this._window.bootstrap);
-        document.getElementById('refresh-button').addEventListener('click', this.loadData);
+        this._commandManagementHelper = this.pluginHelper.getCommandManagementHelper();
+        this._populateTable();
+        this._initializeOneTimeListeners();
+        this._loadAvailableCommandsFromPlugins();
     }
 
-    loadCommands = async (): Promise<void> => {
-        await this.loadData();
-        this._addEditModalListener();
-    }
+    /**
+     * Table
+     */
+    private _populateTable = async (): Promise<void> => {
+        let commands = await this._getCommands();
+        const table = this._getEmptyCommandsTable();
 
-    loadData = async (): Promise<void> => {
-        this.commands = await this.commandManagementHelper.getAllCommands();
-        this.populateTable();
-    }
-
-    private _addEditModalListener = (): void => {
-        var commandEditModal = document.getElementById('commandEditModal');
-        let _prepareModalCommand = this._prepareModalCommand;
-
-        commandEditModal.addEventListener('show.bs.modal', function (event: any) {
-            const button = event.relatedTarget;
-            const documentId = button.getAttribute('data-bs-command');
-            _prepareModalCommand(documentId);
-        })
-    }
-
-    private _prepareModalCommand = async (documentId: string) => {
-        var commandEditModal = document.getElementById('commandEditModal');
-        this.temporaryCommand = this.commandManagementHelper.getEmptyCommand(documentId);
-        var modalTitle = commandEditModal.querySelector('.modal-title');
-
-        if (documentId) {
-            modalTitle.textContent = 'Update command';
-            this.commands.forEach((item: any) => {
-                if (item.getDocumentId() == documentId) {
-                    this.temporaryCommand.setDocumentId(item.getDocumentId());
-                    this.temporaryCommand.setCommand(item.getCommand());
-                    this.temporaryCommand.setActions(item.getActions());
-                    this.temporaryCommand.setConditions(item.getConditions());
-                    this.temporaryCommand.setFields(item.getFields());
-                    this.temporaryCommand.setDescription(item.getDescription());
-                    this.temporaryCommand.setIsActive(item.isActive());
-                }
-            });
-        } else {
-            modalTitle.textContent = 'Create command';
-        }
-
-        let pluginCommands = await this._loadAllPluginCommands();
-
-        this._fillModalData(pluginCommands);
-    }
-
-    private _loadAllPluginCommands = async (): Promise<any[]> => {
-        return this.commandManagementHelper.getPluginCommands();
-    }
-
-    private _fillModalData = (pluginCommands: any): void => {
-        var commandEditModal = document.getElementById('commandEditModal');
-        let loadData = this.loadData;
-
-        // Fill command input
-        var modalInputCommand = <HTMLInputElement>commandEditModal.querySelector('.modal-body input#command-command');
-        modalInputCommand.value = this.temporaryCommand.getCommand();
-
-        // Clear custom fields section
-        let el = commandEditModal.querySelector('.modal-body #custom-fields-section');
-        let elClone = el.cloneNode(false);
-        el.parentNode.replaceChild(elClone, el);
-
-        // Conditions
-        this._prepareModalSelectConditions(commandEditModal, pluginCommands);
-
-
-        el = commandEditModal.querySelector('.modal-footer #modal-button-save');
-        elClone = el.cloneNode(true);
-        el.parentNode.replaceChild(elClone, el);
-
-        // Save action
-        var modalButtonSave = <HTMLButtonElement>commandEditModal.querySelector('.modal-footer #modal-button-save');
-
-        modalButtonSave.addEventListener('click', async () => {
-            // Command
-            this.temporaryCommand.setCommand(modalInputCommand.value);
-
-            // Custom Fields
-            let customFields = commandEditModal.querySelectorAll(`#custom-fields-section [id$='wrapper']`);
-            let customFieldList = [];
-            customFields.forEach((customField) => {
-                let field = <HTMLInputElement>customField.childNodes.item(1);
-
-                let pluginId = field.getAttribute('data-bs-plugin-id');
-                let fieldId = field.getAttribute('data-bs-field-id');
-
-
-                let createdField = this.temporaryCommand.createNewField(fieldId, pluginId, field.value);
-                customFieldList.push(createdField);
-            });
-            this.temporaryCommand.setFields(customFieldList);
-
-
-            await this.commandManagementHelper.updateCommand(this.temporaryCommand);
-            loadData();
+        let rowCounter = 0;
+        commands.forEach((command) => {
+            let row = table.insertRow();
+            this._addRowToTable(row, rowCounter++, command);
         });
     }
 
-    private conditionCheckboxClicked = (input: HTMLInputElement, condition: any, plugin: any): void => {
-        if (input.checked) {
-
-            // TODO: check if condition is already used
-            let newDatabaseCondition = this.temporaryCommand.createNewCondition(condition.id, plugin.plugin)
-            this.temporaryCommand.addCondition(newDatabaseCondition);
-
-            if (condition.fieldId) {
-                this._addCustomFieldWrapper(condition, plugin);
-            }
-        } else {
-            // check if condition is still needed
-            let newDatabaseCondition = this.temporaryCommand.createNewCondition(condition.id, plugin.plugin)
-            this.temporaryCommand.removeCondition(newDatabaseCondition);
-
-            if (condition.fieldId) {
-                // TODO: check if field still needed
-
-                let customFieldId = `custom-input-${plugin.plugin}-${condition.fieldId}`;
-                this.removeCustomField(customFieldId);
-            }
-        }
+    private _getEmptyCommandsTable = (): HTMLTableElement => {
+        const table = <HTMLTableElement>document.getElementById("commands-table-body");
+        table.innerHTML = '';
+        return table;
     }
 
-    private _addCustomFieldWrapper = (condition: any, pluginCommand: any): void => {
-        let customField = pluginCommand.command.fields.find(field => field.id === condition.fieldId);
-        let customFieldId = `custom-input-${pluginCommand.plugin}-${condition.fieldId}`;
-        var customFieldWrapper = document.querySelector(`.modal-body #${customFieldId}-wrapper`);
-        var savedField = this.temporaryCommand.getFields().find((field) => field.getId() === condition.fieldId && field.getPluginId() === pluginCommand.plugin);
-        let fieldValue = savedField ? savedField.getValue() : '';
-        if (!customFieldWrapper) {
-            this.addCustomField(customFieldId, customField.type, customField.label, fieldValue, pluginCommand.plugin, condition.fieldId, customField.description);
-        }
+    private _addRowToTable = (row: any, rowCounter: number, command: any): void => {
+        // Command name
+        const commandName = row.insertCell();
+        commandName.innerText = command.getCommand();
+
+        // Number of active conditions
+        const numberOfActiveConditions = row.insertCell();
+        numberOfActiveConditions.innerText = command.getConditions().length;
+
+        // Number of active actions
+        const numberOfActiveActions = row.insertCell();
+        numberOfActiveActions.innerText = command.getActions().length;
+
+        // Show command description
+        const commandDescription = row.insertCell();
+        commandDescription.innerText = command.getDescription();
+
+        // Show if command is active
+        const isCommandActive = row.insertCell();
+        isCommandActive.innerText = command.isActive();
+
+        // Show settings
+        const settings = row.insertCell();
+        settings.appendChild(this._htmlToElement(`<button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#commandEditModal" data-bs-document-id="${command.getDocumentId()}"><i class="bi bi-pencil"></i></button>`));
+
+        // Delete button
+        const deleteButton = this._htmlToElement(`<button class="btn btn-danger"><i class="bi bi-trash"></i></button>`);
+        deleteButton.addEventListener('click', () => { this._deleteCommand(command.getDocumentId()); });
+        settings.appendChild(deleteButton);
     }
 
-    private removeCustomField = (id: string): void => {
-        var customFieldWrapper = document.querySelector(`.modal-body #custom-fields-section #${id}-wrapper`);
-        customFieldWrapper.remove();
+    /**
+     * Modal
+     */
+    private _initializeModalShowListener = (): void => {
+        const commandEditModal = document.getElementById('commandEditModal');
+        const _loadCurrentCommand = this._loadCurrentCommand;
+        const _populateCommandEditModal = this._populateCommandEditModal;
+
+        commandEditModal.addEventListener('show.bs.modal', async (event: any) => {
+            const button = event.relatedTarget;
+            const documentId = button.getAttribute('data-bs-document-id');
+            await _loadCurrentCommand(documentId);
+            _populateCommandEditModal();
+        });
     }
 
-    private addCustomField = (id: string, type: string, label: string, value: any, pluginId: string, fieldId: string, description?: string): void => {
-        let customFieldWrapper = document.createElement('div');
-        customFieldWrapper.id = `${id}-wrapper`;
+    private _populateCommandEditModal = (): void => {
+        const commandEditModal = document.getElementById('commandEditModal');
+        const modalTitle = commandEditModal.querySelector('.modal-title');
 
-        let customLableElement = document.createElement('label');
-        customLableElement.setAttribute("for", id);
-        customLableElement.classList.add("col-form-label");
-        customLableElement.innerText = label;
+        modalTitle.textContent = this._currentCommand.getDocumentId() ? 'Update command' : 'Create command';
 
-        customFieldWrapper.appendChild(customLableElement);
+        const inputCommand = <HTMLInputElement>commandEditModal.querySelector('.modal-body input#command-command');
+        inputCommand.value = this._currentCommand.getCommand();
 
-        let customInputElement = document.createElement('input');
-        customInputElement.type = type;
-        customInputElement.classList.add('form-control');
-        customInputElement.id = id;
-        customInputElement.value = value;
+        this._clearCustomFieldsSection();
 
-        customInputElement.setAttribute('data-bs-plugin-id', pluginId);
-        customInputElement.setAttribute('data-bs-field-id', fieldId);
+        this._populateConditionsList();
 
-        customFieldWrapper.appendChild(customInputElement);
+        const el = commandEditModal.querySelector('.modal-footer #modal-button-save');
+        const elClone = el.cloneNode(true);
+        el.parentNode.replaceChild(elClone, el);
 
-        var customFieldsSections = document.querySelector(`.modal-body #custom-fields-section`);
-        customFieldsSections.appendChild(customFieldWrapper);
+
+        // TODO: make save action nice
+        // Save action
+        const modalButtonSave = <HTMLButtonElement>commandEditModal.querySelector('.modal-footer #modal-button-save');
+
+        modalButtonSave.addEventListener('click', async () => {
+            // Command
+            this._currentCommand.setCommand(inputCommand.value);
+
+            // Custom Fields
+            const customFields = commandEditModal.querySelectorAll(`#custom-fields-section [id$='wrapper']`);
+            const customFieldList = [];
+            customFields.forEach((customField) => {
+                const field = <HTMLInputElement>customField.childNodes.item(3);
+
+                const pluginId = field.getAttribute('data-bs-plugin-id');
+                const fieldId = field.getAttribute('data-bs-field-id');
+
+                const createdField = this._currentCommand.createNewField(fieldId, pluginId, field.value);
+                customFieldList.push(createdField);
+            });
+            this._currentCommand.setFields(customFieldList);
+
+
+            await this._commandManagementHelper.updateCommand(this._currentCommand);
+            this._populateTable();
+        });
     }
 
-    private _prepareModalSelectConditions = (commandEditModal: any, pluginCommands: any): void => {
-        let conditionsList = commandEditModal.querySelector('.modal-body #accordionConditionsActions .list-group');
+    private _clearCustomFieldsSection = (): void => {
+        document.querySelector('.modal-body #custom-fields-section').innerHTML = '';
+    }
 
-        // clear condition list
+    private _populateConditionsList = (): void => {
+        const commandEditModal = document.getElementById('commandEditModal');
+        const conditionsList = commandEditModal.querySelector('.modal-body #collapseConditions .list-group');
         conditionsList.innerHTML = '';
 
-        pluginCommands.forEach(pluginCommand => {
+        this._availablePluginCommands.forEach(pluginCommand => {
             if (pluginCommand.command && pluginCommand.command.conditions) {
                 pluginCommand.command.conditions.forEach(condition => {
-                    this.addConditionToConditionsList(condition, conditionsList, pluginCommand);
+                    this._addConditionToConditionsList(condition, pluginCommand);
                 });
             }
         });
     }
 
-    private addConditionToConditionsList = (condition: any, conditionsList: any, pluginCommand: any): void => {
+    private _addConditionToConditionsList = (condition: any, pluginCommand: any): void => {
+        const commandEditModal = document.getElementById('commandEditModal');
+        const conditionsList = commandEditModal.querySelector('.modal-body #collapseConditions .list-group');
 
-        let conditionListElement = document.createElement('li');
-        conditionListElement.classList.add('list-group-item');
+        let conditionListElement = this._htmlToElement('<li class="list-group-item"></li>');
 
-        let conditionAlreadyExists = !!this.temporaryCommand.getConditions().find(condition => (condition.getId() === condition.id && condition.getPluginId() === pluginCommand.plugin));
+        let conditionAlreadyExists = this._checkIfConditionAlreadyExists(condition.id, pluginCommand.plugin);
 
-        let conditionListElementInput = document.createElement('input');
-        conditionListElementInput.classList.add('form-check-input');
-        conditionListElementInput.type = 'checkbox';
-        conditionListElementInput.id = `${pluginCommand.plugin}-${condition.id}`;
-        conditionListElementInput.checked = conditionAlreadyExists;
-        conditionListElementInput.onclick = () => {
-            this.conditionCheckboxClicked(conditionListElementInput, condition, pluginCommand);
+        let conditionCheckbox = <HTMLInputElement>this._htmlToElement(`<input data-bs-id="${pluginCommand.plugin}-${condition.id}" class="form-check-input me-1" type="checkbox">`);
+        conditionCheckbox.checked = conditionAlreadyExists;
+        conditionCheckbox.onclick = () => {
+            this._conditionCheckboxClicked(conditionCheckbox, condition, pluginCommand);
         };
 
-        let conditionListElementText = document.createElement('span');
-        conditionListElementText.innerHTML = `&nbsp;${condition.name} (${pluginCommand.plugin})`;
-
-        conditionListElement.appendChild(conditionListElementInput);
-        conditionListElement.appendChild(conditionListElementText);
+        conditionListElement.appendChild(conditionCheckbox);
+        conditionListElement.appendChild(this._htmlToElement(`${condition.name} (${pluginCommand.plugin})`));
         conditionsList.appendChild(conditionListElement);
 
-        // add field
-        if (condition.fieldId && !!this.temporaryCommand.getFields().find((field) => field.getId() === condition.fieldId && field.getPluginId() === pluginCommand.plugin)) {
-            this._addCustomFieldWrapper(condition, pluginCommand);
+        if (condition.fieldId && conditionAlreadyExists) {
+            this._addCustomFieldWrapperIfNotExists(condition.fieldId, pluginCommand);
         }
     }
 
-    deleteCommand = async (documentId: string) => {
-        await this.commandManagementHelper.deleteCommand(documentId);
-        this.loadCommands();
+    private _conditionCheckboxClicked = (checkboxElement: HTMLInputElement, condition: any, pluginCommand: any): void => {
+        const newDatabaseCondition = this._currentCommand.createNewCondition(condition.id, pluginCommand.plugin);
+        if (checkboxElement.checked) {
+
+            // TODO: check if condition is already used (because of action)
+            this._currentCommand.addCondition(newDatabaseCondition);
+
+            if (condition.fieldId) {
+                this._addCustomFieldWrapperIfNotExists(condition.fieldId, pluginCommand);
+            }
+        } else {
+            // TODO: check if condition is still needed (because of action)
+            this._currentCommand.removeCondition(newDatabaseCondition);
+
+            if (condition.fieldId) {
+                // TODO: check if field still needed (because of action)
+                let customFieldId = `custom-input-${pluginCommand.plugin}-${condition.fieldId}`;
+                this._removeCustomField(customFieldId);
+            }
+        }
     }
 
-    populateTable = () => {
-        const table = <HTMLTableElement>document.getElementById("commands-table-body");
-        table.innerHTML = '';
-        this.commands.forEach(item => {
-            let row = table.insertRow();
-
-            let command = row.insertCell(0);
-            command.innerText = item.getCommand();
-
-            let conditions = row.insertCell(1);
-
-            if (item.getConditions()) {
-                conditions.innerText = item.getConditions().length.toString();
-            }
-
-            let actions = row.insertCell(2);
-
-            if (item.getActions()) {
-                actions.innerText = item.getActions().length.toString();
-            }
-
-            let description = row.insertCell(3);
-            description.innerText = item.getDescription();
-
-            let isActive = row.insertCell(4);
-            isActive.innerHTML = item.isActive() + '';
-
-            let settings = row.insertCell(5);
-
-            // Edit button
-            let editCommandButton = document.createElement("button");
-            editCommandButton.type = "button";
-            editCommandButton.classList.add("btn");
-            editCommandButton.classList.add("btn-primary");
-
-            let editCommandToggleAttribute = document.createAttribute('data-bs-toggle');
-            editCommandToggleAttribute.value = 'modal';
-
-            let editCommandTargetAttribute = document.createAttribute('data-bs-target');
-            editCommandTargetAttribute.value = '#commandEditModal';
-
-            let editCommandCommandAttribute = document.createAttribute('data-bs-command');
-            editCommandCommandAttribute.value = item.getDocumentId();
-
-            editCommandButton.setAttributeNode(editCommandToggleAttribute);
-            editCommandButton.setAttributeNode(editCommandTargetAttribute);
-            editCommandButton.setAttributeNode(editCommandCommandAttribute);
-
-            let editIcon = document.createElement("i");
-            editIcon.classList.add('bi');
-            editIcon.classList.add('bi-pencil');
-
-            editCommandButton.appendChild(editIcon);
-
-            settings.appendChild(editCommandButton);
-
-            // Delete button
-            let deleteCommandButton = document.createElement("button");
-            deleteCommandButton.type = "button";
-            deleteCommandButton.classList.add("btn");
-            deleteCommandButton.classList.add("btn-danger");
-
-            let deleteIcon = document.createElement("i");
-            deleteIcon.classList.add('bi');
-            deleteIcon.classList.add('bi-trash');
-
-            deleteCommandButton.addEventListener('click', () => {
-                this.deleteCommand(item.getDocumentId())
-            });
-
-            deleteCommandButton.appendChild(deleteIcon);
-
-            settings.appendChild(deleteCommandButton);
-        });
+    private _removeCustomField = (id: string): void => {
+        const customFieldWrapper = document.querySelector(`.modal-body #custom-fields-section #${id}-wrapper`);
+        customFieldWrapper.remove();
     }
+
+    private _addCustomFieldWrapperIfNotExists = (fieldId: string, pluginCommand: any): void => {
+        const customField = pluginCommand.command.fields.find(field => field.id === fieldId);
+        const customFieldId = `custom-input-${pluginCommand.plugin}-${fieldId}`;
+        const customFieldWrapper = document.querySelector(`.modal-body #${customFieldId}-wrapper`);
+        const savedField = this._currentCommand.getFields().find((field) => field.getId() === fieldId && field.getPluginId() === pluginCommand.plugin);
+        const fieldValue = savedField ? savedField.getValue() : '';
+
+        if (!customFieldWrapper) {
+            this._addCustomFieldIfNotExists(customFieldId, customField.type, customField.label, fieldValue, pluginCommand.plugin, fieldId, customField.description);
+        }
+    }
+
+    private _addCustomFieldIfNotExists = (id: string, type: string, label: string, value: any, pluginId: string, fieldId: string, description?: string): void => {
+        // TODO: add description as hover?
+        const customFieldsSections = document.querySelector(`.modal-body #custom-fields-section`);
+
+        const customField = this._htmlToElement(`
+            <div id="${id}-wrapper">
+                <label for="${id}" class="col-form-label">${label}</label>
+                <input id="${id}" class="form-control" type="${type}" value="${value}" data-bs-plugin-id="${pluginId}" data-bs-field-id="${fieldId}">
+            </div>
+        `);
+
+        customFieldsSections.appendChild(customField);
+    }
+
+    /**
+     * Commands
+     */
+    private _deleteCommand = async (documentId: any): Promise<void> => {
+        await this._commandManagementHelper.deleteCommand(documentId);
+        this._populateTable();
+    }
+
+    private _getCommands = async (): Promise<any[]> => {
+        return await this._commandManagementHelper.getAllCommands();
+    }
+
+    private _loadAvailableCommandsFromPlugins = async (): Promise<void> => {
+        this._availablePluginCommands = await this._commandManagementHelper.getPluginCommands();
+    }
+
+    /**
+     * Utils
+     */
+    private _htmlToElement = (html: string): Node => {
+        const template = document.createElement('template');
+        html = html.trim();
+        template.innerHTML = html;
+        return template.content.firstChild;
+    }
+
+    private _initializeOneTimeListeners = (): void => {
+        document.getElementById('refresh-button').addEventListener('click', this._populateTable);
+        this._initializeModalShowListener();
+    }
+
+    private _loadCurrentCommand = async (documentId: string): Promise<void> => {
+        this._currentCommand = documentId ? (await this._getCommands()).find((command) => command.getDocumentId() === documentId) : this._commandManagementHelper.getEmptyCommand();
+    }
+
+    private _checkIfConditionAlreadyExists = (conditionId: string, pluginId: string): boolean => {
+        return !!this._currentCommand.getConditions().find(condition => (condition.getId() === conditionId && condition.getPluginId() === pluginId))
+    }
+
+
 }
 
 module.exports = CommandsManagerPluginUI;

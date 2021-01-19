@@ -33,7 +33,7 @@ export class CommandManagementHelper {
         return this.pluginManager.getAllCommandsConfigs();
     }
 
-    getEmptyCommand = (documentId: string): ICommand => {
+    getEmptyCommand = (documentId?: string): ICommand => {
         return new Command(false, documentId);
     }
 
