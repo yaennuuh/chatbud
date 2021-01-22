@@ -3,12 +3,12 @@ import { ICommandAction } from "./ICommandAction";
 export class CommandAction implements ICommandAction {
     private id: string;
     private pluginId: string;
-    private conditions: string[];
+    private requiredConditions: string[];
 
-    constructor(id: string, pluginId: string, conditions?: string[]) {
+    constructor(id: string, pluginId: string, requiredConditions?: string[]) {
         this.id = id;
         this.pluginId = pluginId;
-        this.conditions = conditions;
+        this.requiredConditions = requiredConditions;
     }
 
     getId(): string {
@@ -17,7 +17,7 @@ export class CommandAction implements ICommandAction {
     getPluginId(): string {
         return this.pluginId;
     }
-    getConditions(): string[] {
-        return this.conditions;
+    getRequiredConditions(): string[] {
+        return this.requiredConditions;
     }
 }

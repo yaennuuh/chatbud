@@ -116,7 +116,7 @@ export class CommandManagementHelper {
                 return {
                     'id': action.getId(),
                     'pluginId': action.getPluginId(),
-                    'conditions': action.getConditions()
+                    'conditions': action.getRequiredConditions()
                 };
             }),
             'fields': _.map(command.getFields(), (field: ICommandField): Object => {
