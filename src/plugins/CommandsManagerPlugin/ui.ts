@@ -183,7 +183,6 @@ class CommandsManagerPluginUI {
                 this._addCustomFieldWrapperIfNotExists(condition.fieldId, pluginCommand);
             }
         } else {
-            // TODO: check if condition is still needed (because of action)
             this._currentCommand.removeCondition(newDatabaseCondition);
 
             if (condition.fieldId && !this._isCustomFieldStillNeeded(pluginCommand, condition.fieldId)) {
@@ -357,7 +356,6 @@ class CommandsManagerPluginUI {
 
     private _loadCurrentCommand = async (documentId: string): Promise<void> => {
         this._currentCommand = documentId ? (await this._getCommands()).find((command) => command.getDocumentId() === documentId) : this._commandManagementHelper.getEmptyCommand();
-        console.log(this._currentCommand);
     }
 
     private _checkIfConditionAlreadyExists = (conditionId: string, pluginId: string): boolean => {
