@@ -9,13 +9,13 @@ export interface ICommand {
     getDocumentId(): string;
     setDocumentId(documentId: string): void;
 
-    createNewCondition(id: string, pluginId: string): ICommandCondition;
+    createNewCondition(id: string, pluginId: string, functionName: string, fieldId?: string): ICommandCondition;
     getConditions(): ICommandCondition[];
     setConditions(conditions: ICommandCondition[]): void;
     addCondition(condition: ICommandCondition): void;
     removeCondition(condition: ICommandCondition): void;
 
-    createNewAction(id: string, pluginId: string, conditions?: string[]): ICommandAction;
+    createNewAction(id: string, pluginId: string, functionName: string, fieldId?: string, conditions?: string[]): ICommandAction;
     getActions(): ICommandAction[];
     setActions(actions: ICommandAction[]): void;
     addAction(action: ICommandAction): void;
@@ -32,4 +32,7 @@ export interface ICommand {
 
     isActive(): boolean;
     setIsActive(active: boolean): void;
+
+    isChannelPoints(): boolean;
+    setIsChannelPoints(isChannelPoints: boolean): void;
 }

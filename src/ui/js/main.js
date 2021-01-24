@@ -4,6 +4,8 @@ var _ = require('lodash');
 var fs = require('fs');
 var glob = require('glob');
 var YAML = require('yaml');
+window.jQuery = require('jquery');
+
 window.bootstrap = bootstrap;
 
 // Load

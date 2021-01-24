@@ -14,8 +14,9 @@ export class Command implements ICommand {
     private fields: ICommandField[];
     private description: string;
     private active: boolean;
+    private channelPoints: boolean;
 
-    constructor(active?: boolean, documentId?: string) {
+    constructor(active?: boolean, channelPoints?: boolean, documentId?: string) {
         this.documentId = !!documentId ? documentId : null;
         this.command = '';
         this.conditions = [];
@@ -23,6 +24,7 @@ export class Command implements ICommand {
         this.fields = [];
         this.description = '';
         this.active = !!active ? active : false;
+        this.channelPoints = !!channelPoints ? channelPoints : false;
     }
 
     getDocumentId = (): string => {
@@ -53,8 +55,15 @@ export class Command implements ICommand {
         this.active = active;
     }
 
-    createNewCondition = (id: string, pluginId: string): ICommandCondition => {
-        return new CommandCondition(id, pluginId);
+    isChannelPoints = (): boolean => {
+        return this.channelPoints;
+    }
+    setIsChannelPoints = (channelPoints: boolean): void => {
+        this.channelPoints = channelPoints;
+    }
+
+    createNewCondition = (id: string, pluginId: string, functionName: string, fieldId?: string): ICommandCondition => {
+        return new CommandCondition(id, pluginId, functionName, fieldId);
     }
     getConditions = (): ICommandCondition[] => {
         return this.conditions;
@@ -71,8 +80,8 @@ export class Command implements ICommand {
         });
     }
 
-    createNewAction = (id: string, pluginId: string, conditions?: string[]): ICommandAction => {
-        return new CommandAction(id, pluginId, conditions);
+    createNewAction = (id: string, pluginId: string, functionName: string, fieldId?: string, conditions?: string[]): ICommandAction => {
+        return new CommandAction(id, pluginId, functionName, fieldId, conditions);
     }
     getActions = (): ICommandAction[] => {
         return this.actions;

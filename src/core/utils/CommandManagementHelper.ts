@@ -34,7 +34,7 @@ export class CommandManagementHelper {
     }
 
     getEmptyCommand = (documentId?: string): ICommand => {
-        return new Command(false, documentId);
+        return new Command(false, false, documentId);
     }
 
     getAllCommands = async (): Promise<ICommand[]> => {
@@ -44,6 +44,11 @@ export class CommandManagementHelper {
 
     getCommandByDocumentId = async (documentId: string): Promise<ICommand> => {
         const document = await this.database.findOne({ _id: documentId });
+        return this.mapDocumentToCommand(document);
+    }
+
+    getCommandByName = async (commandName: string): Promise<ICommand> => {
+        const document = await this.database.findOne({ command: commandName, active: true });
         return this.mapDocumentToCommand(document);
     }
 
@@ -77,18 +82,18 @@ export class CommandManagementHelper {
     private mapDocumentToCommand = (document: Object): ICommand => {
         let command: ICommand;
         if (document != undefined) {
-            command = new Command(document['active'], document['_id']);
+            command = new Command(document['active'], document['channelPoints'], document['_id']);
 
             command.setCommand(document['command'] || '');
 
             let conditions = document['conditions'];
             conditions.forEach((condition) => {
-                command.addCondition(new CommandCondition(condition['id'], condition['pluginId']));
+                command.addCondition(new CommandCondition(condition['id'], condition['pluginId'], condition['functionName'], condition['fieldId']));
             });
 
             let actions = document['actions'];
             actions.forEach((action) => {
-                command.addAction(new CommandAction(action['id'], action['pluginId'], action['conditions']));
+                command.addAction(new CommandAction(action['id'], action['pluginId'], action['functionName'], action['fieldId'], action['conditions']));
             });
 
             let fields = document['fields'];
@@ -109,13 +114,17 @@ export class CommandManagementHelper {
             'conditions': _.map(command.getConditions(), (condition: ICommandCondition): Object => {
                 return {
                     'id': condition.getId(),
-                    'pluginId': condition.getPluginId()
+                    'pluginId': condition.getPluginId(),
+                    'functionName': condition.getFunctionName(),
+                    'fieldId': condition.getFieldId()
                 };
             }),
             'actions': _.map(command.getActions(), (action: ICommandAction): Object => {
                 return {
                     'id': action.getId(),
                     'pluginId': action.getPluginId(),
+                    'functionName': action.getFunctionName(),
+                    'fieldId': action.getFieldId(),
                     'conditions': action.getRequiredConditions()
                 };
             }),
@@ -127,7 +136,8 @@ export class CommandManagementHelper {
                 };
             }),
             'description': command.getDescription(),
-            'active': command.isActive()
+            'active': command.isActive(),
+            'channelPoints': command.isChannelPoints()
         };
         return document;
     }

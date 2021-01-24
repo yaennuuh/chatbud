@@ -8,7 +8,6 @@ class UserManagementPlugin {
     }
 
     execute = (event: any): void => {
-        console.log(event);
         if (event && event.data && event.data.userId && event.data.username) {
             this.pluginHelper.getUserManagementHelper().addTwitchUser(event.data.userId, event.data.username);
         }

@@ -8,33 +8,27 @@ data-yaml: data.yaml
 
 command:
   fields:
-    - id: is-username
-      label: Is Username
+    - id: username-equals
+      label: Username equals
       type: text
       description: 'Type in a twitch username'
-    - id: points
-      label: Points
+    - id: log-message
+      label: Log Message
       type: text
-      description: 'Type in a twitch username'
+      description: 'Type in a message'
   conditions:
-    - id: isUsername
+    - id: usernameEquals
       name: Check twitch username
-      function: isMessageFromUsername
-      fieldId: is-username
-    - id: hasPoints
-      name: Has points
-      function: hasPoints
-      fieldId: points
+      functionName: usernameEquals
+      fieldId: username-equals
+    - id: isModerator
+      name: Is moderator?
+      functionName: isMod
+    - id: isSubscriber
+      name: Is subscriber?
+      functionName: isSubscriber
   actions:
-    - id: addPoints
-      name: Add points
-      function: addPoints
-      fieldId: points
-      requiredConditions:
-        - hasPoints
-    - id: removePoints
-      name: Remove points
-      function: removePoints
-      fieldId: points
-      requiredConditions:
-        - hasPoints
+    - id: custom-log-message
+      name: Log message
+      functionName: logMessage
+      fieldId: log-message

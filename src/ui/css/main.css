@@ -7406,3 +7406,9 @@ body {
 
 input {
   color: #212121; }
+
+.form-check-input:checked {
+  border-color: gray; }
+
+.form-switch .form-check-input {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='gray'/%3e%3c/svg%3e"); }
