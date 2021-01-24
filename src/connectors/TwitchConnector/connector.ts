@@ -126,17 +126,25 @@ class TwitchConnector implements IConnector {
         eventData.displayName = msg.userInfo.displayName;
         eventData.username = msg.userInfo.userName;
         eventData.userId = msg.userInfo.userId;
-        eventData.mod = msg.userInfo.isMod;
-        eventData.subscriber = msg.userInfo.isSubscriber;
         eventData.emotes = msg.parseEmotes();
+        eventData.broadcaster = msg.userInfo.isBroadcaster;
+        eventData.mod = eventData.broadcaster || msg.userInfo.isMod;
+        eventData.subscriber = eventData.broadcaster || msg.userInfo.isSubscriber;
+        eventData.founder = eventData.broadcaster || msg.userInfo.isFounder;
+        eventData.vip = eventData.broadcaster || msg.userInfo.isVip;
 
         CoreBot.getInstance().notifyPluginsOnEventBusIn(new Event('twitch-chat-message', eventData));
     }
 
     async listenToChannelRedeem() {
         const listener = await this.pubSubClient.onRedemption(this.userId, (message: PubSubRedemptionMessage) => {
-            console.log(message.rewardName);
-            this.sendEventToTwitchAsBot(`Thank you for purchasing ${message.rewardName}`);
+            
+            const eventData = new EventData(message.message);
+            eventData.userId = message.userId;
+            eventData.displayName = message.userDisplayName;
+            eventData.twitchChannelReedem = message;
+
+            CoreBot.getInstance().notifyPluginsOnEventBusIn(new Event('twitch-channel-reedem', eventData));
         });
         this.listenerList.push(listener);
         console.log('channel redeem ready');

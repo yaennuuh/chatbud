@@ -89,7 +89,7 @@ class CommandsManagerPluginUI {
         const modalTitle = commandEditModal.querySelector('.modal-title');
 
         modalTitle.textContent = this._currentCommand.getDocumentId() ? 'Update command' : 'Create command';
-        
+
         commandEditModal.querySelector('#formError').innerText = '';
 
         const inputCommand = <HTMLInputElement>commandEditModal.querySelector('.modal-body input#command-command');
@@ -121,10 +121,10 @@ class CommandsManagerPluginUI {
             if (form.checkValidity()) {
                 // Command
                 this._currentCommand.setCommand(inputCommand.value);
-                
+
                 // Active
                 this._currentCommand.setIsActive(inputActive.checked);
-                
+
                 // Channel Points
                 this._currentCommand.setIsChannelPoints(inputChannelPoints.checked);
 
@@ -407,32 +407,36 @@ class CommandsManagerPluginUI {
     }
 
     private _removeAndEnableCondition = (action: any, pluginCommand: any): void => {
-        action.requiredConditions.forEach(requiredConditionId => {
-            let anyoneNeedsTheCondition = false;
-            this._currentCommand.getActions().forEach(commandAction => {
-                if (commandAction.getPluginId() === pluginCommand.plugin && commandAction.getId() != action.id && commandAction.getRequiredConditions().includes(requiredConditionId)) {
-                    anyoneNeedsTheCondition = true;
+        if (!!action.requiredConditions) {
+            action.requiredConditions.forEach(requiredConditionId => {
+                let anyoneNeedsTheCondition = false;
+                this._currentCommand.getActions().forEach(commandAction => {
+                    if (commandAction.getPluginId() === pluginCommand.plugin && commandAction.getId() != action.id && commandAction.getRequiredConditions().includes(requiredConditionId)) {
+                        anyoneNeedsTheCondition = true;
+                    }
+                });
+
+                if (!anyoneNeedsTheCondition) {
+                    const conditionCheckBox = <HTMLInputElement>document.querySelector(`input[data-bs-id="${pluginCommand.plugin}-${requiredConditionId}"]`);
+                    conditionCheckBox.disabled = false;
+                    conditionCheckBox.click();
                 }
             });
-
-            if (!anyoneNeedsTheCondition) {
-                const conditionCheckBox = <HTMLInputElement>document.querySelector(`input[data-bs-id="${pluginCommand.plugin}-${requiredConditionId}"]`);
-                conditionCheckBox.disabled = false;
-                conditionCheckBox.click();
-            }
-        });
+        }
     }
 
     private _addAndDisableCondition = (action: any, pluginCommand: any): void => {
-        action.requiredConditions.forEach(requiredConditionId => {
-            const conditionCheckBox = <HTMLInputElement>document.querySelector(`input[data-bs-id="${pluginCommand.plugin}-${requiredConditionId}"]`);
-            if (!conditionCheckBox.disabled) {
-                if (!conditionCheckBox.checked) {
-                    conditionCheckBox.click();
+        if (!!action.requiredConditions) {
+            action.requiredConditions.forEach(requiredConditionId => {
+                const conditionCheckBox = <HTMLInputElement>document.querySelector(`input[data-bs-id="${pluginCommand.plugin}-${requiredConditionId}"]`);
+                if (!conditionCheckBox.disabled) {
+                    if (!conditionCheckBox.checked) {
+                        conditionCheckBox.click();
+                    }
+                    conditionCheckBox.disabled = true;
                 }
-                conditionCheckBox.disabled = true;
-            }
-        });
+            });
+        }
     }
 
 

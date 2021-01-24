@@ -13,23 +13,22 @@ class CommandsManagerPlugin {
     register = (pluginHelper: PluginHelper): string[] => {
         this.pluginHelper = pluginHelper;
         this.commandManagerHelper = pluginHelper.getCommandManagementHelper();
-        return ['twitch-chat-message'];
+        return ['twitch-chat-message', 'twitch-channel-reedem'];
     }
 
     execute = (event: IEvent): void => {
         if (event.type === 'twitch-chat-message') {
             this._executeCommand(event);
-        } else if (event.type === 'twitch-channel-points') {
+        } else if (event.type === 'twitch-channel-reedem') {
             this._executeChannelPoints(event);
         }
-
     }
 
     private _executeCommand = (event: IEvent): void => {
         const eventMessage = event.data.message.trim();
         const eventCommand = eventMessage.split(' ');
         const searchCommandString = eventCommand.shift();
-        this._findCommand(searchCommandString).then((command: ICommand) => {
+        this._findCommand(searchCommandString, false).then((command: ICommand) => {
             if (command) {
                 const conditions = command.getConditions();
                 let conditionsSucceed = true;
@@ -53,10 +52,23 @@ class CommandsManagerPlugin {
         });
     }
 
-    private _executeChannelPoints = (event: IEvent): void => { }
+    private _executeChannelPoints = (event: IEvent): void => {
+        const eventMessage = event.data.twitchChannelReedem.message ? event.data.twitchChannelReedem.message.trim() : '';
+        const eventCommand = eventMessage.split(' ');
+        this._findCommand(event.data.twitchChannelReedem.rewardName, true).then((command: ICommand) => {
+            if (command) {
+                const actions = command.getActions();
+                _.each(actions, (action: ICommandAction) => {
+                    const pluginApi = this.pluginHelper.pluginApiByName(action.getPluginId());
+                    const commandField = command.getFields() ? command.getFields().find((field) => field.getId() === action.getFieldId()) : undefined;
+                    pluginApi[action.getFunctionName()](event, eventCommand, commandField);
+                });
+            }
+        });
+    }
 
-    private _findCommand = async (command: string): Promise<ICommand> => {
-        return this.commandManagerHelper.getCommandByName(command);
+    private _findCommand = async (command: string, channelPoints: boolean): Promise<ICommand> => {
+        return this.commandManagerHelper.getCommandByName(command, channelPoints);
     }
 }
 

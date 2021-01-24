@@ -47,8 +47,8 @@ export class CommandManagementHelper {
         return this.mapDocumentToCommand(document);
     }
 
-    getCommandByName = async (commandName: string): Promise<ICommand> => {
-        const document = await this.database.findOne({ command: commandName, active: true });
+    getCommandByName = async (commandName: string, channelPoints: boolean, ): Promise<ICommand> => {
+        const document = await this.database.findOne({ command: commandName, active: true, channelPoints: channelPoints });
         return this.mapDocumentToCommand(document);
     }
 
