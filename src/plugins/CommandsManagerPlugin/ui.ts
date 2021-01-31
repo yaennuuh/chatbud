@@ -19,10 +19,9 @@ class CommandsManagerPluginUI {
         let commands = await this._getCommands();
         const table = this._getEmptyCommandsTable();
 
-        let rowCounter = 0;
         commands.forEach((command) => {
             let row = table.insertRow();
-            this._addRowToTable(row, rowCounter++, command);
+            this._addRowToTable(row, command);
         });
     }
 
@@ -32,7 +31,7 @@ class CommandsManagerPluginUI {
         return table;
     }
 
-    private _addRowToTable = (row: any, rowCounter: number, command: any): void => {
+    private _addRowToTable = (row: any, command: any): void => {
 
         // Show if command is active
         const isCommandActive = row.insertCell();

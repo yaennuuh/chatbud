@@ -14,6 +14,12 @@ class UserManagementPluginApi {
         return event.data.subscriber;
     }
 
+    sleep = async(event: IEvent, eventCommand: any, commandField: any): Promise<void> => {
+        console.log('freezeeee');
+        await new Promise(resolve => setTimeout(resolve, 5000));
+        console.log('END freezeeee');
+    }
+
     usernameEquals = (event: IEvent, eventCommand: any, commandField: ICommandField): boolean => {
         return event.data.username === commandField.getValue();
     }

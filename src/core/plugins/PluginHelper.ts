@@ -8,6 +8,8 @@ import {LoggerHelper} from "../utils/LoggerHelper";
 import { UserManagementHelper } from '../utils/UserManagementHelper';
 import { CooldownHelper } from '../utils/CooldownHelper';
 import { CommandManagementHelper } from "../utils/CommandManagementHelper";
+import { DatabaseHelper } from "../utils/DatabaseHelper";
+import fetch from 'node-fetch';
 
 export class PluginHelper implements IPluginHelper {
 
@@ -24,6 +26,14 @@ export class PluginHelper implements IPluginHelper {
 
     getUserManagementHelper = (): UserManagementHelper => {
         return UserManagementHelper.getInstance();
+    }
+
+    getDatabase = (): any => {
+        return DatabaseHelper.getInstance().getDatabase(this.config['name']);
+    }
+
+    getFetch = (): any => {
+        return fetch;
     }
 
     getCommandManagementHelper = (): CommandManagementHelper => {

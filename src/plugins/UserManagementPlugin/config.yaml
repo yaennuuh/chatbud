@@ -32,3 +32,6 @@ command:
       name: Log message
       functionName: logMessage
       fieldId: log-message
+    - id: custom-sleep
+      name: Sleep
+      functionName: sleep

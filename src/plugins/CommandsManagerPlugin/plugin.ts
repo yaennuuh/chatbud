@@ -44,7 +44,7 @@ class CommandsManagerPlugin {
                     const actions = command.getActions();
                     _.each(actions, (action: ICommandAction) => {
                         const pluginApi = this.pluginHelper.pluginApiByName(action.getPluginId());
-                        const commandField = command.getFields() ? command.getFields().find((field) => field.getId() === action.getFieldId()) : undefined;
+                        const commandField = action.getFieldId() ? command.getFields().find((field) => field.getId() === action.getFieldId()) : undefined;
                         pluginApi[action.getFunctionName()](event, eventCommand, commandField);
                     });
                 }

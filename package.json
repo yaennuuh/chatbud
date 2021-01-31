@@ -71,6 +71,7 @@
     "twitch-chat-client": "^4.3.8",
     "twitch-electron-auth-provider": "^4.3.8",
     "twitch-pubsub-client": "^4.3.8",
+    "xmlhttprequest": "^1.8.0",
     "yaml": "^1.10.0"
   },
   "config": {
