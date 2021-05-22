@@ -1,8 +1,5 @@
 import { ConnectorHelper } from "../../core/connectors/ConnectorHelper";
 import { IConnector } from "../../core/connectors/IConnector";
-import { CoreBot } from "../../core/CoreBot";
-import { Event } from "../../core/events/Event";
-import { EventData } from "../../core/events/EventData";
 import { IEvent } from "../../core/events/IEvent";
 
 class DummyConnector implements IConnector {

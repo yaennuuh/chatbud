@@ -329,23 +329,47 @@ class CommandsManagerPluginUI {
             if (!customFieldWrapper) {
                 const savedField = this._currentCommand.getFields().find((field) => field.getId() === fieldId && field.getPluginId() === pluginCommand.plugin);
                 const fieldValue = savedField ? savedField.getValue() : '';
-                this._addCustomFieldIfNotExists(customFieldId, customField.type, customField.label, fieldValue, pluginCommand.plugin, fieldId, customField.description);
+                this._addCustomFieldIfNotExists(customField, fieldValue, pluginCommand.plugin, fieldId);
             }
         }
     }
 
-    private _addCustomFieldIfNotExists = (id: string, type: string, label: string, value: any, pluginId: string, fieldId: string, description?: string): void => {
+    private _addCustomFieldIfNotExists = async (customField: any, value: any, pluginId: string, fieldId: string): Promise<void> => {
         // TODO: add description as hover?
         const customFieldsSections = document.querySelector(`.modal-body #custom-fields-section`);
+        let customFieldId = `custom-input-${pluginId}-${fieldId}`;
+        let fieldToAdd;
+        
+        switch (customField.type) {
+            case 'text':
+                fieldToAdd = this._htmlToElement(`
+                    <div id="${customFieldId}-wrapper" class="col-6">
+                        <label for="${customFieldId}" class="col-form-label">${customField.label}</label>
+                        <input id="${customFieldId}" class="form-control" type="text" value="${value}" data-bs-plugin-id="${pluginId}" data-bs-field-id="${fieldId}" required>
+                    </div>
+                `);
+                break;
+            case 'selectbox':
+                let selectboxHTML = `<div id="${customFieldId}-wrapper" class="col-6">
+                <label for="${customFieldId}" class="col-form-label">${customField.label}</label>
+                <select id="${customFieldId}" class="form-select" aria-label="${customField.label}" data-bs-plugin-id="${pluginId}" data-bs-field-id="${fieldId}" required>`;
+                
+                const pluginApi = this.pluginHelper.pluginApiByName(pluginId);
+                const selectboxData = await pluginApi[customField.dataFunction]();
+                selectboxData.forEach(data => {
+                    selectboxHTML += `<option value="${data}"`;
+                    if (value && data === value) {
+                        selectboxHTML += ` selected`;
+                    }
+                    selectboxHTML += `>${data}</option>`;
+                });
+                
+                selectboxHTML += `</select></div>`;
+                fieldToAdd = this._htmlToElement(selectboxHTML);
+                break;
+        }
 
-        const customField = this._htmlToElement(`
-            <div id="${id}-wrapper" class="col-6">
-                <label for="${id}" class="col-form-label">${label}</label>
-                <input id="${id}" class="form-control" type="${type}" value="${value}" data-bs-plugin-id="${pluginId}" data-bs-field-id="${fieldId}" required>
-            </div>
-        `);
-
-        customFieldsSections.appendChild(customField);
+        customFieldsSections.appendChild(fieldToAdd);
     }
 
     /**
@@ -437,8 +461,6 @@ class CommandsManagerPluginUI {
             });
         }
     }
-
-
 }
 
 module.exports = CommandsManagerPluginUI;
