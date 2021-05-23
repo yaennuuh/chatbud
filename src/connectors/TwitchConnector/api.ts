@@ -27,6 +27,18 @@ class TwitchConnectorApi {
     getChannelPointsRewards = async(): Promise<string[]> => {
         return await this.connector.getChannelPointsRewards();
     }
+
+    createClip = () => {
+        this.connector.createClip();
+    }
+    
+    createClipForUserByName = () => {
+        this.connector.createClipForUserByName();
+    }
+
+    isChannelLive = async(): Promise<boolean> => {
+        return await this.connector.isChannelLive();
+    }
 }
 
 module.exports = TwitchConnectorApi;

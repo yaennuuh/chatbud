@@ -105,18 +105,20 @@ function initializeConnectors() {
 
     var dropDownConnectors = document.getElementById('dropdown-connectors');
     connectorConfigList.forEach(connectorConfig => {
-        var itemElement = document.createElement('li');
-        itemElement.classList.add('dropdown-item');
+        if (!connectorConfig.hasOwnProperty('hide-plugin') || connectorConfig['hide-plugin'] === true) {
+            var itemElement = document.createElement('li');
+            itemElement.classList.add('dropdown-item');
 
-        var itemATag = document.createElement('a');
-        const connectorName = connectorConfig.hasOwnProperty('display-name') ? connectorConfig['display-name'] : connectorConfig['name'];
-        itemATag.appendChild(document.createTextNode(connectorName));
-        itemElement.appendChild(itemATag);
-        itemElement.addEventListener('click', () => {
-            loadCustomTag(`custom-${connectorConfig['name']}`);
-        });
+            var itemATag = document.createElement('a');
+            const connectorName = connectorConfig.hasOwnProperty('display-name') ? connectorConfig['display-name'] : connectorConfig['name'];
+            itemATag.appendChild(document.createTextNode(connectorName));
+            itemElement.appendChild(itemATag);
+            itemElement.addEventListener('click', () => {
+                loadCustomTag(`custom-${connectorConfig['name']}`);
+            });
 
-        dropDownConnectors.appendChild(itemElement);
+            dropDownConnectors.appendChild(itemElement);
+        }
     });
 }
 

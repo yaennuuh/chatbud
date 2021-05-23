@@ -31,21 +31,33 @@ class CommandsManagerPlugin {
         const eventMessage = event.data.message.trim();
         const eventCommand = eventMessage.split(' ');
         const searchCommandString = eventCommand.shift();
-        this._findCommand(searchCommandString, "COMMAND").then((command: ICommand) => {
+        this._findCommand(searchCommandString, "COMMAND").then(async (command: ICommand) => {
             console.log('gefunden command ', command);
             if (command) {
                 const conditions = command.getConditions();
                 let conditionsSucceed = true;
-                _.each(conditions, (condition: ICommandCondition) => {
+                for(const condition of conditions) {
                     if (conditionsSucceed) {
                         const pluginApi = this.pluginHelper.pluginApiByName(condition.getPluginId());
                         const commandField = condition.getFieldId() ? command.getFields().find((field) => field.getId() === condition.getFieldId()) : undefined;
-                        conditionsSucceed = pluginApi[condition.getFunctionName()](event, eventCommand, commandField);
+                        
+                        conditionsSucceed = await pluginApi[condition.getFunctionName()](event, eventCommand, commandField);
                     }
-                });
+                }
+
+                // await Promise.all(_.each(conditions, async(condition: ICommandCondition) => {
+                //     if (conditionsSucceed) {
+                //         const pluginApi = this.pluginHelper.pluginApiByName(condition.getPluginId());
+                //         const commandField = condition.getFieldId() ? command.getFields().find((field) => field.getId() === condition.getFieldId()) : undefined;
+                        
+                //         conditionsSucceed = await pluginApi[condition.getFunctionName()](event, eventCommand, commandField);
+                //         console.log(conditionsSucceed, condition.getFunctionName());
+                //     }
+                // }));
 
                 if (conditionsSucceed) {
                     const actions = command.getActions();
+                    console.log(actions);
                     _.each(actions, (action: ICommandAction) => {
                         const pluginApi = this.pluginHelper.pluginApiByName(action.getPluginId());
                         const commandField = action.getFieldId() ? command.getFields().find((field) => field.getId() === action.getFieldId()) : undefined;

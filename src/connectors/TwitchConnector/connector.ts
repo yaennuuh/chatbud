@@ -2,7 +2,7 @@ import { IConnector } from "../../core/connectors/IConnector";
 import { CoreBot } from "../../core/CoreBot";
 import { IEvent } from "../../core/events/IEvent";
 import { ElectronAuthProvider } from 'twitch-electron-auth-provider';
-import { ApiClient, HelixCustomReward, HelixUser, PrivilegedUser } from 'twitch';
+import { ApiClient, Channel, HelixChannel, HelixCustomReward, HelixStream, HelixUser, PrivilegedChannel, PrivilegedUser, User } from 'twitch';
 import { PubSubClient } from 'twitch-pubsub-client';
 import { ChatClient } from 'twitch-chat-client';
 import { PubSubRedemptionMessage } from 'twitch-pubsub-client';
@@ -49,14 +49,37 @@ class TwitchConnector implements IConnector {
         return this.connected;
     }
 
-    getOwnChannel = async (): Promise<any> => {
+    getOwnChannel = async (): Promise<PrivilegedChannel> => {
         return this.apiClient.kraken.channels.getMyChannel();
     }
 
+    createClip = async () => {        
+        this.apiClient.helix.clips.createClip({channelId: this.userId});
+    }
+
+    isChannelLive = async (): Promise<boolean> => {
+        let stream: HelixStream = await this.apiClient.helix.streams.getStreamByUserId(this.userId);
+        return !!stream;
+    }
+
+    createClipForUserByName = async (username: string) => {        
+        let user: User = await this.apiClient.kraken.users.getUserByName(username);
+        let userChannel: Channel = await user.getChannel();
+        this.apiClient.helix.clips.createClip({channelId: userChannel.id});
+    }
+
     getChannelPointsRewards = async (): Promise<string[]> => {
-        let user: HelixUser = await this.apiClient.helix.users.getUserById(this.userId);
+        let user: HelixUser = await this.getUser();
         let customRewards: HelixCustomReward[] = await this.apiClient.helix.channelPoints.getCustomRewards(user);
         return _.map(customRewards, (reward) => { return reward.title });
+    }
+
+    getChannel = async (): Promise<HelixChannel> => {
+        return await this.apiClient.helix.channels.getChannelInfo(await this.getUser());
+    }
+
+    getUser = async (): Promise<HelixUser> => {
+        return await this.apiClient.helix.users.getUserById(this.userId);
     }
 
     async connect() {
@@ -96,6 +119,12 @@ class TwitchConnector implements IConnector {
         });
         /*
         this.chatClient.onSub((channel, user, subInfo, msg) => {});
+        this.chatClient.onResub((channel, user, subInfo, msg) => {});
+        this.chatClient.onSubGift((channel, user, subInfo, msg) => {});
+
+        this.chatClient.onRaid((channel, user, raidInfo, msg) => {});
+        this.chatClient.onHosted((channel, byChannel, auto, viewers) => {});
+
         this.chatClient.onBitsBadgeUpgrade((channel, user, upgradeInfo, msg) => {});
         this.chatClient.onCommunityPayForward((channel, user, forwardInfo, msg) => {});
         this.chatClient.onCommunitySub((channel, user, subInfo, msg) => {});
@@ -106,15 +135,11 @@ class TwitchConnector implements IConnector {
         this.chatClient.onPrimeCommunityGift((channel, user, subInfo, msg) => {});
         this.chatClient.onPrimePaidUpgrade((channel, user, subInfo, msg) => {});
         this.chatClient.onR9k((channel, enabled) => {});
-        this.chatClient.onRaid((channel, user, raidInfo, msg) => {});
-        this.chatClient.onResub((channel, user, subInfo, msg) => {});
         this.chatClient.onRewardGift((channel, user, rewardGiftInfo, msg) => {});
         this.chatClient.onRitual((channel, user, ritualInfo, msg) => {});
         this.chatClient.onSlow((channel, enabled, delay) => {});
         this.chatClient.onStandardPayForward((channel, user, forwardInfo, msg) => {});
-        this.chatClient.onSub((channel, user, subInfo, msg) => {});
         this.chatClient.onSubExtend((channel, user, subInfo, msg) => {});
-        this.chatClient.onSubGift((channel, user, subInfo, msg) => {});
         this.chatClient.onSubsOnly((channel, enabled) => {});
         this.chatClient.onTimeout((channel, user, duration) => {});
         */

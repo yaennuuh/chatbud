@@ -28,8 +28,8 @@ export default class Main {
             }
         });
         Main.mainWindow.setMenuBarVisibility(false);
-        Main.mainWindow
-            .loadURL('file://' + __dirname + '/ui/main.html');
+        Main.mainWindow.loadURL('file://' + __dirname + '/ui/loading.html');
+        setTimeout(() => Main.mainWindow.loadURL('file://' + __dirname + '/ui/main.html'), 5000)
         Main.mainWindow.on('closed', Main.onClose);
 
         //Main.mainWindow.maximize();

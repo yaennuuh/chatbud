@@ -1,0 +1,16 @@
+name: TwitchConnectorPlugin
+display-name: TwitchConnectorPlugin
+hide-plugin: true
+plugin-js: plugin.js
+plugin-api-js: api.js
+data-yaml: data.yaml
+
+command:
+  actions:
+    - id: create-clip
+      name: Create clip
+      functionName: createClip
+  conditions:
+    - id: isChannelLive
+      name: Channel is live
+      functionName: isChannelLive
