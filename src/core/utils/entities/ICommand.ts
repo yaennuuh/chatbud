@@ -1,3 +1,4 @@
+import { CommandType } from "./CommandTypeEnum";
 import { ICommandAction } from "./ICommandAction";
 import { ICommandCondition } from "./ICommandCondition";
 import { ICommandField } from "./ICommandField";
@@ -33,6 +34,6 @@ export interface ICommand {
     isActive(): boolean;
     setIsActive(active: boolean): void;
 
-    isChannelPoints(): boolean;
-    setIsChannelPoints(isChannelPoints: boolean): void;
+    getCommandType(): CommandType;
+    setCommandType(commandType: CommandType): void;
 }

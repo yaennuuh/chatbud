@@ -23,7 +23,6 @@ class TwitchBotConnector implements IConnector {
     register = (connectorHelper: ConnectorHelper): string[] => {
         this.connectorHelper = connectorHelper;
         return ['twitch-send-chat-message'];
-        // return [];
     }
 
     execute = (event: IEvent): void => {
