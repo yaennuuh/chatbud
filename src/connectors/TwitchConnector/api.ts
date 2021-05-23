@@ -25,7 +25,7 @@ class TwitchConnectorApi {
     }
 
     getChannelPointsRewards = async(): Promise<string[]> => {
-        return this.connector.getChannelPointsRewards();
+        return await this.connector.getChannelPointsRewards();
     }
 }
 

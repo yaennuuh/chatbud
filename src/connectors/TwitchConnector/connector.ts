@@ -2,7 +2,7 @@ import { IConnector } from "../../core/connectors/IConnector";
 import { CoreBot } from "../../core/CoreBot";
 import { IEvent } from "../../core/events/IEvent";
 import { ElectronAuthProvider } from 'twitch-electron-auth-provider';
-import { ApiClient } from 'twitch';
+import { ApiClient, HelixCustomReward, HelixUser, PrivilegedUser } from 'twitch';
 import { PubSubClient } from 'twitch-pubsub-client';
 import { ChatClient } from 'twitch-chat-client';
 import { PubSubRedemptionMessage } from 'twitch-pubsub-client';
@@ -22,7 +22,7 @@ class TwitchConnector implements IConnector {
     userId: string;
     connectorHelper: ConnectorHelper;
     connected: boolean = false;
-    scopes: string[] = ['bits:read', 'channel:read:redemptions', 'channel:read:subscriptions', 'chat:edit', 'chat:read'];
+    scopes: string[] = ['bits:read', 'channel:read:redemptions', 'channel:read:subscriptions', 'chat:edit', 'chat:read', 'channel:read:redemptions', 'channel:manage:redemptions'];
 
     async start(): Promise<void> {
         await this.startFunction();
@@ -54,7 +54,9 @@ class TwitchConnector implements IConnector {
     }
 
     getChannelPointsRewards = async (): Promise<string[]> => {
-        return ["punkte 1", "punkte 2", "punkte 3"];
+        let user: HelixUser = await this.apiClient.helix.users.getUserById(this.userId);
+        let customRewards: HelixCustomReward[] = await this.apiClient.helix.channelPoints.getCustomRewards(user);
+        return _.map(customRewards, (reward) => { return reward.title });
     }
 
     async connect() {

@@ -86,7 +86,7 @@ class CommandsManagerPluginUI {
         });
     }
 
-    private _populateCommandEditModal = (): void => {
+    private _populateCommandEditModal = async (): Promise<void> => {
         const commandEditModal: any = document.getElementById('commandEditModal');
         const modalTitle = commandEditModal.querySelector('.modal-title');
 
@@ -111,10 +111,10 @@ class CommandsManagerPluginUI {
 
         let inputCommand = undefined;
 
-        inputCommand = this._populateCommandCommandField(inputCommandType.selectedOptions[0].text);
+        inputCommand = await this._populateCommandCommandField(inputCommandType.selectedOptions[0].text);
 
-        inputCommandType.addEventListener('change', (event: any) => {
-            inputCommand = this._populateCommandCommandField(inputCommandType.selectedOptions[0].text);
+        inputCommandType.addEventListener('change', async (event: any) => {
+            inputCommand = await this._populateCommandCommandField(inputCommandType.selectedOptions[0].text);
         });
 
         this._clearCustomFieldsSection();
@@ -136,7 +136,6 @@ class CommandsManagerPluginUI {
             const form = <HTMLFormElement>commandEditModal.querySelector('#commands-manager-form');
             if (form.checkValidity()) {
                 // Command
-                // TODO: check field type and get value accordingly
                 this._currentCommand.setCommand(inputCommand ? inputCommand.value: inputCommandType.selectedOptions[0].text);
 
                 // Active
