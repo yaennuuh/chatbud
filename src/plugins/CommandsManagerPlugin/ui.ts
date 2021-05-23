@@ -172,15 +172,9 @@ class CommandsManagerPluginUI {
         document.querySelector('.modal-body #custom-fields-section').innerHTML = '';
     }
 
-    private _clearCommandTypeCommandSection = (): void => {
-        document.querySelector('.modal-body #command-type-command-section').innerHTML = '';
-    }
-
     private _populateCommandCommandField = async (commandType: string): Promise<void> => {
-        this._clearCommandTypeCommandSection();
-        let inputCommand;
+        let inputCommand = undefined;
         let commandTypeCommandSection = <HTMLElement> document.querySelector('.modal-body #command-type-command-section');
-
         let labelField = document.createElement('label');
         labelField.setAttribute('for', 'command-command');
         labelField.setAttribute('class', 'col-form-label');
@@ -216,6 +210,7 @@ class CommandsManagerPluginUI {
                 break;
         }
 
+        commandTypeCommandSection.innerHTML = '';
         if (inputCommand != undefined) {
             commandTypeCommandSection.appendChild(labelField);
             commandTypeCommandSection.appendChild(inputCommand);
