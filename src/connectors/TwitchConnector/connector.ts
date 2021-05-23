@@ -22,7 +22,14 @@ class TwitchConnector implements IConnector {
     userId: string;
     connectorHelper: ConnectorHelper;
     connected: boolean = false;
-    scopes: string[] = ['bits:read', 'channel:read:redemptions', 'channel:read:subscriptions', 'chat:edit', 'chat:read', 'channel:read:redemptions', 'channel:manage:redemptions'];
+    scopes: string[] = [
+        'bits:read',
+        'channel:read:redemptions',
+        'channel:manage:redemptions',
+        'channel:read:subscriptions',
+        'chat:edit',
+        'chat:read'
+    ];
 
     async start(): Promise<void> {
         await this.startFunction();
