@@ -1,5 +1,4 @@
 import { EventType } from "./EventType";
-import { IEvent } from "./IEvent";
 import { IEventType } from "./IEventType";
 import * as _ from 'lodash';
 

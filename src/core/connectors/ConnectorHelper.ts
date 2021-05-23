@@ -22,8 +22,8 @@ export class ConnectorHelper implements IConnectorHelper {
         return new Event('', new EventData(''));
     }
 
-    getOwnConnectorApi = (): any => {
-        return ConnectorManager.getInstance().getConnectorApiByName(this.config['name']);
+    getOwnConnectorApi = (connectorName?: string): any => {
+        return ConnectorManager.getInstance().getConnectorApiByName(connectorName ? connectorName : this.config['name']);
     }
 
     loadData = (): any => {

@@ -1,6 +1,7 @@
 import { CommandAction } from "./CommandAction";
 import { CommandCondition } from "./CommandCondition";
 import { CommandField } from "./CommandField";
+import { CommandType } from "./CommandTypeEnum";
 import { ICommand } from "./ICommand";
 import { ICommandAction } from "./ICommandAction";
 import { ICommandCondition } from "./ICommandCondition";
@@ -14,9 +15,9 @@ export class Command implements ICommand {
     private fields: ICommandField[];
     private description: string;
     private active: boolean;
-    private channelPoints: boolean;
+    private commandType: CommandType;
 
-    constructor(active?: boolean, channelPoints?: boolean, documentId?: string) {
+    constructor(active?: boolean, commandType?: CommandType, documentId?: string) {
         this.documentId = !!documentId ? documentId : null;
         this.command = '';
         this.conditions = [];
@@ -24,7 +25,7 @@ export class Command implements ICommand {
         this.fields = [];
         this.description = '';
         this.active = !!active ? active : false;
-        this.channelPoints = !!channelPoints ? channelPoints : false;
+        this.commandType = !!commandType ? commandType : CommandType.COMMAND;
     }
 
     getDocumentId = (): string => {
@@ -55,11 +56,11 @@ export class Command implements ICommand {
         this.active = active;
     }
 
-    isChannelPoints = (): boolean => {
-        return this.channelPoints;
+    getCommandType = (): CommandType => {
+        return this.commandType;
     }
-    setIsChannelPoints = (channelPoints: boolean): void => {
-        this.channelPoints = channelPoints;
+    setCommandType = (commandType: CommandType): void => {
+        this.commandType = commandType;
     }
 
     createNewCondition = (id: string, pluginId: string, functionName: string, fieldId?: string): ICommandCondition => {

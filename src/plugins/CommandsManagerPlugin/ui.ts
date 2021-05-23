@@ -1,3 +1,6 @@
+import { CommandType } from "../../core/utils/entities/CommandTypeEnum";
+import * as _ from 'lodash';
+
 class CommandsManagerPluginUI {
 
     private _commandManagementHelper: any;
@@ -53,9 +56,9 @@ class CommandsManagerPluginUI {
         const commandDescription = row.insertCell();
         commandDescription.innerText = command.getDescription();
 
-        // Show if command is channel points
-        const isCommandForChannelPoints = row.insertCell();
-        isCommandForChannelPoints.innerHTML = command.isChannelPoints() ? `<i class="bi bi-check"></i>` : `<i class="bi bi-x"></i>`; // TODO here set icon pls
+        // Show command type
+        const commandType = row.insertCell();
+        commandType.innerHTML = CommandType[command.getCommandType()];
 
         // Show settings
         const settings = row.insertCell();
@@ -91,14 +94,28 @@ class CommandsManagerPluginUI {
 
         commandEditModal.querySelector('#formError').innerText = '';
 
-        const inputCommand = <HTMLInputElement>commandEditModal.querySelector('.modal-body input#command-command');
-        inputCommand.value = this._currentCommand.getCommand();
-
         const inputActive = <HTMLInputElement>commandEditModal.querySelector('.modal-body input#command-active');
         inputActive.checked = this._currentCommand.isActive();
 
-        const inputChannelPoints = <HTMLInputElement>commandEditModal.querySelector('.modal-body input#command-channel-points');
-        inputChannelPoints.checked = this._currentCommand.isChannelPoints();
+        const inputCommandType = <HTMLSelectElement>commandEditModal.querySelector('.modal-body select#command-type');
+        inputCommandType.innerHTML = '';
+        _.each(CommandType, (value, key) => {
+            let commandTypeOption = document.createElement('option');
+            commandTypeOption.text = value;
+            commandTypeOption.value = key;
+            if (key === this._currentCommand.getCommandType()) {
+                commandTypeOption.selected = true;
+            }
+            inputCommandType.add(commandTypeOption);
+        });
+
+        let inputCommand = undefined;
+
+        inputCommand = this._populateCommandCommandField(inputCommandType.selectedOptions[0].text);
+
+        inputCommandType.addEventListener('change', (event: any) => {
+            inputCommand = this._populateCommandCommandField(inputCommandType.selectedOptions[0].text);
+        });
 
         this._clearCustomFieldsSection();
 
@@ -119,13 +136,14 @@ class CommandsManagerPluginUI {
             const form = <HTMLFormElement>commandEditModal.querySelector('#commands-manager-form');
             if (form.checkValidity()) {
                 // Command
-                this._currentCommand.setCommand(inputCommand.value);
+                // TODO: check field type and get value accordingly
+                this._currentCommand.setCommand(inputCommand ? inputCommand.value: inputCommandType.selectedOptions[0].text);
 
                 // Active
                 this._currentCommand.setIsActive(inputActive.checked);
 
-                // Channel Points
-                this._currentCommand.setIsChannelPoints(inputChannelPoints.checked);
+                // Type
+                this._currentCommand.setCommandType(inputCommandType.value);
 
                 // Custom Fields
                 const customFields = commandEditModal.querySelectorAll(`#custom-fields-section [id$='wrapper']`);
@@ -153,6 +171,57 @@ class CommandsManagerPluginUI {
 
     private _clearCustomFieldsSection = (): void => {
         document.querySelector('.modal-body #custom-fields-section').innerHTML = '';
+    }
+
+    private _clearCommandTypeCommandSection = (): void => {
+        document.querySelector('.modal-body #command-type-command-section').innerHTML = '';
+    }
+
+    private _populateCommandCommandField = async (commandType: string): Promise<void> => {
+        this._clearCommandTypeCommandSection();
+        let inputCommand;
+        let commandTypeCommandSection = <HTMLElement> document.querySelector('.modal-body #command-type-command-section');
+
+        let labelField = document.createElement('label');
+        labelField.setAttribute('for', 'command-command');
+        labelField.setAttribute('class', 'col-form-label');
+        
+        switch (commandType) {
+            case CommandType.COMMAND:
+                labelField.innerHTML = CommandType.COMMAND;
+                inputCommand = <HTMLInputElement> document.createElement('input');
+                inputCommand.setAttribute('type', 'text');
+                inputCommand.setAttribute('class', 'form-control');
+                inputCommand.setAttribute('id', 'command-command');
+                inputCommand.required = true;
+                if (this._currentCommand.getCommandType() === 'COMMAND') {
+                    inputCommand.value = this._currentCommand.getCommand();
+                }
+                break;
+            case CommandType.CHANNEL_POINT:
+                labelField.innerHTML = CommandType.CHANNEL_POINT;
+                inputCommand = <HTMLSelectElement> document.createElement('select');
+                inputCommand.setAttribute('class', 'form-select');
+                inputCommand.required = true;
+                const twitchConnectorApi = this.pluginHelper.getConnectorApiByName('TwitchConnector');
+                const channelPointsRewards = await twitchConnectorApi.getChannelPointsRewards();
+                _.each(channelPointsRewards, (channelPoint) => {
+                    let channelPointOption = document.createElement('option');
+                    channelPointOption.text = channelPoint;
+                    channelPointOption.value = channelPoint;
+                    if (this._currentCommand.getCommandType() === 'CHANNEL_POINT' && channelPoint === this._currentCommand.getCommand()) {
+                        channelPointOption.selected = true;
+                    }
+                    inputCommand.add(channelPointOption);
+                });
+                break;
+        }
+
+        if (inputCommand != undefined) {
+            commandTypeCommandSection.appendChild(labelField);
+            commandTypeCommandSection.appendChild(inputCommand);
+        }
+        return inputCommand;
     }
 
     /**

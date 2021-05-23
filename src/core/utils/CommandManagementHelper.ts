@@ -9,6 +9,7 @@ import { ICommandAction } from "./entities/ICommandAction";
 import { PluginManager } from "../plugins/PluginManager";
 import { ICommandField } from "./entities/ICommandField";
 import { CommandField } from "./entities/CommandField";
+import { CommandType } from "./entities/CommandTypeEnum";
 
 export class CommandManagementHelper {
 
@@ -34,7 +35,7 @@ export class CommandManagementHelper {
     }
 
     getEmptyCommand = (documentId?: string): ICommand => {
-        return new Command(false, false, documentId);
+        return new Command(false, CommandType.COMMAND, documentId);
     }
 
     getAllCommands = async (): Promise<ICommand[]> => {
@@ -47,8 +48,8 @@ export class CommandManagementHelper {
         return this.mapDocumentToCommand(document);
     }
 
-    getCommandByName = async (commandName: string, channelPoints: boolean, ): Promise<ICommand> => {
-        const document = await this.database.findOne({ command: commandName, active: true, channelPoints: channelPoints });
+    getCommandByNameAndType = async (commandName: string, commandType: string, ): Promise<ICommand> => {
+        const document = await this.database.findOne({ command: commandName, active: true, commandType: commandType });
         return this.mapDocumentToCommand(document);
     }
 
@@ -82,7 +83,7 @@ export class CommandManagementHelper {
     private mapDocumentToCommand = (document: Object): ICommand => {
         let command: ICommand;
         if (document != undefined) {
-            command = new Command(document['active'], document['channelPoints'], document['_id']);
+            command = new Command(document['active'], document['commandType'], document['_id']);
 
             command.setCommand(document['command'] || '');
 
@@ -137,7 +138,7 @@ export class CommandManagementHelper {
             }),
             'description': command.getDescription(),
             'active': command.isActive(),
-            'channelPoints': command.isChannelPoints()
+            'commandType': command.getCommandType()
         };
         return document;
     }

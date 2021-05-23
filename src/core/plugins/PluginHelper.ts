@@ -10,6 +10,7 @@ import { CooldownHelper } from '../utils/CooldownHelper';
 import { CommandManagementHelper } from "../utils/CommandManagementHelper";
 import { DatabaseHelper } from "../utils/DatabaseHelper";
 import fetch from 'node-fetch';
+import { ConnectorManager } from "../connectors/ConnectorManager";
 
 export class PluginHelper implements IPluginHelper {
 
@@ -46,6 +47,10 @@ export class PluginHelper implements IPluginHelper {
 
     pluginApiByName = (pluginName: string): any => {
         return PluginManager.getInstance().getPluginApiByName(pluginName);
+    }
+
+    getConnectorApiByName = (connectorName: string): any => {
+        return ConnectorManager.getInstance().getConnectorApiByName(connectorName);
     }
 
     loadData = (): any => {

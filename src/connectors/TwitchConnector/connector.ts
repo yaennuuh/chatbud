@@ -53,6 +53,10 @@ class TwitchConnector implements IConnector {
         return this.apiClient.kraken.channels.getMyChannel();
     }
 
+    getChannelPointsRewards = async (): Promise<string[]> => {
+        return ["punkte 1", "punkte 2", "punkte 3"];
+    }
+
     async connect() {
         this.authProvider = new ElectronAuthProvider({
             clientId: 'yfbmeopj35p9rkz0aiq3mugvqt24iu',

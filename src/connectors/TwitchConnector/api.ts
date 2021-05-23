@@ -1,3 +1,5 @@
+import { async } from "rxjs";
+
 class TwitchConnectorApi {
 
     private connector: any;
@@ -20,6 +22,10 @@ class TwitchConnectorApi {
 
     getMyChannel = async(): Promise<any> => {
         return this.connector.getOwnChannel();
+    }
+
+    getChannelPointsRewards = async(): Promise<string[]> => {
+        return this.connector.getChannelPointsRewards();
     }
 }
 
