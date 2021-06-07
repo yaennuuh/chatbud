@@ -1,10 +1,11 @@
 import {Logger} from "@tsed/logger";
+import { app } from 'electron';
 
 export class LoggerHelper {
 
     static getLogger = (name?: string): Logger => {
         const logger = new Logger(name);
-        const logFilePath = `${__dirname}/../../logs/`;
+        const logFilePath = `${app.getPath('userData')}/logs/`;
         logger.appenders
             .set("console", {
                 type: "stdout",

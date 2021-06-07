@@ -3,5 +3,6 @@ export enum CommandType {
     CHANNEL_POINT = "Channel points",
     SUBSCRIPTION = "Subscription",
     GIFTED_SUBSCRIPTION = "Gifted subscrtiption",
-    FOLLOW = "Follow"
+    FOLLOW = "Follow",
+    BITS = "Bits"
 }
