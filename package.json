@@ -99,6 +99,6 @@
       "allowToChangeInstallationDirectory": true,
       "oneClick": false
     },
-    "asar": false
+    "asar": true
   }
 }
