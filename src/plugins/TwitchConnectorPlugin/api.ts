@@ -9,7 +9,7 @@ class TwitchConnectorPluginApi {
         this.plugin.createClip();
     }
 
-    isChannelLive = (event: IEvent, eventCommand: any, commandField: any): boolean => {
+    isChannelLive = (event: IEvent, command: string, eventCommand: any, commandField: any): boolean => {
         return this.plugin.isChannelLive().then((isLive: boolean) => { return isLive; });
     }
 }

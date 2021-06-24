@@ -32,7 +32,6 @@ class CommandsManagerPlugin {
         const eventCommand = eventMessage.split(' ');
         const searchCommandString = eventCommand.shift();
         this._findCommand(searchCommandString, "COMMAND").then(async (command: ICommand) => {
-            console.log('gefunden command ', command);
             if (command) {
                 const conditions = command.getConditions();
                 let conditionsSucceed = true;
@@ -41,7 +40,7 @@ class CommandsManagerPlugin {
                         const pluginApi = this.pluginHelper.pluginApiByName(condition.getPluginId());
                         const commandField = condition.getFieldId() ? command.getFields().find((field) => field.getId() === condition.getFieldId()) : undefined;
                         
-                        conditionsSucceed = await pluginApi[condition.getFunctionName()](event, eventCommand, commandField);
+                        conditionsSucceed = await pluginApi[condition.getFunctionName()](event, searchCommandString, eventCommand, commandField);
                     }
                 }
 
@@ -57,11 +56,10 @@ class CommandsManagerPlugin {
 
                 if (conditionsSucceed) {
                     const actions = command.getActions();
-                    console.log(actions);
                     _.each(actions, (action: ICommandAction) => {
                         const pluginApi = this.pluginHelper.pluginApiByName(action.getPluginId());
                         const commandField = action.getFieldId() ? command.getFields().find((field) => field.getId() === action.getFieldId()) : undefined;
-                        pluginApi[action.getFunctionName()](event, eventCommand, commandField);
+                        pluginApi[action.getFunctionName()](event, searchCommandString, eventCommand, commandField);
                     });
                 }
             }
@@ -77,7 +75,7 @@ class CommandsManagerPlugin {
                 _.each(actions, (action: ICommandAction) => {
                     const pluginApi = this.pluginHelper.pluginApiByName(action.getPluginId());
                     const commandField = command.getFields() ? command.getFields().find((field) => field.getId() === action.getFieldId()) : undefined;
-                    pluginApi[action.getFunctionName()](event, eventCommand, commandField);
+                    pluginApi[action.getFunctionName()](event, eventCommand, eventCommand, commandField);
                 });
             }
         });

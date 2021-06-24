@@ -12,7 +12,7 @@ export class CommandAction implements ICommandAction {
         this.pluginId = pluginId;
         this.functionName = functionName;
         this.fieldId = fieldId;
-        this.requiredConditions = requiredConditions;
+        this.requiredConditions = requiredConditions ? (typeof requiredConditions === "string" ? [requiredConditions] : requiredConditions) : [];
     }
 
     getId(): string {
