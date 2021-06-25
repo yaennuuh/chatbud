@@ -4,3 +4,4 @@ dist
 out
 dist-obfuscated
 build
+electron-builder.yml

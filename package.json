@@ -1,6 +1,6 @@
 {
   "name": "chatbud",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "author": "Yannick",
   "description": "ChatBud - Your Chatbot buddy",
   "main": "./dist/app.js",
@@ -22,9 +22,11 @@
     "copy-core-connectors": "copyfiles -e \"src/connectors/**/*.ts\" -u 2 \"src/connectors/**/*\" \"dist/connectors\"",
     "copy-core-plugins": "copyfiles -e \"src/plugins/**/*.ts\" -u 2 \"src/plugins/**/*\" \"dist/plugins\"",
     "copy-core-config": "copyfiles -f \"src/core/configuration.yaml\" \"dist/core\"",
-    "dist": "electron-builder",
+    "dist": "electron-builder build --win --publish never",
+    "deploy": "electron-builder build --win --publish always",
     "build": "npm run compile-build",
-    "buildapp": "npm-run-all -s build dist"
+    "buildapp": "npm-run-all -s build dist",
+    "deployapp": "npm-run-all -s build deploy"
   },
   "keywords": [],
   "license": "ISC",
@@ -51,6 +53,7 @@
     "axios": "^0.21.1",
     "bootstrap": "^5.0.2",
     "bootstrap-icons": "^1.5.0",
+    "electron-updater": "^4.3.9",
     "glob": "^7.1.7",
     "jquery": "^3.6.0",
     "jwt-decode": "^3.1.2",
@@ -72,25 +75,8 @@
   "config": {
     "forge": "./forge.config.json"
   },
-  "build": {
-    "appId": "stream.chatbud.streambot",
-    "productName": "ChatBud Streambot",
-    "target": "NSIS",
-    "directories": {
-      "buildResources": "dist",
-      "output": "build"
-    },
-    "files": [
-      "./dist/connectors/**/*",
-      "./dist/core/**/*",
-      "./dist/plugins/**/*",
-      "./dist/ui/**/*",
-      "./dist/*.js"
-    ],
-    "nsis": {
-      "allowToChangeInstallationDirectory": true,
-      "oneClick": false
-    },
-    "asar": true
+  "repository": {
+    "type" : "git",
+    "url" : "https://github.com/yaennuuh/chatbudtest.git"
   }
 }
