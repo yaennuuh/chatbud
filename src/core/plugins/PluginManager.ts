@@ -6,6 +6,7 @@ import { CoreBot } from '../CoreBot';
 import { IPluginManager } from './IPluginManager';
 import { PluginHelper } from './PluginHelper';
 import { CoreHelper } from '../CoreHelper';
+import { npmInstallAsync  } from 'runtime-npm-install';
 
 export class PluginManager implements IPluginManager {
     private static instance: PluginManager;
@@ -55,12 +56,21 @@ export class PluginManager implements IPluginManager {
         return commandConfigs;
     }
 
-    private loadAllPlugins(basePath: string) {
+    private async loadAllPlugins(basePath: string) {
+        await this.installAllPluginDependencies(this.resourcesPath);
         const configs = this._getPluginsConfigs(basePath);
         _.each(configs, (config) => {
             this.loadPlugin(basePath, config);
             this.pluginApi.set(config['name'], this.loadPluginApi(basePath, config));
         });
+    }
+
+    private async installAllPluginDependencies(basePath: string): Promise<any> {
+        const configs = this._getPluginsConfigs(basePath);
+        _.each(configs, async (config) => {
+            await this.installPluginDependency(basePath, config);
+        });
+        return Promise.resolve();
     }
 
     private _getPluginsConfigs = (basePath: string): any[] => {
@@ -87,6 +97,18 @@ export class PluginManager implements IPluginManager {
                 this.plugins.set(config['name'], customPluginInstance);
                 const eventTypesToRegister: string[] = customPluginInstance.register(new PluginHelper(config));
                 CoreBot.getInstance().registerPluginToEventBusIn(customPluginInstance, eventTypesToRegister);
+            }
+        }
+    }
+
+    public async installPluginDependency(basePath: string, config: any) {
+        if (config &&
+            config.hasOwnProperty('name') &&
+            config.hasOwnProperty('dependencies')
+        ) {
+            var pluginPath = `${basePath}/${config['name']}`;
+            if (fs.existsSync(pluginPath)) {
+                await npmInstallAsync(config.dependencies, pluginPath);
             }
         }
     }

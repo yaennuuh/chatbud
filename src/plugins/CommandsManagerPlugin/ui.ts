@@ -95,7 +95,7 @@ class CommandsManagerPluginUI {
         commandEditModal.querySelector('#formError').innerText = '';
 
         const inputActive = <HTMLInputElement>commandEditModal.querySelector('.modal-body input#command-active');
-        inputActive.checked = this._currentCommand.isActive();
+        inputActive.checked =  this._currentCommand.getDocumentId() ? this._currentCommand.isActive() : true;
 
         const inputCommandType = <HTMLSelectElement>commandEditModal.querySelector('.modal-body select#command-type');
         inputCommandType.innerHTML = '';

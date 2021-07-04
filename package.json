@@ -62,6 +62,7 @@
     "moment": "^2.29.1",
     "nedb": "^1.8.0",
     "nedb-promises": "^4.1.5",
+    "runtime-npm-install": "^5.0.0",
     "rxjs": "^6.6.7",
     "tmi.js": "^1.8.3",
     "twitch": "^4.5.5",
@@ -76,7 +77,7 @@
     "forge": "./forge.config.json"
   },
   "repository": {
-    "type" : "git",
-    "url" : "https://github.com/yaennuuh/chatbudtest.git"
+    "type": "git",
+    "url": "https://github.com/yaennuuh/chatbudtest.git"
   }
 }

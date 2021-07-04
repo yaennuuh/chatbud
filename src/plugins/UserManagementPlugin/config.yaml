@@ -16,6 +16,14 @@ command:
       label: Log Message
       type: text
       description: 'Type in a message'
+    - id: bot-message
+      label: Bot message
+      type: text
+      description: 'Type in a message'
+    - id: streamer-message
+      label: Streamer Message
+      type: text
+      description: 'Type in a message'
   conditions:
     - id: usernameEquals
       name: Check twitch username
@@ -32,6 +40,14 @@ command:
       name: Log message
       functionName: logMessage
       fieldId: log-message
+    - id: sendMessageAsStreamer
+      name: Streamer message
+      functionName: sendMessageAsStreamer
+      fieldId: streamer-message
+    - id: sendMessageAsBot
+      name: Bot message
+      functionName: sendMessageAsBot
+      fieldId: bot-message
     - id: custom-sleep
       name: Sleep
       functionName: sleep

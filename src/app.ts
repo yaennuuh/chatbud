@@ -12,7 +12,6 @@ import { FilterManager } from './core/filters/FilterManager';
 import { IPluginManager } from './core/plugins/IPluginManager';
 import { PluginManager } from './core/plugins/PluginManager';
 import { CoreHelper } from './core/CoreHelper';
-import { LoggerHelper } from './core/utils/LoggerHelper';
 
 Main.main(app, BrowserWindow);
 

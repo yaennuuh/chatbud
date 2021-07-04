@@ -27,6 +27,14 @@ class UserManagementPluginApi {
     logMessage = (event: IEvent, command: string, eventCommand: any, commandField: ICommandField): void => {
         console.log(commandField.getValue());
     }
+
+    sendMessageAsStreamer = (event: IEvent, command: string, eventCommand: any, commandField: ICommandField): void => {
+        this.plugin.sendMessageAsStreamer(commandField.getValue());
+    }
+
+    sendMessageAsBot = (event: IEvent, command: string, eventCommand: any, commandField: ICommandField): void => {
+        this.plugin.sendMessageAsBot(commandField.getValue());
+    }
 }
 
 module.exports = UserManagementPluginApi;

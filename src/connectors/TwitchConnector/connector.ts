@@ -39,12 +39,13 @@ class TwitchConnector implements IConnector {
 
     register(connectorHelper: ConnectorHelper): string[] {
         this.connectorHelper = connectorHelper;
-        return [];
+        return ['twitch-send-chat-message-as-streamer'];
     }
 
     execute(event: IEvent): void {
-        // handle event
-        throw new Error("Method not implemented.");
+        if (this.chatClient) {
+            this.chatClient.say('barrexgaming', event.data.message);
+        }
     }
 
     async startFunction() {
