@@ -1,3 +1,5 @@
+import { IEvent } from "../../core/events/IEvent";
+
 class CommandsOldPlugin {
     pluginHelper: any;
     commands: any[];
@@ -45,22 +47,22 @@ class CommandsOldPlugin {
                         await cooldownHelper.setCooldownForUser(command['command'], event.data.userId, command['user-cooldown'], );
                     }
 
-                    this.sendMessageToTwitch(commandResponse);
+                    this.sendMessageToTwitch(commandResponse, null);
 
                 } else {
                     if (hasUserCooldown) {
                         let remainingCooldownTime = await cooldownHelper.getCooldownForUser(command['command'], event.data.userId);
-                        this.sendMessageToTwitch(`USER - Der command ${command['command']} ist noch für ${remainingCooldownTime} Sekunden im cooldown!`);
+                        this.sendMessageToTwitch(`USER - Der command ${command['command']} ist noch für ${remainingCooldownTime} Sekunden im cooldown!`, null);
                     } else if (hasGlobalCooldown) {
                         let remainingCooldownTime = await cooldownHelper.getCooldownForGlobal(command['command']);
-                        this.sendMessageToTwitch(`GLOBAL - Der command ${command['command']} ist noch für ${remainingCooldownTime} Sekunden im cooldown!`);
+                        this.sendMessageToTwitch(`GLOBAL - Der command ${command['command']} ist noch für ${remainingCooldownTime} Sekunden im cooldown!`, null);
                     }
                 }
             }
         });
     }
 
-    sendMessageToTwitch = (message: string): void => {
+    sendMessageToTwitch = (message: string, originalEvent: IEvent): void => {
         this.pluginHelper.sendEventToBusOut({
             type: 'twitch-send-chat-message',
             data: {

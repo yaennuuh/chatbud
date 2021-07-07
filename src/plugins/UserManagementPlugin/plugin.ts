@@ -1,3 +1,5 @@
+import { IEvent } from "../../core/events/IEvent";
+
 class UserManagementPlugin {
     pluginHelper: any;
     commands: any[];
@@ -13,22 +15,22 @@ class UserManagementPlugin {
         }
     }
 
-    sendMessageAsStreamer = (message: string): void => {
+    sendMessageAsStreamer = (message: string, originalEvent: IEvent): void => {
         this.pluginHelper.sendEventToBusOut({
             type: 'twitch-send-chat-message-as-streamer',
             data: {
                 message: message
             }
-        });
+        }, originalEvent);
     }
 
-    sendMessageAsBot = (message: string): void => {
+    sendMessageAsBot = (message: string, originalEvent: IEvent): void => {
         this.pluginHelper.sendEventToBusOut({
             type: 'twitch-send-chat-message',
             data: {
                 message: message
             }
-        });
+        }, originalEvent);
     }
 }
 

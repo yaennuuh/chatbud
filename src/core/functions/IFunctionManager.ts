@@ -1,6 +1,8 @@
+import { IEvent } from "../events/IEvent";
+
 export interface IFunctionManager {
     loadFunctions(): void;
     registerFunction(functionKeyword: string, functionInstance: any): void;
     getFunctionKeyWords(): string[];
-    sendToFunction(functionKey: string, packages: string[]): string[];
+    sendToFunction(functionKey: string, packages: string[], originalEvent: IEvent): string[];
 }

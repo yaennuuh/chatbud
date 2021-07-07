@@ -42,7 +42,7 @@ describe('FunctionManager', () =>
             let functionManager = FunctionManager.getInstance();
             let functionKey = "dummy";
             let packages = ['[#dummy]text[/#dummy]', 'other package'];
-            expect(functionManager.sendToFunction(functionKey, packages))
+            expect(functionManager.sendToFunction(functionKey, packages, null))
                 .to
                 .eqls(["params:'' content:'text'", 'other package']);
         });
@@ -51,7 +51,7 @@ describe('FunctionManager', () =>
             let functionManager = FunctionManager.getInstance();
             let functionKey = "dummy";
             let packages = ['[#dummy 3 true]text[/#dummy]', 'other package'];
-            expect(functionManager.sendToFunction(functionKey, packages))
+            expect(functionManager.sendToFunction(functionKey, packages, null))
                 .to
                 .eqls(["params:'3 true' content:'text'", 'other package']);
         });

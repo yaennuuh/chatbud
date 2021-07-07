@@ -42,8 +42,8 @@ export class FilterManager implements IFilterManager {
         return Array.from(this.filterMap.keys());
     }
 
-    applyFilter(filterKeyword: string, event: IEvent): string {
+    applyFilter(filterKeyword: string, event: IEvent, originalEvent: IEvent): string {
         const filterInstance: any = this.filterMap.get(filterKeyword);
-        return event.data.message.split(`$${filterKeyword}`).join(filterInstance.getReplaceString(event));
+        return event.data.message.split(`$${filterKeyword}`).join(filterInstance.getReplaceString(event, originalEvent));
     }
 }

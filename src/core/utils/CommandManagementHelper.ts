@@ -49,7 +49,7 @@ export class CommandManagementHelper {
     }
 
     getCommandByNameAndType = async (commandName: string, commandType: string, ): Promise<ICommand> => {
-        const document = await this.database.findOne({ command: commandName, active: true, commandType: commandType });
+        const document = await this.database.findOne({ command: { $regex: new RegExp('^'+commandName+'$', 'i') }, active: true, commandType: commandType });
         return this.mapDocumentToCommand(document);
     }
 

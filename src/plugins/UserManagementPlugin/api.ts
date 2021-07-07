@@ -29,11 +29,11 @@ class UserManagementPluginApi {
     }
 
     sendMessageAsStreamer = (event: IEvent, command: string, eventCommand: any, commandField: ICommandField): void => {
-        this.plugin.sendMessageAsStreamer(commandField.getValue());
+        this.plugin.sendMessageAsStreamer(commandField.getValue(), event);
     }
 
     sendMessageAsBot = (event: IEvent, command: string, eventCommand: any, commandField: ICommandField): void => {
-        this.plugin.sendMessageAsBot(commandField.getValue());
+        this.plugin.sendMessageAsBot(commandField.getValue(), event);
     }
 }
 

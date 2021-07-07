@@ -79,10 +79,10 @@ class TwitchConnector implements IConnector {
     }
 
     getChannelPointsRewards = async (): Promise<string[]> => {
-        let user: HelixUser = await this.getUser();
-        console.log(user);
-        let customRewards: HelixCustomReward[] = await this.apiClient.helix.channelPoints.getCustomRewards(user);
-        return _.map(customRewards, (reward) => { return reward.title });
+        return this.getUser().then(async (user: HelixUser) => {
+            let customRewards: HelixCustomReward[] = await this.apiClient.helix.channelPoints.getCustomRewards(user);
+            return _.map(customRewards, (reward) => { return reward.title });
+        });        
     }
 
     getChannel = async (): Promise<HelixChannel> => {
@@ -194,8 +194,8 @@ class TwitchConnector implements IConnector {
         console.log('channel redeem ready');
     }
 
-    sendEventToTwitchAsBot(message: string) {
-        CoreBot.getInstance().notifyNotifiableOnEventBusOut(new Event('twitch-send-chat-message', new EventData(message)));
+    sendEventToTwitchAsBot(message: string, originalEvent: IEvent) {
+        CoreBot.getInstance().notifyNotifiableOnEventBusOut(new Event('twitch-send-chat-message', new EventData(message)), originalEvent);
     }
 
     stop(): void {

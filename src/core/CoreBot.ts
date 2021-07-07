@@ -49,13 +49,13 @@ export class CoreBot implements ICoreBot {
         this.eventBusOut.subscribe(notifiable, eventTypeList);
     }
 
-    notifyNotifiableOnEventBusOut(event: IEvent): void {
+    notifyNotifiableOnEventBusOut(event: IEvent, originalEvent: IEvent): void {
         let filterKeywordList = this.filterManager.getFilterKeyWords();
 
         if (filterKeywordList && filterKeywordList.length) {
             _.each(filterKeywordList, (filterKeyword) => {
                 if (event.data.message.indexOf(filterKeyword) != -1) {
-                    event.data.message = this.filterManager.applyFilter(filterKeyword, event);
+                    event.data.message = this.filterManager.applyFilter(filterKeyword, event, originalEvent);
                 }
             });
         }
@@ -65,20 +65,20 @@ export class CoreBot implements ICoreBot {
         if (functionKeywordList && functionKeywordList.length) {
             let packages: string[] = this.packaginator(event.data.message, functionKeywordList);
 
-            event.data.message = this.dispatchPackages(packages, functionKeywordList, '');
+            event.data.message = this.dispatchPackages(packages, functionKeywordList, '', event);
         }
 
         this.eventBusOut.notify(event);
     }
 
-    dispatchPackages(packages: string[], functionKeywords: string[], outgoingMessage: string): string {
+    dispatchPackages(packages: string[], functionKeywords: string[], outgoingMessage: string, originalEvent: IEvent): string {
         let hasModified = false;
 
         _.each(functionKeywords, (functionKeyword) => {
             let firstPackage = _.first(packages);
             if (_.startsWith(firstPackage, `[#${functionKeyword}`)) {
                 hasModified = true;
-                packages = this.functionManager.sendToFunction(functionKeyword, packages);
+                packages = this.functionManager.sendToFunction(functionKeyword, packages, originalEvent);
                 let newMessage = _.map(packages).join('');
                 if (newMessage && newMessage.length) {
                     packages = this.packaginator(newMessage, functionKeywords);
@@ -91,7 +91,7 @@ export class CoreBot implements ICoreBot {
         }
 
         if (packages && packages.length > 0) {
-            return this.dispatchPackages(packages, functionKeywords, outgoingMessage);
+            return this.dispatchPackages(packages, functionKeywords, outgoingMessage, originalEvent);
         }
 
         return outgoingMessage;

@@ -17,8 +17,8 @@ export class PluginHelper implements IPluginHelper {
     constructor(private config: any) {
     }
 
-    sendEventToBusOut = (event: IEvent) => {
-        CoreBot.getInstance().notifyNotifiableOnEventBusOut(event);
+    sendEventToBusOut = (event: IEvent, originalEvent: IEvent) => {
+        CoreBot.getInstance().notifyNotifiableOnEventBusOut(event, originalEvent);
     }
 
     getOwnPluginApi = (): any => {
