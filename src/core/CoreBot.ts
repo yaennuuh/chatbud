@@ -50,6 +50,16 @@ export class CoreBot implements ICoreBot {
     }
 
     notifyNotifiableOnEventBusOut(event: IEvent, originalEvent: IEvent): void {
+        let splittedMessage = originalEvent.data.message.split(' ');
+        let commandResponse = (' ' + event.data.message).slice(1);
+        for (let index = 1; index < splittedMessage.length; index++) {
+            const element = splittedMessage[index];
+            if (commandResponse.indexOf(`$${index}`) != -1) {
+                commandResponse = commandResponse.replace(`$${index}`, element);
+            }
+        }
+        event.data.message = commandResponse;
+
         let filterKeywordList = this.filterManager.getFilterKeyWords();
 
         if (filterKeywordList && filterKeywordList.length) {
@@ -142,7 +152,7 @@ export class CoreBot implements ICoreBot {
                     packages.push(message.substring(packageLength, matchingPairElement));
                 }
 
-                packages.push(message.substring(matchingPairElement, (item + currentMathingWord.length + 3)));
+                packages.push(message.substring(matchingPairElement, (item + currentMathingWord.length + 2)));
             }
 
             _.remove(begin, function (n) {

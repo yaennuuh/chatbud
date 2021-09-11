@@ -1,5 +1,6 @@
 import { CommandType } from "../../core/utils/entities/CommandTypeEnum";
 import * as _ from 'lodash';
+import { ICommand } from "../../core/utils/entities/ICommand";
 
 class CommandsManagerPluginUI {
 
@@ -13,6 +14,13 @@ class CommandsManagerPluginUI {
         this._populateTable();
         this._initializeOneTimeListeners();
         this._loadAvailableCommandsFromPlugins();
+    }
+
+    private _showHideCommand = async (documentId: string): Promise<void> => {
+        let command = await this._getCommand(documentId);
+        command.setIsActive(!command.isActive());
+        await this._commandManagementHelper.updateCommand(command);
+        this._populateTable();
     }
 
     /**
@@ -38,7 +46,11 @@ class CommandsManagerPluginUI {
 
         // Show if command is active
         const isCommandActive = row.insertCell();
-        isCommandActive.innerHTML = command.isActive() ? `<i class="bi bi-eye-fill"></i>` : `<i class="bi bi-eye-slash-fill"></i>`;
+        const commandVisibilityIcon = command.isActive() ? `<i class="bi bi-eye-fill"></i>` : `<i class="bi bi-eye-slash-fill"></i>`;
+        const commandVisibility = this._htmlToElement(`<button class="ml-3 btn btn-sm">${commandVisibilityIcon}</button>`);
+        commandVisibility.addEventListener('click', () => { this._showHideCommand(command.getDocumentId()) });
+
+        isCommandActive.appendChild(commandVisibility);
 
         // Command name
         const commandName = row.insertCell();
@@ -239,7 +251,12 @@ class CommandsManagerPluginUI {
         const commandEditModal = document.getElementById('commandEditModal');
         const conditionsList = commandEditModal.querySelector('.modal-body #collapseConditions .list-group');
 
-        let conditionListElement = this._htmlToElement('<li class="list-group-item"></li>');
+        let styles = '';
+        if (condition.hide) {
+            styles = 'display: none';
+        }
+
+        let conditionListElement = this._htmlToElement('<li class="list-group-item" style="' + styles + '"></li>');
 
         let conditionAlreadyExists = this._checkIfConditionAlreadyExists(condition.id, pluginCommand.plugin);
 
@@ -445,6 +462,10 @@ class CommandsManagerPluginUI {
 
     private _getCommands = async (): Promise<any[]> => {
         return await this._commandManagementHelper.getAllCommands();
+    }
+
+    private _getCommand = async (documentId: string): Promise<any> => {
+        return await this._commandManagementHelper.getCommandByDocumentId(documentId);
     }
 
     private _loadAvailableCommandsFromPlugins = async (): Promise<void> => {
