@@ -28,6 +28,10 @@ function initializeListeners() {
     dashboardButton.addEventListener('click', function () {
         loadCustomTag('core-dashboard');
     });
+    var reloadAppButton = document.getElementById('reload-app-button');
+    reloadAppButton.addEventListener('click', function () {
+        ipc.send('reload-application', '');
+    });
     var settingsButton = document.getElementById('settings-button');
     settingsButton.addEventListener('click', function () {
         loadCustomTag('core-settings');

@@ -25,6 +25,10 @@ export class FunctionManager implements IFunctionManager {
         return this.instance;
     }
 
+    unloadFunctions(): void {
+        this.functionMap = new Map();
+    }
+
     loadFunctions(): void {
         const files: string[] = glob.sync(`${this.resourcesPath}/**/function.js`, null);
         _.each(files, (file) => {

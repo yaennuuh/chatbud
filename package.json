@@ -1,7 +1,7 @@
 {
   "name": "chatbud",
   "version": "0.0.3",
-  "author": "Yannick",
+  "author": "Barrex",
   "description": "ChatBud - Your Chatbot buddy",
   "main": "./dist/app.js",
   "scripts": {

@@ -24,6 +24,10 @@ export class FilterManager implements IFilterManager {
 
         return this.instance;
     }
+    
+    unloadFilters(): void {
+        this.filterMap = new Map();
+    }
 
     loadFilters(): void {
         const files: string[] = glob.sync(`${this.resourcesPath}/**/filter.js`, null);

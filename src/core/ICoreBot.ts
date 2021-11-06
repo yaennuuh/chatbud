@@ -7,4 +7,6 @@ export interface ICoreBot {
     notifyPluginsOnEventBusIn(event: IEvent): void;
     registerNotifiableToEventBusOut(notifiable: INotifiable, eventTypeList: string[]): void;
     notifyNotifiableOnEventBusOut(event: IEvent, originalEvent: IEvent): void;
+    unregisterAllFromEventBusIn(): void;
+    unregisterAllFromEventBusOut(): void;
 }

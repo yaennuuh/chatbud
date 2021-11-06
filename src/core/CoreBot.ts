@@ -33,6 +33,10 @@ export class CoreBot implements ICoreBot {
      * EVENT BUS IN
      */
 
+    unregisterAllFromEventBusIn(): void {
+        this.eventBusIn.unsubscribeAll();
+    }
+
     registerPluginToEventBusIn(plugin: IPlugin, eventTypeList: string[]): void {
         this.eventBusIn.subscribe(plugin, eventTypeList);
     }
@@ -44,6 +48,10 @@ export class CoreBot implements ICoreBot {
     /***
      * EVENT BUS OUT
      */
+
+    unregisterAllFromEventBusOut(): void {
+        this.eventBusOut.unsubscribeAll();
+    }
 
     registerNotifiableToEventBusOut(notifiable: INotifiable, eventTypeList: string[]): void {
         this.eventBusOut.subscribe(notifiable, eventTypeList);

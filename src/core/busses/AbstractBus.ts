@@ -39,4 +39,8 @@ export abstract class AbstractBus<T extends INotifiable> implements IBus<T> {
             return _.isEqual('*', item) || _.isEqual(eventType, item) ;
         });
     }
+
+    unsubscribeAll(): void {
+        this.subscribers.clear();
+    }
 }

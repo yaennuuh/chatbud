@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain } from 'electron';
+import { app, BrowserWindow, ipcMain, ipcRenderer } from 'electron';
 import { autoUpdater } from 'electron-updater';
 
 export default class Main {
@@ -20,8 +20,8 @@ export default class Main {
     private static onReady() {
 
         Main.mainWindow = new Main.BrowserWindow({
-            width: 1280,
-            height: 720,
+            width: 1920,
+            height: 1080,
             frame: false,
             webPreferences: {
                 nodeIntegration: true,
@@ -30,9 +30,10 @@ export default class Main {
         });
         Main.mainWindow.setMenuBarVisibility(false);
         Main.mainWindow.loadURL('file://' + __dirname + '/ui/loading.html');
-        setTimeout(() => Main.mainWindow.loadURL('file://' + __dirname + '/ui/main.html'), 5000)
+        //setTimeout(() => Main.mainWindow.loadURL('file://' + __dirname + '/ui/main.html'), 5000)
         Main.mainWindow.on('closed', Main.onClose);
         Main.mainWindow.once('ready-to-show', () => {
+            //Main.mainWindow.loadURL('file://' + __dirname + '/ui/main.html');
             autoUpdater.checkForUpdatesAndNotify();
         });
 

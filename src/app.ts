@@ -1,4 +1,4 @@
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow, ipcMain } from 'electron';
 import Main from './main';
 
 import * as _ from 'lodash';
@@ -22,17 +22,31 @@ globalAny['pluginManager'] = PluginManager.getInstance();
 globalAny['connectorManager'] = ConnectorManager.getInstance();
 globalAny['coreHelper'] = CoreHelper.getInstance();
 
-setTimeout(function () {
+const loadConnectors = () => {
     const connectorManager: IConnectorManager = ConnectorManager.getInstance();
     connectorManager.loadConnectors();
+}
 
+const loadAll = () => {
     const pluginManager: IPluginManager = PluginManager.getInstance();
+    pluginManager.unloadAllPlugins();
     pluginManager.loadCorePlugins();
     pluginManager.loadPlugins();
 
     const functionManager: IFunctionManager = FunctionManager.getInstance();
+    functionManager.unloadFunctions();
     functionManager.loadFunctions();
 
     const filterManager: IFilterManager = FilterManager.getInstance();
+    filterManager.unloadFilters();
     filterManager.loadFilters();
-}, 5000);
+
+    Main.mainWindow.loadURL('file://' + __dirname + '/ui/main.html');
+}
+
+ipcMain.on('reload-application', loadAll);
+app.on('ready', () => {
+    console.log('here we are');
+    loadConnectors();
+    loadAll();
+});

@@ -31,6 +31,13 @@ export class PluginManager implements IPluginManager {
         return PluginManager.instance;
     }
 
+    public unloadAllPlugins(): void {
+        this.pluginApi = new Map();
+        this.plugins = new Map();
+        this.pluginHelpers = new Map();
+        CoreBot.getInstance().unregisterAllFromEventBusIn();
+    }
+
     public loadCorePlugins(): void {
         this.loadAllPlugins(this.resourcesPathCore);
     }
