@@ -17,7 +17,6 @@ class DummyConnector implements IConnector {
     }
 
     execute(event: IEvent): void {
-        //console.log(event);
     }
 }
 

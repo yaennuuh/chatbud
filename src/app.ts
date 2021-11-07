@@ -47,7 +47,6 @@ const loadAll = () => {
 ipcMain.on('reload-application', loadAll);
 
 setTimeout(() => {
-    console.log(Main.mainWindow.webContents.getURL(), 'file://' + __dirname.split("\\").join("/") + '/ui/loading.html', Main.mainWindow.webContents.getURL() === 'file://' + __dirname.split("\\").join("/") + '/ui/loading.html')
     if (Main.mainWindow.webContents.getURL().indexOf('loading.html') != -1) {
         loadAllConnectors();
         loadAll();
