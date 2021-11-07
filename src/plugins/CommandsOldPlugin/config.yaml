@@ -1,7 +1,0 @@
-name: CommandsOldPlugin
-display-name: OldCommands
-ui-html: ui.html
-ui-js: ui.js
-plugin-js: plugin.js
-plugin-api-js: api.js
-data-yaml: data.yaml
