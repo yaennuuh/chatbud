@@ -23,35 +23,77 @@ class CoreExtensionsPageUI {
         this.loadFiltersList();
     }
 
+    /**
+     * Plugins
+     */
+
     loadPluginList = () => {
         const pluginConfigFiles: string[] = glob.sync(this.pluginsPath + "/**/config.yaml", null);
         const pluginConfigs = _.map(pluginConfigFiles, (configPath) => {
             if (fs.existsSync(configPath)) {
                 const file = fs.readFileSync(configPath, 'utf8')
-                return YAML.parse(file)['display-name'];
+                return YAML.parse(file);
             }
         });
-        this._populateTable('plugins', pluginConfigs);
+        this._populateTable('plugins', pluginConfigs.flatMap(config => {
+            return {
+                identifier: config['name'],
+                name: config['display-name']
+            };
+        }));
     }
+
+    addNewPlugin = () => {}
+    deletePlugin = (identifier: string) => {
+        fs.rmdirSync(this.pluginsPath + '/' + identifier, { recursive: true });
+    }
+
+    /**
+     * Functions
+     */
 
     loadFunctionsList = () => {
-        this._populateTable('functions', fs.readdirSync(this.functionsPath));
+        this._populateTable('functions', fs.readdirSync(this.functionsPath).flatMap(name => {
+            return {
+                identifier: name,
+                name: name
+            };
+        }));
     }
 
+    addNewFunction = () => {}
+    deleteFunction = (identifier: string) => {
+        fs.rmdirSync(this.functionsPath + '/' + identifier, { recursive: true });
+    }
+
+    /**
+     * Filters
+     */
+
     loadFiltersList = () => {
-        this._populateTable('filters', fs.readdirSync(this.filtersPath));
+        this._populateTable('filters', fs.readdirSync(this.filtersPath).flatMap(name => {
+            return {
+                identifier: name,
+                name: name
+            };
+        }));
+    }
+
+    addNewFilter = () => {}
+    deleteFilter = (identifier: string) => {
+        fs.rmdirSync(this.filtersPath + '/' + identifier, { recursive: true });
     }
 
     /**
      * Table
      */
-     private _populateTable = async (tableName: string, itemList: string[]): Promise<void> => {
+     private _populateTable = async (tableName: string, itemList: any[]): Promise<void> => {
          console.log('itemList', itemList);
         const table = this._getEmptyTable(tableName);
 
         itemList.forEach((item) => {
             let row = table.insertRow();
-            this._addRowToTable(row, item);
+            this._addRowToTable(tableName, row, item.identifier, item.name);
         });
     }
 
@@ -61,16 +103,38 @@ class CoreExtensionsPageUI {
         return table;
     }
 
-    private _addRowToTable = (row: any, name: string): void => {
-
+    private _addRowToTable = (table: string, row: any, identifier: string, name: string): void => {
+        // Delete button
+        const deleteCell = row.insertCell();
+        deleteCell.style.width = '50px';
+        const deleteButton = this._htmlToElement(`<button class="ml-3 btn btn-danger btn-sm"><i class="bi bi-trash"></i></button>`);
+        deleteButton.addEventListener('click', () => { this._deleteExtension(table, identifier); });
+        deleteCell.appendChild(deleteButton);
+        
         // Name
         const nameCell = row.insertCell();
         nameCell.innerText = name;
+    }
 
-        // Delete button
-        /*const deleteButton = this._htmlToElement(`<button class="ml-3 btn btn-danger btn-sm"><i class="bi bi-trash"></i></button>`);
-        deleteButton.addEventListener('click', () => { this._deleteState(state['_id']); });
-        settings.appendChild(deleteButton);*/
+    /**
+     * Utils
+     */
+    private _htmlToElement = (html: string): Node => {
+        const template = document.createElement('template');
+        html = html.trim();
+        template.innerHTML = html;
+        return template.content.firstChild;
+    }
+
+    private _deleteExtension = (table: string, identifier: string) => {
+        switch(table) {
+            case 'plugins':
+                this.deletePlugin(identifier);
+            case 'functions':
+                this.deleteFunction(identifier);
+            case 'filters':
+                this.deleteFilter(identifier);
+        }
     }
 }
 
