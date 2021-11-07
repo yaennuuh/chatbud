@@ -24,7 +24,6 @@ export default class Main {
             frame: false,
             webPreferences: {
                 nodeIntegration: true,
-                //contextIsolation: false,
                 enableRemoteModule: true
             }
         });
@@ -61,10 +60,6 @@ export default class Main {
     };
 
     static main(app: Electron.App, browserWindow: typeof BrowserWindow) {
-        // we pass the Electron.App object and the  
-        // Electron.BrowserWindow into this function 
-        // so this class has no dependencies. This 
-        // makes the code easier to write tests for 
         Main.BrowserWindow = browserWindow;
         Main.application = app;
         Main.application.on('window-all-closed', Main.onWindowAllClosed);

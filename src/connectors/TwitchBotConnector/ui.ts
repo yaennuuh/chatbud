@@ -9,6 +9,14 @@ class TwitchBotConnectorUI {
 
     initialize = (): void => {
         this.data = this.connectorHelper.loadData();
+        if(!this.data) {
+            this.data = {
+                username: '',
+                authkey: '',
+                channel: '',
+                autoConnect: false
+            };
+        }
         this.api = this.connectorHelper.getOwnConnectorApi();
         this.prepareListeners();
         this.fillUIForm();

@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain } from 'electron';
+import { app, BrowserWindow, ipcMain, dialog } from 'electron';
 import Main from './main';
 
 import * as _ from 'lodash';
@@ -40,7 +40,6 @@ const loadAll = () => {
     const filterManager: IFilterManager = FilterManager.getInstance();
     filterManager.unloadFilters();
     filterManager.loadFilters();
-
     Main.mainWindow.loadURL('file://' + __dirname + '/ui/main.html');
 }
 
@@ -51,4 +50,4 @@ setTimeout(() => {
         loadAllConnectors();
         loadAll();
     }
-}, 1000);
+}, 5000);

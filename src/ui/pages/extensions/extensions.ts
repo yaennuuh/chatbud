@@ -19,9 +19,7 @@ class CoreExtensionsPageUI {
         this.pluginsPath = this.coreHelper.getResourcesPath('plugins');
         this.functionsPath = this.coreHelper.getResourcesPath('functions');
         this.filtersPath = this.coreHelper.getResourcesPath('filters');
-        this.loadPluginList();
-        this.loadFunctionsList();
-        this.loadFiltersList();
+        this._populateTables();
         this.addEventListeners();
     }
 
@@ -117,6 +115,12 @@ class CoreExtensionsPageUI {
     /**
      * Utils
      */
+    private _populateTables = () => {
+        this.loadPluginList();
+        this.loadFunctionsList();
+        this.loadFiltersList();
+    }
+
     addEventListeners = () => {
         document.getElementById('upload-plugins-button').addEventListener('click', () => { this._uploadExtension('plugins'); });
         document.getElementById('upload-functions-button').addEventListener('click', () => { this._uploadExtension('functions'); });
@@ -138,11 +142,13 @@ class CoreExtensionsPageUI {
             case 'filters':
                 this.deleteFilter(identifier);
         }
+        this._populateTables();
     }
 
     private _extractToFolder = async (source, folder) => {
         try {
             await extract(source.path, { dir: folder });
+            this._populateTables();
         } catch (err) {
             // handle any errors
         }

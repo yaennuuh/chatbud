@@ -9,6 +9,11 @@ class TwitchConnectorUI {
 
     initialize = (): void => {
         this.data = this.connectorHelper.loadData();
+        if(!this.data) {
+            this.data = {
+                autoConnect: false
+            };
+        }
         this.api = this.connectorHelper.getOwnConnectorApi();
         
         this.prepareListeners();

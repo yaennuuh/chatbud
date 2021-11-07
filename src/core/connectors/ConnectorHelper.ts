@@ -6,9 +6,12 @@ import { CoreBot } from '../CoreBot';
 import { IEvent } from '../events/IEvent';
 import { Event } from '../events/Event';
 import { EventData } from '../events/EventData';
+import { app } from 'electron';
 
 export class ConnectorHelper implements IConnectorHelper {
     config: any;
+    private dataPathFolder = `${app.getPath('userData')}/configs`;
+    private dataPath = `${this.dataPathFolder}/connector-config.yaml`;
 
     constructor(config: any) {
         this.config = config;
@@ -26,19 +29,29 @@ export class ConnectorHelper implements IConnectorHelper {
         return ConnectorManager.getInstance().getConnectorApiByName(connectorName ? connectorName : this.config['name']);
     }
 
+    getOwnName = (): string => {
+        return this.config['name'];
+    }
+
     loadData = (): any => {
-        let dataPath = `${__dirname}/../../connectors/${this.config['name']}/${this.config['data-yaml']}`;
-        if (fs.existsSync(dataPath)) {
-            const file = fs.readFileSync(dataPath, 'utf8')
+        const configPath = `${this.dataPathFolder}/${this.config['name']}-config.yaml`;
+        if (fs.existsSync(configPath)) {
+            const file = fs.readFileSync(configPath, 'utf8')
             return YAML.parse(file);
         }
         return YAML.parse('');
     }
 
     saveData = (data: any): void => {
-        let dataPath = `${__dirname}/../../connectors/${this.config['name']}/${this.config['data-yaml']}`;
-        fs.writeFile(dataPath, YAML.stringify(data), function (err) {
+        const configPath = `${this.dataPathFolder}/${this.config['name']}-config.yaml`;
+        fs.writeFile(configPath, YAML.stringify(data), function (err) {
             if (err) throw err;
         });
+    }
+
+    createFolderIfNotExists() {
+        if (!fs.existsSync(this.dataPathFolder)) {
+            fs.mkdirSync(this.dataPathFolder);
+        }
     }
 }

@@ -1,8 +1,5 @@
 import { IConnector } from "../../core/connectors/IConnector";
-import { CoreBot } from "../../core/CoreBot";
 import { IEvent } from "../../core/events/IEvent";
-import { EventData } from "../../core/events/EventData";
-import { Event } from "../../core/events/Event";
 import * as tmi from 'tmi.js';
 import { ConnectorHelper } from "../../core/connectors/ConnectorHelper";
 
@@ -15,7 +12,7 @@ class TwitchBotConnector implements IConnector {
 
     start = (): void => {
         this.data = this.connectorHelper.loadData();
-        if (this.data.hasOwnProperty('autoConnect') && this.data['autoConnect']) {
+        if (this.data && this.data.hasOwnProperty('autoConnect') && this.data['autoConnect']) {
             this.connectToTwitch();
         }
     }
@@ -32,6 +29,7 @@ class TwitchBotConnector implements IConnector {
     }
 
     connectToTwitch = (): void => {
+        this.data = this.connectorHelper.loadData();
         this.configureClient();
         this.connectClient();
     }
@@ -41,29 +39,35 @@ class TwitchBotConnector implements IConnector {
     }
 
     configureClient = (): void => {
-        // Define configuration options
-        this.opts = {
-            identity: {
-                username: this.data['username'],
-                password: this.data['authkey']
-            },
-            channels: [
-                this.data['channel']
-            ]
-        };
-        this.client = new tmi.client(this.opts);
+        if (this.data) {
+            // Define configuration options
+            this.opts = {
+                identity: {
+                    username: this.data['username'],
+                    password: this.data['authkey']
+                },
+                channels: [
+                    this.data['channel']
+                ]
+            };
+            this.client = new tmi.client(this.opts);
+        }
     }
 
     connectClient = (): void => {
         // this.client.on('message', this.onMessageHandler);
-        this.client.on('connected', this.onConnectedHandler);
-        this.client.connect();
-        this.connected = true;
+        if (this.client) {
+            this.client.on('connected', this.onConnectedHandler);
+            this.client.connect();
+            this.connected = true;
+        }
     }
 
     disconnect = (): void => {
-        this.client.disconnect();
-        this.connected = false;
+        if (this.client) {
+            this.client.disconnect();
+            this.connected = false;
+        }
     }
 
     /* onMessageHandler = (channel, context, message, self): void => {

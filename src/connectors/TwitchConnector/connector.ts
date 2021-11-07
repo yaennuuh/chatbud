@@ -30,6 +30,7 @@ class TwitchConnector implements IConnector {
         'chat:edit',
         'chat:read'
     ];
+    data;
 
     async start(): Promise<void> {
         await this.startFunction();
@@ -41,14 +42,14 @@ class TwitchConnector implements IConnector {
     }
 
     execute(event: IEvent): void {
-        if (this.chatClient) {
-            this.chatClient.say('barrexgaming', event.data.message);
+        if (this.chatClient && this.data.hasOwnProperty('channel')) {
+            this.chatClient.say(this.data['channel'], event.data.message);
         }
     }
 
     async startFunction() {
-        let data = this.connectorHelper.loadData();
-        if (data.hasOwnProperty('autoConnect') && data['autoConnect']) {
+        this.data = this.connectorHelper.loadData();
+        if (this.data && this.data.hasOwnProperty('autoConnect') && this.data['autoConnect']) {
             await this.connect();
         }
     }
@@ -119,8 +120,9 @@ class TwitchConnector implements IConnector {
     }
 
     initializeChatListener = async (): Promise<void> => {
+        const channel = (await this.getUser()).name;
         this.chatClient = new ChatClient(this.authProvider, {
-            channels: ['barrexgaming']
+            channels: [channel]
         });
         await this.chatClient.connect();
         this.chatClient.onMessage(this.twitchEventHandlerMessage);
