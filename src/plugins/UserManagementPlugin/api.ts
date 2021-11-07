@@ -15,9 +15,7 @@ class UserManagementPluginApi {
     }
 
     sleep = async(event: IEvent, command: string, eventCommand: any, commandField: any): Promise<void> => {
-        console.log('freezeeee');
         await new Promise(resolve => setTimeout(resolve, 5000));
-        console.log('END freezeeee');
     }
 
     usernameEquals = (event: IEvent, command: string, eventCommand: any, commandField: ICommandField): boolean => {

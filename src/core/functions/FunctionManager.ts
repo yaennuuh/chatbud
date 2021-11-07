@@ -3,6 +3,9 @@ import { glob } from 'glob';
 import * as _ from 'lodash';
 import { CoreHelper } from "../CoreHelper";
 import { IEvent } from "../events/IEvent";
+import { npmInstallAsync  } from 'runtime-npm-install';
+import * as fs from 'fs';
+import * as YAML from 'yaml';
 
 export class FunctionManager implements IFunctionManager {
     private static instance: FunctionManager;
@@ -32,6 +35,7 @@ export class FunctionManager implements IFunctionManager {
     loadFunctions(): void {
         const files: string[] = glob.sync(`${this.resourcesPath}/**/function.js`, null);
         _.each(files, (file) => {
+            this.installDependency(file);
             const CustomFunction = require(file);
             const customFunctionInstance = new CustomFunction();
             this.registerFunction(customFunctionInstance.register(), customFunctionInstance);
@@ -46,12 +50,24 @@ export class FunctionManager implements IFunctionManager {
         return Array.from(this.functionMap.keys());
     }
 
-    sendToFunction(functionKey: string, packages: string[], originalEvent: IEvent): string[] {
+    async sendToFunction(functionKey: string, packages: string[], originalEvent: IEvent): Promise<string[]> {
         const functionInstance: any = this.functionMap.get(functionKey);
         const firstPack = packages.shift();
-        const stringToWork = firstPack.substring(functionKey.length+3, firstPack.length - (functionKey.length+3));
-        const params = _.split(stringToWork.substring(0, stringToWork.indexOf(']')), ',');
-        const content = stringToWork.substring(stringToWork.indexOf(']') + 1, stringToWork.length);
-        return functionInstance.execute(params, content, packages, originalEvent);
+        const stringToWork = firstPack.substring(functionKey.length+3, firstPack.length - (functionKey.length+4));
+        const params = _.split(stringToWork.trim().substring(0, stringToWork.lastIndexOf(']')), ',');
+        const content = stringToWork.substring(stringToWork.lastIndexOf(']') + 1, stringToWork.length);
+        return await functionInstance.execute(params, content, packages, originalEvent);
+    }
+
+    private async installDependency(functionPath: string) {
+        const path = functionPath.slice(0, -11);
+        const configPath = path + 'config.yaml';
+        if (fs.existsSync(configPath)) {
+            const file = fs.readFileSync(configPath, 'utf8');
+            const config = YAML.parse(file);
+            if (fs.existsSync(path)) {
+                await npmInstallAsync(config.dependencies, path);
+            }
+        }
     }
 }

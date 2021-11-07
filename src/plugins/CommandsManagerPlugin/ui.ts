@@ -425,7 +425,7 @@ class CommandsManagerPluginUI {
                 fieldToAdd = this._htmlToElement(`
                     <div id="${customFieldId}-wrapper" class="col-6">
                         <label for="${customFieldId}" class="col-form-label">${customField.label}</label>
-                        <input id="${customFieldId}" class="form-control" type="text" value="${value}" data-bs-plugin-id="${pluginId}" data-bs-field-id="${fieldId}" required>
+                        <input id="${customFieldId}" class="form-control" type="text" value="${value.replace(/"/g, '&quot;')}" data-bs-plugin-id="${pluginId}" data-bs-field-id="${fieldId}" required>
                     </div>
                 `);
                 break;

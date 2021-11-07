@@ -2,10 +2,8 @@ import _ from "lodash";
 import { IEvent } from "../../core/events/IEvent";
 import { PluginHelper } from "../../core/plugins/PluginHelper";
 import { CommandManagementHelper } from "../../core/utils/CommandManagementHelper";
-import { CommandType } from "../../core/utils/entities/CommandTypeEnum";
 import { ICommand } from "../../core/utils/entities/ICommand";
 import { ICommandAction } from "../../core/utils/entities/ICommandAction";
-import { ICommandCondition } from "../../core/utils/entities/ICommandCondition";
 
 class CommandsManagerPlugin {
     pluginHelper: PluginHelper;
@@ -19,10 +17,8 @@ class CommandsManagerPlugin {
 
     execute = (event: IEvent): void => {
         if (event.type === 'twitch-chat-message') {
-            console.log('twitch nachricht erkannt');
             this._executeCommand(event);
         } else if (event.type === 'twitch-channel-reedem') {
-            console.log('twitch punkte erkannt');
             this._executeChannelPoints(event);
         }
     }
@@ -43,16 +39,6 @@ class CommandsManagerPlugin {
                         conditionsSucceed = await pluginApi[condition.getFunctionName()](event, searchCommandString, eventCommand, commandField);
                     }
                 }
-
-                // await Promise.all(_.each(conditions, async(condition: ICommandCondition) => {
-                //     if (conditionsSucceed) {
-                //         const pluginApi = this.pluginHelper.pluginApiByName(condition.getPluginId());
-                //         const commandField = condition.getFieldId() ? command.getFields().find((field) => field.getId() === condition.getFieldId()) : undefined;
-                        
-                //         conditionsSucceed = await pluginApi[condition.getFunctionName()](event, eventCommand, commandField);
-                //         console.log(conditionsSucceed, condition.getFunctionName());
-                //     }
-                // }));
 
                 if (conditionsSucceed) {
                     const actions = command.getActions();

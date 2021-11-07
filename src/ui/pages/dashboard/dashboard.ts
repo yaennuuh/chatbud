@@ -5,7 +5,6 @@ class CoreDashboardPageUI {
     }
 
     initialize() {
-        console.log('dashboard loaded');
     }
 }
 

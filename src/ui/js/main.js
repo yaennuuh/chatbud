@@ -36,6 +36,10 @@ function initializeListeners() {
     settingsButton.addEventListener('click', function () {
         loadCustomTag('core-settings');
     });
+    var extensionsButton = document.getElementById('extensions-button');
+    extensionsButton.addEventListener('click', function () {
+        loadCustomTag('core-extensions');
+    });
 }
 
 function loadCustomTag(tagName) {
@@ -99,6 +103,7 @@ function loadTemplate(html, pageName) {
 function initializeDashboard() {
     createWebComponent('dashboard');
     createWebComponent('settings');
+    createWebComponent('extensions');
     loadCustomTag('core-dashboard');
 }
 

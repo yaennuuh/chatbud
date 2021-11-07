@@ -22,7 +22,7 @@ globalAny['pluginManager'] = PluginManager.getInstance();
 globalAny['connectorManager'] = ConnectorManager.getInstance();
 globalAny['coreHelper'] = CoreHelper.getInstance();
 
-const loadConnectors = () => {
+const loadAllConnectors = () => {
     const connectorManager: IConnectorManager = ConnectorManager.getInstance();
     connectorManager.loadConnectors();
 }
@@ -45,8 +45,11 @@ const loadAll = () => {
 }
 
 ipcMain.on('reload-application', loadAll);
-app.on('ready', () => {
-    console.log('here we are');
-    loadConnectors();
-    loadAll();
-});
+
+setTimeout(() => {
+    console.log(Main.mainWindow.webContents.getURL(), 'file://' + __dirname.split("\\").join("/") + '/ui/loading.html', Main.mainWindow.webContents.getURL() === 'file://' + __dirname.split("\\").join("/") + '/ui/loading.html')
+    if (Main.mainWindow.webContents.getURL().indexOf('loading.html') != -1) {
+        loadAllConnectors();
+        loadAll();
+    }
+}, 1000);

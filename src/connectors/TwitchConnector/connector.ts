@@ -22,8 +22,6 @@ class TwitchConnector implements IConnector {
     userId: string;
     connectorHelper: ConnectorHelper;
     connected: boolean = false;
-    // 'channel:read:redemptions',
-    // 'channel:manage:redemptions',
     scopes: string[] = [
         'bits:read',
         'channel:read:redemptions',
@@ -98,7 +96,6 @@ class TwitchConnector implements IConnector {
             clientId: 'yfbmeopj35p9rkz0aiq3mugvqt24iu',
             redirectUri: 'http://localhost/callback'
         });
-        console.log('scopes', this.scopes);
         await this.authProvider.getAccessToken(this.scopes);
         let authProvider = this.authProvider;
         this.apiClient = new ApiClient({ authProvider });
