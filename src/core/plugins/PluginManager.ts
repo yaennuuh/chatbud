@@ -6,7 +6,7 @@ import { CoreBot } from '../CoreBot';
 import { IPluginManager } from './IPluginManager';
 import { PluginHelper } from './PluginHelper';
 import { CoreHelper } from '../CoreHelper';
-import { npmInstallAsync  } from 'runtime-npm-install';
+import * as LivePluginManager from "live-plugin-manager";
 
 export class PluginManager implements IPluginManager {
     private static instance: PluginManager;
@@ -64,7 +64,9 @@ export class PluginManager implements IPluginManager {
     }
 
     private async loadAllPlugins(basePath: string) {
+        console.log('before iunstallation');
         await this.installAllPluginDependencies(this.resourcesPath);
+        console.log('after iunstallation');
         const configs = this._getPluginsConfigs(basePath);
         _.each(configs, (config) => {
             this.loadPlugin(basePath, config);
@@ -74,9 +76,9 @@ export class PluginManager implements IPluginManager {
 
     private async installAllPluginDependencies(basePath: string): Promise<any> {
         const configs = this._getPluginsConfigs(basePath);
-        _.each(configs, async (config) => {
+        for(const config of configs) {
             await this.installPluginDependency(basePath, config);
-        });
+        };
         return Promise.resolve();
     }
 
@@ -115,7 +117,10 @@ export class PluginManager implements IPluginManager {
         ) {
             var pluginPath = `${basePath}/${config['name']}`;
             if (fs.existsSync(pluginPath)) {
-                await npmInstallAsync(config.dependencies, pluginPath);
+                const npmPluginManager = new LivePluginManager.PluginManager({pluginsPath: pluginPath+'/node_modules'});
+                for (const dependency of config.dependencies) {
+                    await npmPluginManager.installFromNpm(dependency.split('@')[0], dependency.split('@')[1]);
+                };
             }
         }
     }

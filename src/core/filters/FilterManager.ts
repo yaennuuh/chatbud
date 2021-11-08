@@ -3,7 +3,7 @@ import { glob } from 'glob';
 import * as _ from 'lodash';
 import { IEvent } from "../events/IEvent";
 import { CoreHelper } from "../CoreHelper";
-import { npmInstallAsync  } from 'runtime-npm-install';
+import * as LivePluginManager from "live-plugin-manager";
 import * as fs from 'fs';
 import * as YAML from 'yaml';
 
@@ -32,14 +32,15 @@ export class FilterManager implements IFilterManager {
         this.filterMap = new Map();
     }
 
-    loadFilters(): void {
+    async loadFilters(): Promise<void> {
         const files: string[] = glob.sync(`${this.resourcesPath}/**/filter.js`, null);
-        _.each(files, (file) => {
-            this.installDependency(file);
+        
+        for(const file of files) {
+            await this.installDependency(file);
             const CustomFilter = require(file);
             const customFilterInstance = new CustomFilter();
             this.registerFilter(customFilterInstance.register(), customFilterInstance);
-        });
+        };
     };
 
     registerFilter(filterKeyword: string, functionInstance: any): void {
@@ -62,7 +63,10 @@ export class FilterManager implements IFilterManager {
             const file = fs.readFileSync(configPath, 'utf8');
             const config = YAML.parse(file);
             if (fs.existsSync(path)) {
-                await npmInstallAsync(config.dependencies, path);
+                const npmPluginManager = new LivePluginManager.PluginManager({pluginsPath: path+'/node_modules'});
+                for (const dependency of config.dependencies) {
+                    await npmPluginManager.installFromNpm(dependency.split('@')[0], dependency.split('@')[1]);
+                };
             }
         }
     }
