@@ -3,7 +3,7 @@ import { glob } from 'glob';
 import * as _ from 'lodash';
 import { CoreHelper } from "../CoreHelper";
 import { IEvent } from "../events/IEvent";
-import { npmInstallAsync  } from 'runtime-npm-install';
+import * as LivePluginManager from "live-plugin-manager";
 import * as fs from 'fs';
 import * as YAML from 'yaml';
 
@@ -32,14 +32,14 @@ export class FunctionManager implements IFunctionManager {
         this.functionMap = new Map();
     }
 
-    loadFunctions(): void {
+    async loadFunctions(): Promise<void> {
         const files: string[] = glob.sync(`${this.resourcesPath}/**/function.js`, null);
-        _.each(files, (file) => {
-            this.installDependency(file);
+        for(const file of files) {
+            await this.installDependency(file);
             const CustomFunction = require(file);
             const customFunctionInstance = new CustomFunction();
             this.registerFunction(customFunctionInstance.register(), customFunctionInstance);
-        });
+        };
     };
 
     registerFunction(functionKeyword: string, functionInstance: any): void {
@@ -66,7 +66,10 @@ export class FunctionManager implements IFunctionManager {
             const file = fs.readFileSync(configPath, 'utf8');
             const config = YAML.parse(file);
             if (fs.existsSync(path)) {
-                await npmInstallAsync(config.dependencies, path);
+                const npmPluginManager = new LivePluginManager.PluginManager({pluginsPath: path+'/node_modules'});
+                for (const dependency of config.dependencies) {
+                    await npmPluginManager.installFromNpm(dependency.split('@')[0], dependency.split('@')[1]);
+                };
             }
         }
     }
