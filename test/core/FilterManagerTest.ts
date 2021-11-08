@@ -42,7 +42,7 @@ describe('FilterManager', () =>
         {
             let filterManager = FilterManager.getInstance();
             let event = new Event("someType", new EventData("this is $dummy, isn't it"));
-            expect(filterManager.applyFilter("dummy", event))
+            expect(filterManager.applyFilter("dummy", event, event))
                 .to
                 .eqls("this is genius, isn't it");
         });
@@ -50,7 +50,7 @@ describe('FilterManager', () =>
         {
             let filterManager = FilterManager.getInstance();
             let event = new Event("someType", new EventData("this is $dummy, isn't it $dummy"));
-            expect(filterManager.applyFilter("dummy", event))
+            expect(filterManager.applyFilter("dummy", event, event))
                 .to
                 .eqls("this is genius, isn't it genius");
         });
