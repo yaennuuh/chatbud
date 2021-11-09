@@ -6,7 +6,6 @@ import * as fs from "fs";
 import { PluginManager } from "./PluginManager";
 import {LoggerHelper} from "../utils/LoggerHelper";
 import { UserManagementHelper } from '../utils/UserManagementHelper';
-import { CooldownHelper } from '../utils/CooldownHelper';
 import { CommandManagementHelper } from "../utils/CommandManagementHelper";
 import { DatabaseHelper } from "../utils/DatabaseHelper";
 import fetch from 'node-fetch';
@@ -39,10 +38,6 @@ export class PluginHelper implements IPluginHelper {
 
     getCommandManagementHelper = (): CommandManagementHelper => {
         return CommandManagementHelper.getInstance();
-    }
-
-    getCooldownHelper = (): CooldownHelper => {
-        return CooldownHelper.getInstance();
     }
 
     pluginApiByName = (pluginName: string): any => {

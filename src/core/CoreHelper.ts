@@ -2,7 +2,6 @@ import * as YAML from 'yaml';
 import * as fs from "fs";
 import { ICoreHelper } from './ICoreHelper';
 import { app } from 'electron';
-import * as path from 'path';
 
 export class CoreHelper implements ICoreHelper {
     private static instance: CoreHelper;
@@ -26,6 +25,10 @@ export class CoreHelper implements ICoreHelper {
             return `${configuration['resources-path']}/${folder}`;
         }
         return undefined;
+    }
+
+    getDatabasesPath = (): string => {
+        return `${app.getPath('userData')}/databases`;
     }
 
     loadData = (): any => {

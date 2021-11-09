@@ -9,6 +9,7 @@ class CoreExtensionsPageUI {
     pluginsPath: string;
     functionsPath: string;
     filtersPath: string;
+    databasesPath: string;
     pluginConfigFiles;
 
     constructor(private coreHelper) {
@@ -19,6 +20,7 @@ class CoreExtensionsPageUI {
         this.pluginsPath = this.coreHelper.getResourcesPath('plugins');
         this.functionsPath = this.coreHelper.getResourcesPath('functions');
         this.filtersPath = this.coreHelper.getResourcesPath('filters');
+        this.databasesPath = this.coreHelper.getDatabasesPath();
         this._populateTables();
         this.addEventListeners();
     }
@@ -82,6 +84,23 @@ class CoreExtensionsPageUI {
     }
 
     /**
+     * Databases
+     */
+
+     loadDatabasesList = () => {
+        this._populateTable('databases', fs.readdirSync(this.databasesPath).flatMap(name => {
+            return {
+                identifier: name,
+                name: name
+            };
+        }));
+    }
+
+    deleteDatabase = (identifier: string) => {
+        fs.unlink(this.databasesPath + '/' + identifier, () => {});
+    }
+
+    /**
      * Table
      */
     private _populateTable = async (tableName: string, itemList: any[]): Promise<void> => {
@@ -119,12 +138,15 @@ class CoreExtensionsPageUI {
         this.loadPluginList();
         this.loadFunctionsList();
         this.loadFiltersList();
+        this.loadDatabasesList();
     }
 
     addEventListeners = () => {
         document.getElementById('upload-plugins-button').addEventListener('click', () => { this._uploadExtension('plugins'); });
         document.getElementById('upload-functions-button').addEventListener('click', () => { this._uploadExtension('functions'); });
         document.getElementById('upload-filters-button').addEventListener('click', () => { this._uploadExtension('filters'); });
+        document.getElementById('upload-databases-button').addEventListener('click', () => { this._uploadExtension('databases'); });
+        document.getElementById('download-databases-button').addEventListener('click', () => { this._downloadDatabases(); });
     }
     private _htmlToElement = (html: string): Node => {
         const template = document.createElement('template');
@@ -141,6 +163,8 @@ class CoreExtensionsPageUI {
                 this.deleteFunction(identifier);
             case 'filters':
                 this.deleteFilter(identifier);
+            case 'databases':
+                this.deleteDatabase(identifier);
         }
         this._populateTables();
     }
@@ -158,8 +182,8 @@ class CoreExtensionsPageUI {
         let input = document.createElement('input');
         input.id = 'upload-' + type;
         input.type = 'file';
+        input.accept = '.zip,.rar,.7zip';
         input.onchange = _ => {
-            // you can use this method to get file and perform respective operations
             let files = Array.from(input.files);
             files.forEach(file => {
                 switch (type) {
@@ -172,11 +196,20 @@ class CoreExtensionsPageUI {
                     case 'filters':
                         this._extractToFolder(file, this.filtersPath);
                         break;
+                    case 'databases':
+                        this._extractToFolder(file, this.databasesPath);
+                        break;
                 }
             });
         };
         input.click();
     }
+
+    private _downloadDatabases = () => {
+
+    }
+
+    private _downloadDatabase = (name: string) => {}
 }
 
 module.exports = CoreExtensionsPageUI;

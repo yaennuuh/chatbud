@@ -16,6 +16,7 @@ class TwitchConnector implements IConnector {
     coreBot: CoreBot = CoreBot.getInstance();
     authProvider: ElectronAuthProvider;
     listenerList: any = [];
+    twitchListeners: any = [];
     apiClient: ApiClient;
     pubSubClient: PubSubClient;
     chatClient: ChatClient;
@@ -106,6 +107,7 @@ class TwitchConnector implements IConnector {
 
     disconnect = (): void => {
         this.stop();
+        this.unbind();
         this.authProvider.setAccessToken(null);
         this.pubSubClient = undefined;
         this.apiClient = undefined;
@@ -125,10 +127,16 @@ class TwitchConnector implements IConnector {
             channels: [channel]
         });
         await this.chatClient.connect();
-        this.chatClient.onMessage(this.twitchEventHandlerMessage);
-        this.chatClient.onChatClear((channel) => {
+        
+        // messages
+        const onMessage = this.chatClient.onMessage(this.twitchEventHandlerMessage);
+        this.twitchListeners.push(onMessage);
+
+        // chat clear
+        const onChatClear = this.chatClient.onChatClear((channel) => {
             console.log('cleared', channel);
         });
+        this.twitchListeners.push(onChatClear);
         /*
         this.chatClient.onSub((channel, user, subInfo, msg) => {});
         this.chatClient.onResub((channel, user, subInfo, msg) => {});
@@ -200,6 +208,12 @@ class TwitchConnector implements IConnector {
     stop(): void {
         _.each(this.listenerList, (listener) => {
             listener.remove();
+        });
+    }
+
+    unbind(): void {
+        _.each(this.twitchListeners, (listener) => {
+            listener.unbind();
         });
     }
 }
