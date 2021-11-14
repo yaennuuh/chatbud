@@ -14,6 +14,10 @@ class UserManagementPluginApi {
         return event.data.subscriber;
     }
 
+    isVIP = (event: IEvent, command: string, eventCommand: any, commandField: any): boolean => {
+        return event.data.vip;
+    }
+
     sleep = async(event: IEvent, command: string, eventCommand: any, commandField: any): Promise<void> => {
         await new Promise(resolve => setTimeout(resolve, 5000));
     }

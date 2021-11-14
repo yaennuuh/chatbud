@@ -7518,6 +7518,10 @@ body {
   overflow: auto;
   padding: 10px; }
 
+#version {
+  line-height: 38px;
+  margin-left: 10px; }
+
 input {
   color: #212121; }
 

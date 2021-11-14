@@ -58,9 +58,9 @@ export class CoreBot implements ICoreBot {
     }
 
     async notifyNotifiableOnEventBusOut(event: IEvent, originalEvent: IEvent): Promise<void> {
-        let splittedMessage = originalEvent.data.message.split(' ');
+        let splittedMessage = originalEvent?.data?.message?.split(' ');
         let commandResponse = (' ' + event.data.message).slice(1);
-        for (let index = 1; index < splittedMessage.length; index++) {
+        for (let index = 1; index < splittedMessage?.length; index++) {
             const element = splittedMessage[index];
             if (commandResponse.indexOf(`$${index}`) != -1) {
                 commandResponse = commandResponse.split(`$${index}`).join(element);

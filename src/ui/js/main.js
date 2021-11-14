@@ -7,6 +7,8 @@ var YAML = require('yaml');
 window.jQuery = require('jquery');
 
 window.bootstrap = bootstrap;
+currentPlugin = 'dashboard';
+currentPluginType = 'core';
 
 // Load
 
@@ -26,7 +28,7 @@ function initializeListeners() {
     });
     var dashboardButton = document.getElementById('dashboard-button');
     dashboardButton.addEventListener('click', function () {
-        loadCustomTag('core-dashboard');
+        loadCustomTag('core', 'dashboard');
     });
     var reloadAppButton = document.getElementById('reload-app-button');
     reloadAppButton.addEventListener('click', function () {
@@ -34,16 +36,18 @@ function initializeListeners() {
     });
     var settingsButton = document.getElementById('settings-button');
     settingsButton.addEventListener('click', function () {
-        loadCustomTag('core-settings');
+        loadCustomTag('core', 'settings');
     });
     var extensionsButton = document.getElementById('extensions-button');
     extensionsButton.addEventListener('click', function () {
-        loadCustomTag('core-extensions');
+        loadCustomTag('core', 'extensions');
     });
 }
 
-function loadCustomTag(tagName) {
-    tagName = _.kebabCase(tagName);
+function loadCustomTag(prefix, tagName) {
+    currentPlugin = tagName;
+    currentPluginType = prefix;
+    tagName = _.kebabCase(prefix + '-' + tagName);
     content = document.getElementById('content');
     content.innerHTML = '';
     content.appendChild(
@@ -104,7 +108,8 @@ function initializeDashboard() {
     createWebComponent('dashboard');
     createWebComponent('settings');
     createWebComponent('extensions');
-    loadCustomTag('core-dashboard');
+    loadCustomTag('core', 'dashboard');
+    //document.getElementById('help-button').addEventListener('click', openCurrentHelper);
 }
 
 // Connectors
@@ -123,7 +128,7 @@ function initializeConnectors() {
             itemATag.appendChild(document.createTextNode(connectorName));
             itemElement.appendChild(itemATag);
             itemElement.addEventListener('click', () => {
-                loadCustomTag(`custom-${connectorConfig['name']}`);
+                loadCustomTag('custom', connectorConfig['name']);
             });
 
             dropDownConnectors.appendChild(itemElement);
@@ -216,6 +221,21 @@ function initializePlugins() {
     loadPlugins(resourcesPath);
 }
 
+function openCurrentHelper() {
+    const pluginManager = remote.getGlobal('pluginManager');
+    const resourcesPath = pluginManager.resourcesPath;
+
+    let configPath = `${__dirname}/../plugins/${currentPlugin}/config.yaml`;
+    configPath = fs.existsSync(configPath) ? configPath : `${resourcesPath}/${currentPlugin}/config.yaml`;
+
+    if (fs.existsSync(configPath)) {
+        const file = fs.readFileSync(configPath, 'utf8');
+        const parsedConfig = YAML.parse(file);
+
+        // TODO: make a nice modal or whatever
+    }
+}
+
 function loadPlugins(resourcesPath) {
     var pluginConfigList = loadPluginConfigs(resourcesPath);
 
@@ -229,7 +249,7 @@ function loadPlugins(resourcesPath) {
         itemATag.appendChild(document.createTextNode(pluginName));
         itemElement.appendChild(itemATag);
         itemElement.addEventListener('click', () => {
-            loadCustomTag(`custom-${pluginConfig.name}`);
+            loadCustomTag('custom', pluginConfig.name);
         });
 
         dropDownPlugins.appendChild(itemElement);

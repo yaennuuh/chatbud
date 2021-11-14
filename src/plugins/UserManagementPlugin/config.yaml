@@ -5,6 +5,7 @@ ui-js: ui.js
 plugin-js: plugin.js
 plugin-api-js: api.js
 data-yaml: data.yaml
+help: dies ist ein test für den Viewers
 
 command:
   fields:
@@ -35,6 +36,9 @@ command:
     - id: isSubscriber
       name: Is subscriber?
       functionName: isSubscriber
+    - id: isVIP
+      name: Is vip?
+      functionName: isVIP
   actions:
     - id: custom-log-message
       name: Log message

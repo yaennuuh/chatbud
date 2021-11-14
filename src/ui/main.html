@@ -74,7 +74,16 @@
   <div id="template-holder">
   </div>
 
-  <p id="version" style="color: white"></p>
+  <div id="footer" class="container-fluid">
+    <div class="d-flex flex-row">
+      <div>
+        <button id="help-button" type="button" class="btn btn-primary">
+          <i class="bi bi-info-circle"></i>
+        </button>
+      </div>
+      <p id="version" style="color: white"></p>
+    </div>
+  </div>
 
   <div id="notification" class="hidden">
     <p id="message"></p>
@@ -89,7 +98,7 @@
   <script>
     const { ipcRenderer } = require('electron');
     const version = document.getElementById('version');
-    
+
     ipcRenderer.send('app_version');
     ipcRenderer.on('app_version', (event, arg) => {
       ipcRenderer.removeAllListeners('app_version');
@@ -105,7 +114,7 @@
       notification.classList.remove('hidden');
     });
     ipcRenderer.on('update_downloaded', () => {
-    ipcRenderer.removeAllListeners('update_downloaded');
+      ipcRenderer.removeAllListeners('update_downloaded');
       message.innerText = 'Update Downloaded. It will be installed on restart. Restart now?';
       restartButton.classList.remove('hidden');
       notification.classList.remove('hidden');
