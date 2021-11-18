@@ -36,9 +36,9 @@ command:
     - id: isSubscriber
       name: Is subscriber?
       functionName: isSubscriber
-    - id: isVIP
+    - id: isVip
       name: Is vip?
-      functionName: isVIP
+      functionName: isVip
   actions:
     - id: custom-log-message
       name: Log message

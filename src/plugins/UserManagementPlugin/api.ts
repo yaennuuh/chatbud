@@ -14,7 +14,7 @@ class UserManagementPluginApi {
         return event.data.subscriber;
     }
 
-    isVIP = (event: IEvent, command: string, eventCommand: any, commandField: any): boolean => {
+    isVip = (event: IEvent, command: string, eventCommand: any, commandField: any): boolean => {
         return event.data.vip;
     }
 
