@@ -64,9 +64,7 @@ export class PluginManager implements IPluginManager {
     }
 
     private async loadAllPlugins(basePath: string) {
-        console.log('before iunstallation');
         await this.installAllPluginDependencies(this.resourcesPath);
-        console.log('after iunstallation');
         const configs = this._getPluginsConfigs(basePath);
         _.each(configs, (config) => {
             this.loadPlugin(basePath, config);

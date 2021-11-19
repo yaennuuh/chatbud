@@ -1,6 +1,6 @@
 {
   "name": "chatbud",
-  "version": "0.0.1",
+  "version": "v0.0.1-alpha.1",
   "author": "Barrex",
   "description": "ChatBud - Your Chatbot buddy",
   "main": "./dist/app.js",

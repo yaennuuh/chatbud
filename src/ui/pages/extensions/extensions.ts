@@ -17,10 +17,10 @@ class CoreExtensionsPageUI {
     }
 
     initialize() {
-        this.pluginsPath = this.coreHelper.getResourcesPath('plugins');
-        this.functionsPath = this.coreHelper.getResourcesPath('functions');
-        this.filtersPath = this.coreHelper.getResourcesPath('filters');
-        this.databasesPath = this.coreHelper.getDatabasesPath();
+        this.pluginsPath = this.coreHelper.getResourcesPath('plugins') || '';
+        this.functionsPath = this.coreHelper.getResourcesPath('functions') || '';
+        this.filtersPath = this.coreHelper.getResourcesPath('filters') || '';
+        this.databasesPath = this.coreHelper.getDatabasesPath() || '';
         this._populateTables();
         this.addEventListeners();
     }
@@ -30,19 +30,23 @@ class CoreExtensionsPageUI {
      */
 
     loadPluginList = () => {
-        const pluginConfigFiles: string[] = glob.sync(this.pluginsPath + "/**/config.yaml", null);
-        const pluginConfigs = _.map(pluginConfigFiles, (configPath) => {
-            if (fs.existsSync(configPath)) {
-                const file = fs.readFileSync(configPath, 'utf8')
-                return YAML.parse(file);
+        if (this.pluginsPath?.length) {
+            const pluginConfigFiles: string[] = glob.sync(this.pluginsPath + "/**/config.yaml", null);
+            if (pluginConfigFiles && pluginConfigFiles.length) {
+                const pluginConfigs = _.map(pluginConfigFiles, (configPath) => {
+                    if (configPath && fs.existsSync(configPath)) {
+                        const file = fs.readFileSync(configPath, 'utf8')
+                        return YAML.parse(file);
+                    }
+                });
+                this._populateTable('plugins', pluginConfigs.flatMap(config => {
+                    return {
+                        identifier: config['name'],
+                        name: config['display-name']
+                    };
+                }));
             }
-        });
-        this._populateTable('plugins', pluginConfigs.flatMap(config => {
-            return {
-                identifier: config['name'],
-                name: config['display-name']
-            };
-        }));
+        }
     }
 
     deletePlugin = (identifier: string) => {
@@ -54,12 +58,14 @@ class CoreExtensionsPageUI {
      */
 
     loadFunctionsList = () => {
-        this._populateTable('functions', fs.readdirSync(this.functionsPath).flatMap(name => {
-            return {
-                identifier: name,
-                name: name
-            };
-        }));
+        if (this.functionsPath?.length) {
+            this._populateTable('functions', fs.readdirSync(this.functionsPath).flatMap(name => {
+                return {
+                    identifier: name,
+                    name: name
+                };
+            }));
+        }
     }
 
     deleteFunction = (identifier: string) => {
@@ -71,12 +77,14 @@ class CoreExtensionsPageUI {
      */
 
     loadFiltersList = () => {
-        this._populateTable('filters', fs.readdirSync(this.filtersPath).flatMap(name => {
-            return {
-                identifier: name,
-                name: name
-            };
-        }));
+        if (this.filtersPath?.length) {
+            this._populateTable('filters', fs.readdirSync(this.filtersPath).flatMap(name => {
+                return {
+                    identifier: name,
+                    name: name
+                };
+            }));
+        }
     }
 
     deleteFilter = (identifier: string) => {
@@ -87,17 +95,19 @@ class CoreExtensionsPageUI {
      * Databases
      */
 
-     loadDatabasesList = () => {
-        this._populateTable('databases', fs.readdirSync(this.databasesPath).flatMap(name => {
-            return {
-                identifier: name,
-                name: name
-            };
-        }));
+    loadDatabasesList = () => {
+        if (this.databasesPath?.length) {
+            this._populateTable('databases', fs.readdirSync(this.databasesPath).flatMap(name => {
+                return {
+                    identifier: name,
+                    name: name
+                };
+            }));
+        }
     }
 
     deleteDatabase = (identifier: string) => {
-        fs.unlink(this.databasesPath + '/' + identifier, () => {});
+        fs.unlink(this.databasesPath + '/' + identifier, () => { });
     }
 
     /**
@@ -171,10 +181,19 @@ class CoreExtensionsPageUI {
 
     private _extractToFolder = async (source, folder) => {
         try {
-            await extract(source.path, { dir: folder });
-            this._populateTables();
+            if (folder?.length) {
+                this._createDirIfNotExists(folder);
+                await extract(source.path, { dir: folder });
+                this._populateTables();
+            }
         } catch (err) {
             // handle any errors
+        }
+    }
+
+    private _createDirIfNotExists = (dir: string) => {
+        if (!fs.existsSync(dir)){
+            fs.mkdirSync(dir, { recursive: true });
         }
     }
 
@@ -205,11 +224,9 @@ class CoreExtensionsPageUI {
         input.click();
     }
 
-    private _downloadDatabases = () => {
+    private _downloadDatabases = () => { }
 
-    }
-
-    private _downloadDatabase = (name: string) => {}
+    private _downloadDatabase = (name: string) => { }
 }
 
 module.exports = CoreExtensionsPageUI;

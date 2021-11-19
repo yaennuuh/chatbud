@@ -21,8 +21,12 @@ export class CoreHelper implements ICoreHelper {
 
     getResourcesPath = (folder: string): string => {
         const configuration = this.loadData();
-        if (configuration && configuration.hasOwnProperty('resources-path') && configuration['resources-path'].length > 0 && fs.existsSync(configuration['resources-path']) && fs.existsSync(`${configuration['resources-path']}/${folder}`)) {
-            return `${configuration['resources-path']}/${folder}`;
+        if (configuration && configuration.hasOwnProperty('resources-path') && configuration['resources-path'].length) {
+            if (fs.existsSync(`${configuration['resources-path']}/${folder}`)) {
+                return `${configuration['resources-path']}/${folder}`;
+            } else {
+                fs.mkdirSync(`${configuration['resources-path']}/${folder}`, { recursive: true });
+            }
         }
         return undefined;
     }
