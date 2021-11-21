@@ -54,15 +54,16 @@ function loadCustomTag(prefix, tagName) {
         document.createElement(tagName));
 }
 
-function loadStencilTag(config) {
+async function loadStencilTag(config) {
     let content = document.getElementById('content');
     content.innerHTML = '';
-    let stencilTag = document.createElement(config['stencil-tag']);
     const pluginManager = remote.getGlobal('pluginManager');
-    const pluginHelper = pluginManager.getPluginHelper(config);
-    console.log('pluhi', pluginHelper);
-    /*stencilTag.setAttribute('plugin-helper', JSON.stringify(pluginHelper));*/
-    stencilTag.setAttribute('test', 'testtetrete');
+    window.pluginHelperService = {
+        getPluginHelper: (pluginName) => {
+            return pluginManager.getPluginHelperByName(pluginName)
+        }
+    };
+    let stencilTag = document.createElement(config['stencil-tag']);
     content.appendChild(stencilTag);
 }
 

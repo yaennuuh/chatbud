@@ -16,7 +16,7 @@ export class PluginHelper implements IPluginHelper {
     constructor(private config: any) {
     }
 
-    testIntegration = () => {
+    testIntegration = (): void => {
         console.log('haskldnajskdns');
     }
 
