@@ -21,9 +21,7 @@ export class DatabaseHelper {
     }
 
     getDatabase = (repositoryName: string): any => { // Set real return type
-        if (!this.database.hasOwnProperty(repositoryName)) {
-            this.database[repositoryName] = Datastore.create(`${app.getPath('userData')}/databases/${repositoryName}.db`);
-        }
+        this.database[repositoryName] = Datastore.create(`${app.getPath('userData')}/databases/${repositoryName}.db`);
         this.database[repositoryName].load();
         return this.database[repositoryName];
     }

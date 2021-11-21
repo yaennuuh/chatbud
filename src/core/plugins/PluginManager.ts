@@ -102,7 +102,7 @@ export class PluginManager implements IPluginManager {
                 const customPluginInstance = new CustomPlugin();
 
                 this.plugins.set(config['name'], customPluginInstance);
-                const eventTypesToRegister: string[] = customPluginInstance.register(new PluginHelper(config));
+                const eventTypesToRegister: string[] = customPluginInstance.register(new PluginHelper(config)); // yate
                 CoreBot.getInstance().registerPluginToEventBusIn(customPluginInstance, eventTypesToRegister);
             }
         }
@@ -130,6 +130,12 @@ export class PluginManager implements IPluginManager {
         const tempPluginHelper = new PluginHelper(config);
         this.pluginHelpers.set(config['name'], tempPluginHelper);
         return tempPluginHelper;
+    }
+
+    getPluginHelperByName = (name: string): any => {
+        if (this.pluginHelpers.has(name)) {
+            return this.pluginHelpers.get(name);
+        }
     }
 
     public getPluginApiByName(pluginName: string): any {

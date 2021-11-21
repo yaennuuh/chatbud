@@ -16,6 +16,10 @@ export class PluginHelper implements IPluginHelper {
     constructor(private config: any) {
     }
 
+    testIntegration = (): void => {
+        console.log('haskldnajskdns');
+    }
+
     sendEventToBusOut = (event: IEvent, originalEvent: IEvent) => {
         CoreBot.getInstance().notifyNotifiableOnEventBusOut(event, originalEvent);
     }

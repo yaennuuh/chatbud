@@ -54,6 +54,19 @@ function loadCustomTag(prefix, tagName) {
         document.createElement(tagName));
 }
 
+async function loadStencilTag(config) {
+    let content = document.getElementById('content');
+    content.innerHTML = '';
+    const pluginManager = remote.getGlobal('pluginManager');
+    window.pluginHelperService = {
+        getPluginHelper: (pluginName) => {
+            return pluginManager.getPluginHelperByName(pluginName)
+        }
+    };
+    let stencilTag = document.createElement(config['stencil-tag']);
+    content.appendChild(stencilTag);
+}
+
 function createWebComponent(pageName) {
     fetch(`./pages/${pageName}/${pageName}.html`)
         .then(stream => stream.text())
@@ -249,7 +262,24 @@ function loadPlugins(resourcesPath) {
         itemATag.appendChild(document.createTextNode(pluginName));
         itemElement.appendChild(itemATag);
         itemElement.addEventListener('click', () => {
-            loadCustomTag('custom', pluginConfig.name);
+            if (pluginConfig && pluginConfig.hasOwnProperty('stencil-tag') && pluginConfig.hasOwnProperty('stencil') && pluginConfig.hasOwnProperty('stencil-esm')) {
+                let stencilContainer = document.getElementById('stencil-container');
+                stencilContainer.innerHTML = '';
+
+                var script2 = document.createElement("script");
+                script2.type = "module";
+                script2.src = resourcesPath + '/' + pluginConfig['name'] + '/' + pluginConfig['stencil-esm'];
+                stencilContainer.appendChild(script2);
+
+                var script = document.createElement("script");
+                script.noModule = true;
+                script.src = resourcesPath + '/' + pluginConfig['name'] + '/' + pluginConfig['stencil'];
+                stencilContainer.appendChild(script);
+
+                loadStencilTag(pluginConfig);
+            } else {
+                loadCustomTag('custom', pluginConfig.name);
+            }
         });
 
         dropDownPlugins.appendChild(itemElement);
@@ -266,12 +296,19 @@ function loadPluginConfigs(resourcesPath) {
 
             if (parsedConfig &&
                 parsedConfig.hasOwnProperty('name') &&
-                parsedConfig.hasOwnProperty('ui-html') &&
-                parsedConfig.hasOwnProperty('ui-js')
+                ((parsedConfig.hasOwnProperty('ui-html') &&
+                    parsedConfig.hasOwnProperty('ui-js')) ||
+                    (parsedConfig.hasOwnProperty('stencil-tag') &&
+                        parsedConfig.hasOwnProperty('stencil') &&
+                        parsedConfig.hasOwnProperty('stencil-esm'))
+                )
             ) {
                 parsedConfig.tagname = _.kebabCase(parsedConfig.name);
                 fileConfigs.push(parsedConfig);
-                createWebComponentForPlugin(resourcesPath, parsedConfig);
+                if (parsedConfig.hasOwnProperty('ui-html') &&
+                    parsedConfig.hasOwnProperty('ui-js')) {
+                    createWebComponentForPlugin(resourcesPath, parsedConfig);
+                }
             }
         }
     });
