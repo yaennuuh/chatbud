@@ -6,7 +6,7 @@
   <title>ChatBud</title>
   <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline';" />
   <link rel="stylesheet" href="./css/main.css">
-  <script src="./js/bootstrap.bundle.min.js"></script>
+  <script src="../../node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
   <script defer src="./js/main.js"></script>
 </head>
 
@@ -94,6 +94,8 @@
       Restart
     </button>
   </div>
+
+  <div id="stencil-container"></div>
 
   <script>
     const { ipcRenderer } = require('electron');

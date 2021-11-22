@@ -102,7 +102,7 @@ export class PluginManager implements IPluginManager {
                 const customPluginInstance = new CustomPlugin();
 
                 this.plugins.set(config['name'], customPluginInstance);
-                const eventTypesToRegister: string[] = customPluginInstance.register(new PluginHelper(config));
+                const eventTypesToRegister: string[] = customPluginInstance.register(new PluginHelper(config)); // yate
                 CoreBot.getInstance().registerPluginToEventBusIn(customPluginInstance, eventTypesToRegister);
             }
         }
@@ -132,6 +132,7 @@ export class PluginManager implements IPluginManager {
         return tempPluginHelper;
     }
 
+<<<<<<< HEAD
 <<<<<<< Updated upstream
 =======
     loadPluginHelper = (config: any): any => {
@@ -140,13 +141,18 @@ export class PluginManager implements IPluginManager {
         }
     }
 
+=======
+>>>>>>> b6eea50110675863c8bb2e3c430904882fcbddba
     getPluginHelperByName = (name: string): any => {
         if (this.pluginHelpers.has(name)) {
             return this.pluginHelpers.get(name);
         }
     }
 
+<<<<<<< HEAD
 >>>>>>> Stashed changes
+=======
+>>>>>>> b6eea50110675863c8bb2e3c430904882fcbddba
     public getPluginApiByName(pluginName: string): any {
         // TODO: check later if still not needed and delete
         // if (!this.plugins || this.plugins.size == 0) {

@@ -32,6 +32,7 @@ class TwitchConnector implements IConnector {
         'chat:read'
     ];
     data;
+    channelName;
 
     async start(): Promise<void> {
         await this.startFunction();
@@ -43,8 +44,8 @@ class TwitchConnector implements IConnector {
     }
 
     execute(event: IEvent): void {
-        if (this.chatClient && this.data.hasOwnProperty('channel')) {
-            this.chatClient.say(this.data['channel'], event.data.message);
+        if (this.chatClient && this.channelName) {
+            this.chatClient.say(this.channelName, event.data.message);
         }
     }
 
@@ -102,6 +103,7 @@ class TwitchConnector implements IConnector {
         let authProvider = this.authProvider;
         this.apiClient = new ApiClient({ authProvider });
         await this.initializeListeners();
+        this.channelName = (await this.getUser()).name;
         this.connected = true;
     }
 
