@@ -132,27 +132,18 @@ export class PluginManager implements IPluginManager {
         return tempPluginHelper;
     }
 
-<<<<<<< HEAD
-<<<<<<< Updated upstream
-=======
     loadPluginHelper = (config: any): any => {
         if (!this.pluginHelpers.has(config['name'])) {
             this.pluginHelpers.set(config['name'], new PluginHelper(config));
         }
     }
 
-=======
->>>>>>> b6eea50110675863c8bb2e3c430904882fcbddba
     getPluginHelperByName = (name: string): any => {
         if (this.pluginHelpers.has(name)) {
             return this.pluginHelpers.get(name);
         }
     }
-
-<<<<<<< HEAD
->>>>>>> Stashed changes
-=======
->>>>>>> b6eea50110675863c8bb2e3c430904882fcbddba
+    
     public getPluginApiByName(pluginName: string): any {
         // TODO: check later if still not needed and delete
         // if (!this.plugins || this.plugins.size == 0) {

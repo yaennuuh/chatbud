@@ -54,13 +54,6 @@ function loadCustomTag(prefix, tagName) {
         document.createElement(tagName));
 }
 
-<<<<<<< HEAD
-<<<<<<< Updated upstream
-=======
-async function loadStencilTag(config) {
-    let content = document.getElementById('content');
-    content.innerHTML = '';
-=======
 async function loadStencilTag(config) {
     let content = document.getElementById('content');
     content.innerHTML = '';
@@ -70,15 +63,10 @@ async function loadStencilTag(config) {
             return pluginManager.getPluginHelperByName(pluginName)
         }
     };
->>>>>>> b6eea50110675863c8bb2e3c430904882fcbddba
     let stencilTag = document.createElement(config['stencil-tag']);
     content.appendChild(stencilTag);
 }
 
-<<<<<<< HEAD
->>>>>>> Stashed changes
-=======
->>>>>>> b6eea50110675863c8bb2e3c430904882fcbddba
 function createWebComponent(pageName) {
     fetch(`./pages/${pageName}/${pageName}.html`)
         .then(stream => stream.text())
