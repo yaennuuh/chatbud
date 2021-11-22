@@ -74,7 +74,7 @@ export class PluginManager implements IPluginManager {
 
     private async installAllPluginDependencies(basePath: string): Promise<any> {
         const configs = this._getPluginsConfigs(basePath);
-        for(const config of configs) {
+        for (const config of configs) {
             await this.installPluginDependency(basePath, config);
         };
         return Promise.resolve();
@@ -115,7 +115,7 @@ export class PluginManager implements IPluginManager {
         ) {
             var pluginPath = `${basePath}/${config['name']}`;
             if (fs.existsSync(pluginPath)) {
-                const npmPluginManager = new LivePluginManager.PluginManager({pluginsPath: pluginPath+'/node_modules'});
+                const npmPluginManager = new LivePluginManager.PluginManager({ pluginsPath: pluginPath + '/node_modules' });
                 for (const dependency of config.dependencies) {
                     await npmPluginManager.installFromNpm(dependency.split('@')[0], dependency.split('@')[1]);
                 };
@@ -132,6 +132,21 @@ export class PluginManager implements IPluginManager {
         return tempPluginHelper;
     }
 
+<<<<<<< Updated upstream
+=======
+    loadPluginHelper = (config: any): any => {
+        if (!this.pluginHelpers.has(config['name'])) {
+            this.pluginHelpers.set(config['name'], new PluginHelper(config));
+        }
+    }
+
+    getPluginHelperByName = (name: string): any => {
+        if (this.pluginHelpers.has(name)) {
+            return this.pluginHelpers.get(name);
+        }
+    }
+
+>>>>>>> Stashed changes
     public getPluginApiByName(pluginName: string): any {
         // TODO: check later if still not needed and delete
         // if (!this.plugins || this.plugins.size == 0) {

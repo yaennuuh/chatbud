@@ -54,6 +54,16 @@ function loadCustomTag(prefix, tagName) {
         document.createElement(tagName));
 }
 
+<<<<<<< Updated upstream
+=======
+async function loadStencilTag(config) {
+    let content = document.getElementById('content');
+    content.innerHTML = '';
+    let stencilTag = document.createElement(config['stencil-tag']);
+    content.appendChild(stencilTag);
+}
+
+>>>>>>> Stashed changes
 function createWebComponent(pageName) {
     fetch(`./pages/${pageName}/${pageName}.html`)
         .then(stream => stream.text())
@@ -218,6 +228,11 @@ function initializeCorePlugins() {
 function initializePlugins() {
     const pluginManager = remote.getGlobal('pluginManager');
     const resourcesPath = pluginManager.resourcesPath;
+    window.pluginHelperService = {
+        getPluginHelper: (pluginName) => {
+            return pluginManager.getPluginHelperByName(pluginName)
+        }
+    };
     loadPlugins(resourcesPath);
 }
 
@@ -269,6 +284,10 @@ function loadPluginConfigs(resourcesPath) {
                 parsedConfig.hasOwnProperty('ui-html') &&
                 parsedConfig.hasOwnProperty('ui-js')
             ) {
+                // Load plugin helper once so it's available
+                const pluginManager = remote.getGlobal('pluginManager');
+                pluginManager.loadPluginHelper(parsedConfig);
+
                 parsedConfig.tagname = _.kebabCase(parsedConfig.name);
                 fileConfigs.push(parsedConfig);
                 createWebComponentForPlugin(resourcesPath, parsedConfig);
