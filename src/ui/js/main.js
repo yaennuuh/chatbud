@@ -13,10 +13,12 @@ currentPluginType = 'core';
 // Load
 
 initializeCorePlugins();
-initializePlugins();
-initializeConnectors();
-initializeDashboard();
+initializeCustomPlugins();
 
+initializeCoreConnectors();
+initializeCustomConnectors();
+
+initializeDashboard();
 initializeListeners();
 
 // General
@@ -44,6 +46,40 @@ function initializeListeners() {
     });
 }
 
+function addItemToDropdown(dropdownItem, config, resourcesPath) {
+    if (!config.hasOwnProperty('hide') || config['hide'] === true) {
+        var itemElement = document.createElement('li');
+        itemElement.classList.add('dropdown-item');
+
+        var itemATag = document.createElement('a');
+        const name = config.hasOwnProperty('display-name') ? config['display-name'] : config['name'];
+        itemATag.appendChild(document.createTextNode(name));
+        itemElement.appendChild(itemATag);
+        itemElement.addEventListener('click', () => {
+            if (config && config.hasOwnProperty('stencil-tag') && config.hasOwnProperty('stencil') && config.hasOwnProperty('stencil-esm')) {
+                let stencilContainer = document.getElementById('stencil-container');
+                stencilContainer.innerHTML = '';
+
+                var script2 = document.createElement("script");
+                script2.type = "module";
+                script2.src = resourcesPath + '/' + config['name'] + '/' + config['stencil-esm'];
+                stencilContainer.appendChild(script2);
+
+                var script = document.createElement("script");
+                script.noModule = true;
+                script.src = resourcesPath + '/' + config['name'] + '/' + config['stencil'];
+                stencilContainer.appendChild(script);
+
+                loadStencilTag(config);
+            } else {
+                loadCustomTag('custom', config['name']);
+            }
+        });
+
+        dropdownItem.appendChild(itemElement);
+    }
+}
+
 function loadCustomTag(prefix, tagName) {
     currentPlugin = tagName;
     currentPluginType = prefix;
@@ -57,12 +93,12 @@ function loadCustomTag(prefix, tagName) {
 async function loadStencilTag(config) {
     let content = document.getElementById('content');
     content.innerHTML = '';
-    const pluginManager = remote.getGlobal('pluginManager');
+    /*const pluginManager = remote.getGlobal('pluginManager');
     window.pluginHelperService = {
         getPluginHelper: (pluginName) => {
             return pluginManager.getPluginHelperByName(pluginName)
         }
-    };
+    };*/
     let stencilTag = document.createElement(config['stencil-tag']);
     content.appendChild(stencilTag);
 }
@@ -127,52 +163,72 @@ function initializeDashboard() {
 
 // Connectors
 
-function initializeConnectors() {
-    var connectorConfigList = loadConnectorConfigs();
+function prepareConnectorHelper(connectorManager) {
+    window.connectorHelperService = window.connectorHelperService || {
+        getConnectorHelper: (connectorName) => {
+            return connectorManager.getConnectorHelperByName(connectorName);
+        }
+    };
+}
+
+function initializeCoreConnectors() {
+    const connectorManager = remote.getGlobal('connectorManager');
+    const resourcesPath = connectorManager.resourcesPathCore;
+    prepareConnectorHelper(connectorManager);
+    loadConnectors(resourcesPath);
+}
+
+function initializeCustomConnectors() {
+    const connectorManager = remote.getGlobal('connectorManager');
+    const resourcesPath = connectorManager.resourcesPath;
+    prepareConnectorHelper(connectorManager);
+    loadConnectors(resourcesPath);
+}
+
+function loadConnectors(resourcesPath) {
+    var connectorConfigList = loadConnectorConfigs(`${resourcesPath}`);
 
     var dropDownConnectors = document.getElementById('dropdown-connectors');
-    connectorConfigList.forEach(connectorConfig => {
-        if (!connectorConfig.hasOwnProperty('hide-plugin') || connectorConfig['hide-plugin'] === true) {
-            var itemElement = document.createElement('li');
-            itemElement.classList.add('dropdown-item');
-
-            var itemATag = document.createElement('a');
-            const connectorName = connectorConfig.hasOwnProperty('display-name') ? connectorConfig['display-name'] : connectorConfig['name'];
-            itemATag.appendChild(document.createTextNode(connectorName));
-            itemElement.appendChild(itemATag);
-            itemElement.addEventListener('click', () => {
-                loadCustomTag('custom', connectorConfig['name']);
-            });
-
-            dropDownConnectors.appendChild(itemElement);
-        }
+    connectorConfigList.forEach(config => {
+        addItemToDropdown(dropDownConnectors, config, resourcesPath);
     });
 }
 
-function loadConnectorConfigs() {
+function loadConnectorConfigs(resourcesPath) {
     const fileConfigs = [];
-    const configFiles = glob.sync(__dirname + "/../connectors/**/config.yaml", null);
+    const configFiles = glob.sync(`${resourcesPath}/**/config.yaml`, null);
     _.each(configFiles, (configPath) => {
         if (fs.existsSync(configPath)) {
-            const file = fs.readFileSync(configPath, 'utf8')
-            const parsedConfig = YAML.parse(file);
+            const file = fs.readFileSync(configPath, 'utf8');
+            const config = YAML.parse(file);
 
-            if (parsedConfig &&
-                parsedConfig.hasOwnProperty('name') &&
-                parsedConfig.hasOwnProperty('ui-html') &&
-                parsedConfig.hasOwnProperty('ui-js')
+            if (config &&
+                config.hasOwnProperty('name') &&
+                ((config.hasOwnProperty('ui-html') &&
+                    config.hasOwnProperty('ui-js')) ||
+                    (config.hasOwnProperty('stencil-tag') &&
+                        config.hasOwnProperty('stencil') &&
+                        config.hasOwnProperty('stencil-esm'))
+                )
             ) {
-                parsedConfig.tagname = _.kebabCase(parsedConfig.name);
-                fileConfigs.push(parsedConfig);
-                createWebComponentForConnector(parsedConfig);
+                // Load plugin helper once so it's available
+                const connectorManager = remote.getGlobal('connectorManager');
+                connectorManager.loadConnectorHelper(config);
+
+                config.tagname = _.kebabCase(config.name);
+                fileConfigs.push(config);
+                if (config.hasOwnProperty('ui-html') &&
+                    config.hasOwnProperty('ui-js')) {
+                    createWebComponentForConnector(resourcesPath, config);
+                }
             }
         }
     });
     return fileConfigs;
 }
 
-function createWebComponentForConnector(connector) {
-    fetch(`../connectors/${connector['name']}/${connector['ui-html']}`)
+function createWebComponentForConnector(resourcesPath, connector) {
+    fetch(`${resourcesPath}/${connector['name']}/${connector['ui-html']}`)
         .then(stream => stream.text())
         .then(text => {
             createTemplateTagForConnector(text, connector);
@@ -222,20 +278,25 @@ function loadTemplateForConnector(html, connector) {
 
 // Plugins
 
-function initializeCorePlugins() {
-    const pluginManager = remote.getGlobal('pluginManager');
-    const resourcesPath = pluginManager.resourcesPathCore;
-    loadPlugins(resourcesPath);
-}
-
-function initializePlugins() {
-    const pluginManager = remote.getGlobal('pluginManager');
-    const resourcesPath = pluginManager.resourcesPath;
-    window.pluginHelperService = {
+function preparePluginHelper(pluginManager) {
+    window.pluginHelperService = window.pluginHelperService || {
         getPluginHelper: (pluginName) => {
             return pluginManager.getPluginHelperByName(pluginName)
         }
     };
+}
+
+function initializeCorePlugins() {
+    const pluginManager = remote.getGlobal('pluginManager');
+    const resourcesPath = pluginManager.resourcesPathCore;
+    preparePluginHelper(pluginManager);
+    loadPlugins(resourcesPath);
+}
+
+function initializeCustomPlugins() {
+    const pluginManager = remote.getGlobal('pluginManager');
+    const resourcesPath = pluginManager.resourcesPath;
+    preparePluginHelper(pluginManager);
     loadPlugins(resourcesPath);
 }
 
@@ -258,36 +319,8 @@ function loadPlugins(resourcesPath) {
     var pluginConfigList = loadPluginConfigs(resourcesPath);
 
     var dropDownPlugins = document.getElementById('dropdown-plugins');
-    pluginConfigList.forEach(pluginConfig => {
-        var itemElement = document.createElement('li');
-        itemElement.classList.add('dropdown-item');
-
-        var itemATag = document.createElement('a');
-        const pluginName = pluginConfig.hasOwnProperty('display-name') ? pluginConfig['display-name'] : pluginConfig['name'];
-        itemATag.appendChild(document.createTextNode(pluginName));
-        itemElement.appendChild(itemATag);
-        itemElement.addEventListener('click', () => {
-            if (pluginConfig && pluginConfig.hasOwnProperty('stencil-tag') && pluginConfig.hasOwnProperty('stencil') && pluginConfig.hasOwnProperty('stencil-esm')) {
-                let stencilContainer = document.getElementById('stencil-container');
-                stencilContainer.innerHTML = '';
-
-                var script2 = document.createElement("script");
-                script2.type = "module";
-                script2.src = resourcesPath + '/' + pluginConfig['name'] + '/' + pluginConfig['stencil-esm'];
-                stencilContainer.appendChild(script2);
-
-                var script = document.createElement("script");
-                script.noModule = true;
-                script.src = resourcesPath + '/' + pluginConfig['name'] + '/' + pluginConfig['stencil'];
-                stencilContainer.appendChild(script);
-
-                loadStencilTag(pluginConfig);
-            } else {
-                loadCustomTag('custom', pluginConfig.name);
-            }
-        });
-
-        dropDownPlugins.appendChild(itemElement);
+    pluginConfigList.forEach(config => {
+        addItemToDropdown(dropDownPlugins, config, resourcesPath);
     });
 }
 

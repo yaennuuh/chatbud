@@ -5,6 +5,7 @@ import * as YAML from 'yaml';
 import { CoreBot } from '../CoreBot';
 import { ConnectorHelper } from './ConnectorHelper';
 import { IConnectorManager } from './IConnectorManager';
+import { CoreHelper } from '../CoreHelper';
 
 export class ConnectorManager implements IConnectorManager {
     private static instance: ConnectorManager;
@@ -13,12 +14,18 @@ export class ConnectorManager implements IConnectorManager {
     connectors: Map<string, any> = new Map();
     connectorHelpers: Map<string, any> = new Map();
 
-    private constructor() { }
+    resourcesPath: string;
+    resourcesPathCore: string;
+
+    private constructor() {
+        this.resourcesPathCore = `${__dirname}/../../connectors`;
+    }
 
     public static getInstance(): ConnectorManager {
         if (!ConnectorManager.instance) {
             ConnectorManager.instance = new ConnectorManager();
         }
+        ConnectorManager.instance.resourcesPath = CoreHelper.getInstance().getResourcesPath('connectors');
         return ConnectorManager.instance;
     }
 
@@ -71,6 +78,18 @@ export class ConnectorManager implements IConnectorManager {
         const tempConnectorHelper = new ConnectorHelper(config);
         this.connectorHelpers.set(config['name'], tempConnectorHelper);
         return tempConnectorHelper;
+    }
+
+    loadConnectorHelper = (config: any): any => {
+        if (!this.connectorHelpers.has(config['name'])) {
+            this.connectorHelpers.set(config['name'], new ConnectorHelper(config));
+        }
+    }
+
+    getConnectorHelperByName = (name: string): any => {
+        if (this.connectorHelpers.has(name)) {
+            return this.connectorHelpers.get(name);
+        }
     }
 
     public getConnectorApiByName(connectorName: string): any {
