@@ -23,7 +23,7 @@ describe('Parser', () =>
                     }
                 });
         });
-        it('test parseString', () =>
+        it('test parseString (string)', () =>
         {
             let parser = new Parser();
             expect(parser.parseString([
@@ -38,112 +38,88 @@ describe('Parser', () =>
                     }
                 });
         });
-
-        it('test parseExpression', () =>
+        it('test parseString (word)', () =>
         {
             let parser = new Parser();
-
-            let tokens: Token[] = [
-                {type: "paren", value: "("},
-                {type: "word", value: "add"},
-                {type: "number", value: "2"},
-                {type: "paren", value: "("},
-                {type: "word", value: "subtract"},
-                {type: "number", value: "4"},
-                {type: "number", value: "2"},
-                {type: "paren", value: ")"},
-                {type: "paren", value: ")"}
-            ]
-
-            expect(parser.parseExpression(tokens, 3))
-                .to
-                .eql(
-                    {
-                        "position": 8,
-                        "item": {
-                            "value": "subtract",
-                            "params": [
-                                {
-                                "type": "NumberLiteral",
-                                "value": "4",
-                                },
-                                {
-                                "type": "NumberLiteral",
-                                "value": "2",
-                                },
-                            ],
-                            "type": "CallExpression",
-                        }
-                    }
-                );
-        });
-        it('test parseProgram', () =>
-        {
-            let parser = new Parser();
-
-            let tokens =  [
-                { type: 'paren',  value: '('        },
-                { type: 'word',   value: 'print'      },
-                { type: 'string', value: 'Hello'      },
-                { type: 'number', value: '2'        },
-                { type: 'paren',  value: ')'        },
-                { type: 'paren',  value: '('        },
-                { type: 'word',   value: 'add'      },
-                { type: 'number', value: '2'        },
-                { type: 'paren',  value: '('        },
-                { type: 'word',   value: 'subtract' },
-                { type: 'number', value: '4'        },
-                { type: 'number', value: '2'        },
-                { type: 'paren',  value: ')'        },
-                { type: 'paren',  value: ')'        },
-            ];
-
-            expect(parser.parseProgram(
-                tokens
+            expect(parser.parseString([
+                    {"type": "word", "value": "Hello!"}],
+                0
             ))
                 .to
                 .eql({
-                        "body": [
-                            {
-                                "value": "print",
-                                "params": [
-                                    {
-                                        "type": "StringLiteral",
-                                        "value": "Hello"
-                                    },
-                                    {
-                                        "type": "NumberLiteral",
-                                        "value": "2"
-                                    }
-                                ],
-                                "type": "CallExpression"
-                            },
-                            {
-                                "value": "add",
-                                "params": [
-                                    {
-                                        "type": "NumberLiteral",
-                                        "value": "2"
-                                    },
-                                    {
-                                        "value": "subtract",
-                                        "params": [
-                                            {
-                                                "type": "NumberLiteral",
-                                                "value": "4"
-                                            },
-                                            {
-                                                "type": "NumberLiteral",
-                                                "value": "2"
-                                            }
-                                        ],
-                                        "type": "CallExpression",
-                                    }
-                                ],
-                                "type": "CallExpression"
-                            }
-                        ],
-                        "type": "Program"
+                    position: 1,
+                    item: {
+                        "type": "StringLiteral", "value": "Hello!"
+                    }
+                });
+        });
+
+
+        it('test parseKeyWord', () =>
+        {
+            let parser = new Parser();
+            let tokens: Token[] = [
+                {"type": "keyword", "value": "$loop"}
+            ]
+            expect(parser.parseKeyWord(tokens, 0))
+                .to
+                .eql(
+                    {
+                        "item": {
+                            "type": "CallExpression",
+                            "value": "$loop",
+                            "params": []
+                        },
+                        "position": 1
+                    }
+                );
+        });
+
+        it('test parseExpression 3', () =>
+        {
+            let parser = new Parser();
+            let tokens: Token[] = [
+                {"type": "function", "value": "loop"},
+                {"type": "word", "value": "mein"},
+                {"type": "word", "value": "name"},
+                {"type": "word", "value": "ist"},
+                {"type": "keyword", "value": "$username"},
+                {"type": "string", "value": "3"},
+                {"type": "paren", "value": ")"}
+            ]
+
+            expect(parser.parseExpression(tokens, 0))
+                .to
+                .eql(
+                    {
+                        "item": {
+                            "type": "CallExpression",
+                            "value": "loop",
+                            "params": [
+                                {
+                                    "type": "StringLiteral",
+                                    "value": "mein"
+                                },
+                                {
+                                    "type": "StringLiteral",
+                                    "value": "name"
+                                },
+                                {
+                                    "type": "StringLiteral",
+                                    "value": "ist"
+                                },
+                                {
+                                    "type": "CallExpression",
+                                    "value": "$username",
+                                    "params": []
+                                },
+                                {
+                                    "type": "StringLiteral",
+                                    "value": "3"
+                                }
+                            ]
+                        },
+                        "position": 6
                     }
                 );
         });

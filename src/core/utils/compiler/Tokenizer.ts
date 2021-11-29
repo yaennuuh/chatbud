@@ -1,5 +1,5 @@
 
-export type TokenType = 'paren' | 'number' | 'word' | 'string' | 'keyword';
+export type TokenType = 'paren' | 'number' | 'word' | 'string' | 'keyword' | 'function';
 export interface Token { value: string; type: TokenType};
 export type TokenObject = [number, Token] | [number, {}]
 
@@ -43,6 +43,27 @@ export class Tokenizer {
         return [0, null]
     }
 
+
+    private tokenizeFunctionPattern (input: string, current: number): TokenObject {
+            // if (input[current] === '$') {
+            if (input.substring(current).match('\\$[a-z]+\\(')) {
+                let value = '';
+                let consumedChars = 0;
+                consumedChars ++;
+                let char = input[current + consumedChars];
+                while (char !== '(') {
+                    if(char === undefined) {
+                        throw new TypeError("unterminated function ");
+                    }
+                    value += char;
+                    consumedChars ++;
+                    char = input[current + consumedChars];
+                }
+                return [current + consumedChars + 1, { type: 'function', value }];
+            }
+            return [0, null]
+        }
+
     private tokenizeString (input: string, current: number): TokenObject {
         if (input[current] === '"') {
             let value = '';
@@ -72,14 +93,17 @@ export class Tokenizer {
 
     tokenizeKeyWord = (input: string, current: number) => this.tokenizeKeyWordPattern("keyword", '$', /[a-z]/i, input, current);
 
+    tokenizeFunction = (input: string, current: number) => this.tokenizeFunctionPattern(input, current);
+
     tokenizeWords = (input: string, current: number) => this.tokenizeString(input, current);
 
     tokenizeWhiteSpace = (input: string, current: number) => this.skipWhiteSpace(input, current);
 
     private tokenizers = [
         this.tokenizeWhiteSpace,
-        this.tokenizeParenOpen,
+        // this.tokenizeParenOpen,
         this.tokenizeParenClose,
+        this.tokenizeFunction,
         this.tokenizeWords,
         this.tokenizeNumber,
         this.tokenizeKeyWord,

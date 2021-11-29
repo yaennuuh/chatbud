@@ -1,7 +1,7 @@
 import {Token} from "./Tokenizer";
 
 export type ParsedType = 'NumberLiteral' | 'StringLiteral' | 'CallExpression';
-export type Parsed = { value: string; type: ParsedType };
+export type Parsed = { value: string; type: ParsedType; params?: []};
 export interface ParsedObject {position: number; item: Parsed};
 
 export class Parser {
@@ -23,9 +23,18 @@ export class Parser {
             }};
     }
 
+    parseKeyWord (tokens: Token[], current: number): ParsedObject {
+        return {
+            position: current + 1,
+            item: {
+                type: 'CallExpression',
+                value: tokens[current].value,
+                params: [],
+            }};
+    }
+
     parseExpression (tokens: Token[], current: number) {
         let counter = current;
-        counter = counter + 1;
         let token = tokens[counter];
         let node = {
             type: 'CallExpression',
@@ -34,7 +43,7 @@ export class Parser {
         };
 
         counter = counter + 1;
-        while (!(token.type === 'paren' && token.value ===')')) {
+        while (counter < tokens.length && !(token.type === 'paren' && token.value ===')')) {
             let parsed = this.parseToken(tokens, counter);
             counter = parsed.position;
             let param = parsed.item;
@@ -43,8 +52,7 @@ export class Parser {
             token = tokens[counter];
         }
 
-        counter++;
-        return {position: counter, item: node};
+        return {position: counter < tokens.length ? counter : tokens.length, item: node};
     }
 
     parseToken (tokens, current) {
@@ -52,10 +60,13 @@ export class Parser {
         if (token.type === 'number') {
             return this.parseNumber(tokens, current);
         }
-        if (token.type === 'string') {
+        if (token.type === 'string' || token.type === 'word') {
             return this.parseString(tokens, current);
         }
-        if (token.type === 'paren' && token.value === '(') {
+        if (token.type === 'keyword') {
+            return this.parseKeyWord(tokens, current);
+        }
+        if (tokens.type === 'function') {
             return this.parseExpression(tokens, current);
         }
         throw new TypeError(token.type);

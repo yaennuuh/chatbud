@@ -54,6 +54,18 @@ describe('Tokenizer', () =>
                     },
                 ]);
         });
+        it('test tokenizeFunction', () =>
+        {
+            let tokenizer = new Tokenizer();
+            expect(tokenizer.tokenizeFunction('hello $world()', 6))
+                .to
+                .eql([13,
+                    {
+                        "type": "function",
+                        "value": "world",
+                    },
+                ]);
+        });
         it('test tokenizeWord', () =>
         {
             let tokenizer = new Tokenizer();
@@ -87,23 +99,6 @@ describe('Tokenizer', () =>
                     null,
                 ]);
         });
-        it('test tokenizer', () =>
-        {
-            let tokenizer = new Tokenizer();
-            expect(tokenizer.tokenizer('(add 2 (subtract "314" 2))'))
-                .to
-                .eql([
-                    {"type": "paren", "value": "("},
-                    {"type": "word", "value": "add"},
-                    {"type": "number", "value": "2"},
-                    {"type": "paren", "value": "("},
-                    {"type": "word", "value": "subtract"},
-                    {"type": "string", "value": "314"},
-                    {"type": "number", "value": "2"},
-                    {"type": "paren", "value": ")"},
-                    {"type": "paren", "value": ")"}
-                ]);
-        });
         it('test tokenizer with keywords', () =>
         {
             let tokenizer = new Tokenizer();
@@ -112,12 +107,8 @@ describe('Tokenizer', () =>
                 .to
                 .eql([
                     {
-                        "type": "keyword",
-                        "value": "$loop"
-                    },
-                    {
-                        "type": "paren",
-                        "value": "("
+                        "type": "function",
+                        "value": "loop"
                     },
                     {
                         "type": "word",
