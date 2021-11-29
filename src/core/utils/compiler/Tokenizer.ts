@@ -1,12 +1,12 @@
 
-export type TokenType = 'paren' | 'number' | 'word' | 'string';
+export type TokenType = 'paren' | 'number' | 'word' | 'string' | 'keyword';
 export interface Token { value: string; type: TokenType};
 export type TokenObject = [number, Token] | [number, {}]
 
 export class Tokenizer {
 
     private skipWhiteSpace (input, current): TokenObject {
-        return (/\s/.test(input[current])) ? [1, null] : [0, null];
+        return (/\s|,/.test(input[current])) ? [1, null] : [0, null];
     }
 
     private tokenizeCharacter (type: TokenType, value: string, input: string, current: number) : TokenObject {
@@ -24,6 +24,21 @@ export class Tokenizer {
                 char = input[current + consumedChars];
             }
             return [consumedChars , {type, value }];
+        }
+        return [0, null]
+    }
+
+    private tokenizeKeyWordPattern (type: TokenType, identifier: string, regExp: RegExp, input: string, current: number): TokenObject {
+        if (input[current] === identifier) {
+            let consumedChars = 1;
+            let value = '';
+            let sub = input.substring(current, current + identifier.length + consumedChars) // 1 consumed char + 1 to get the next one
+            while (sub && regExp.test(sub)) {
+                value += sub;
+                sub = input[current + identifier.length + consumedChars];
+                consumedChars = consumedChars + 1;
+            }
+            return [current + consumedChars , {type, value}];
         }
         return [0, null]
     }
@@ -55,6 +70,8 @@ export class Tokenizer {
 
     tokenizeWord = (input: string, current: number) => this.tokenizePattern("word", /[a-z]/i, input, current);
 
+    tokenizeKeyWord = (input: string, current: number) => this.tokenizeKeyWordPattern("keyword", '$', /[a-z]/i, input, current);
+
     tokenizeWords = (input: string, current: number) => this.tokenizeString(input, current);
 
     tokenizeWhiteSpace = (input: string, current: number) => this.skipWhiteSpace(input, current);
@@ -65,7 +82,9 @@ export class Tokenizer {
         this.tokenizeParenClose,
         this.tokenizeWords,
         this.tokenizeNumber,
+        this.tokenizeKeyWord,
         this.tokenizeWord
+
     ];
 
     tokenizer = (input: string) => {
@@ -89,5 +108,20 @@ export class Tokenizer {
             }
         }
         return tokens;
+    }
+
+    checktokens = (tokens: Token[]): Token[] => {
+        let tmp = tokens;
+
+        tmp.forEach((value, index, array) => {
+            if(value.type === 'string'){
+                let subTokens = this.tokenizer(value.value);
+                if(subTokens.length > 1){
+                    array.splice(index, 1, ...subTokens)
+                }
+            }
+        })
+
+        return tokens.length == tmp.length ? tokens : this.checktokens(tokens);
     }
 }

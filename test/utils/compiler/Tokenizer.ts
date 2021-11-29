@@ -42,6 +42,18 @@ describe('Tokenizer', () =>
                     },
                 ]);
         });
+        it('test tokenizeKeyWord', () =>
+        {
+            let tokenizer = new Tokenizer();
+            expect(tokenizer.tokenizeKeyWord('hello $world', 6))
+                .to
+                .eql([12,
+                    {
+                        "type": "keyword",
+                        "value": "$world",
+                    },
+                ]);
+        });
         it('test tokenizeWord', () =>
         {
             let tokenizer = new Tokenizer();
@@ -90,6 +102,47 @@ describe('Tokenizer', () =>
                     {"type": "number", "value": "2"},
                     {"type": "paren", "value": ")"},
                     {"type": "paren", "value": ")"}
+                ]);
+        });
+        it('test tokenizer with keywords', () =>
+        {
+            let tokenizer = new Tokenizer();
+            let tokens = tokenizer.tokenizer('$loop("mein name ist $username", "3")');
+            expect(tokenizer.checktokens(tokens))
+                .to
+                .eql([
+                    {
+                        "type": "keyword",
+                        "value": "$loop"
+                    },
+                    {
+                        "type": "paren",
+                        "value": "("
+                    },
+                    {
+                        "type": "word",
+                        "value": "mein"
+                    },
+                    {
+                        "type": "word",
+                        "value": "name"
+                    },
+                    {
+                        "type": "word",
+                        "value": "ist"
+                    },
+                    {
+                        "type": "keyword",
+                        "value": "$username"
+                    },
+                    {
+                        "type": "string",
+                        "value": "3"
+                    },
+                    {
+                        "type": "paren",
+                        "value": ")"
+                    }
                 ]);
         });
     });
