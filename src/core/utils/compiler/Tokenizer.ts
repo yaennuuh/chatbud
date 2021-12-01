@@ -1,12 +1,12 @@
 
-export type TokenType = 'paren' | 'number' | 'word' | 'string' | 'keyword' | 'function';
+export type TokenType = 'bracket_open' | 'bracket_close' | 'word' | 'text' | 'keyword' | 'comma' | 'quotes';
 export interface Token { value: string; type: TokenType};
 export type TokenObject = [number, Token] | [number, {}]
 
 export class Tokenizer {
 
     private skipWhiteSpace (input, current): TokenObject {
-        return (/\s|,/.test(input[current])) ? [1, null] : [0, null];
+        return (/\s/.test(input[current])) ? [1, null] : [0, null];
     }
 
     private tokenizeCharacter (type: TokenType, value: string, input: string, current: number) : TokenObject {
@@ -38,77 +38,33 @@ export class Tokenizer {
                 sub = input[current + identifier.length + consumedChars];
                 consumedChars = consumedChars + 1;
             }
-            return [current + consumedChars , {type, value}];
+            return [consumedChars , {type, value}];
         }
         return [0, null]
     }
 
+    tokenizeBracketOpen = (input: string, current: number) => this.tokenizeCharacter('bracket_open', '(', input, current);
 
-    private tokenizeFunctionPattern (input: string, current: number): TokenObject {
-            // if (input[current] === '$') {
-            if (input.substring(current).match('\\$[a-z]+\\(')) {
-                let value = '';
-                let consumedChars = 0;
-                consumedChars ++;
-                let char = input[current + consumedChars];
-                while (char !== '(') {
-                    if(char === undefined) {
-                        throw new TypeError("unterminated function ");
-                    }
-                    value += char;
-                    consumedChars ++;
-                    char = input[current + consumedChars];
-                }
-                return [current + consumedChars + 1, { type: 'function', value }];
-            }
-            return [0, null]
-        }
+    tokenizeBracketClose = (input: string, current: number) => this.tokenizeCharacter('bracket_close', ')', input, current);
 
-    private tokenizeString (input: string, current: number): TokenObject {
-        if (input[current] === '"') {
-            let value = '';
-            let consumedChars = 0;
-            consumedChars ++;
-            let char = input[current + consumedChars];
-            while (char !== '"') {
-                if(char === undefined) {
-                    throw new TypeError("unterminated string ");
-                }
-                value += char;
-                consumedChars ++;
-                char = input[current + consumedChars];
-            }
-            return [consumedChars + 1, { type: 'string', value }];
-        }
-        return [0, null]
-    }
+    tokenizeComma = (input: string, current: number) => this.tokenizeCharacter('comma', ',', input, current);
 
-    tokenizeParenOpen = (input: string, current: number) => this.tokenizeCharacter('paren', '(', input, current);
-
-    tokenizeParenClose = (input: string, current: number) => this.tokenizeCharacter('paren', ')', input, current);
-
-    tokenizeNumber = (input: string, current: number) => this.tokenizePattern("number", /[0-9]/, input, current);
+    tokenizeQuotes = (input: string, current: number) => this.tokenizeCharacter('quotes', '"', input, current);
 
     tokenizeWord = (input: string, current: number) => this.tokenizePattern("word", /[a-z]/i, input, current);
 
     tokenizeKeyWord = (input: string, current: number) => this.tokenizeKeyWordPattern("keyword", '$', /[a-z]/i, input, current);
 
-    tokenizeFunction = (input: string, current: number) => this.tokenizeFunctionPattern(input, current);
-
-    tokenizeWords = (input: string, current: number) => this.tokenizeString(input, current);
-
     tokenizeWhiteSpace = (input: string, current: number) => this.skipWhiteSpace(input, current);
 
     private tokenizers = [
         this.tokenizeWhiteSpace,
-        // this.tokenizeParenOpen,
-        this.tokenizeParenClose,
-        this.tokenizeFunction,
-        this.tokenizeWords,
-        this.tokenizeNumber,
+        this.tokenizeBracketOpen,
+        this.tokenizeBracketClose,
+        this.tokenizeComma,
+        this.tokenizeQuotes,
         this.tokenizeKeyWord,
         this.tokenizeWord
-
     ];
 
     tokenizer = (input: string) => {
@@ -138,7 +94,7 @@ export class Tokenizer {
         let tmp = tokens;
 
         tmp.forEach((value, index, array) => {
-            if(value.type === 'string'){
+            if(value.type === 'text'){
                 let subTokens = this.tokenizer(value.value);
                 if(subTokens.length > 1){
                     array.splice(index, 1, ...subTokens)

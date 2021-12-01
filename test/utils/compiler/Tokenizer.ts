@@ -6,39 +6,60 @@ describe('Tokenizer', () =>
 {
     describe('test tokenizer', () =>
     {
-        it('test tokenizeParenOpen', () =>
+        it('test tokenizeBracketOpen', () =>
         {
             let tokenizer = new Tokenizer();
-            expect(tokenizer.tokenizeParenOpen('(', 0))
+            expect(tokenizer.tokenizeBracketOpen('(', 0))
                 .to
                 .eql([1,
                     {
-                        "type": "paren",
+                        "type": "bracket_open",
                         "value": "(",
                     },
                 ]);
         });
-        it('test tokenizeParenClose', () =>
+        it('test tokenizeBracketClose', () =>
         {
             let tokenizer = new Tokenizer();
-            expect(tokenizer.tokenizeParenClose(')', 0))
+            expect(tokenizer.tokenizeBracketClose(')', 0))
                 .to
                 .eql([1,
                     {
-                        "type": "paren",
+                        "type": "bracket_close",
                         "value": ")",
                     },
                 ]);
         });
-        it('test tokenizeNumber', () =>
+        it('test tokenizeWhiteSpace', () =>
         {
             let tokenizer = new Tokenizer();
-            expect(tokenizer.tokenizeNumber("123aad", 0))
+            expect(tokenizer.tokenizeWhiteSpace(' ', 0))
                 .to
-                .eql([3,
+                .eql([1,
+                    null,
+                ]);
+        });
+        it('test tokenizeComma', () =>
+        {
+            let tokenizer = new Tokenizer();
+            expect(tokenizer.tokenizeComma(',', 0))
+                .to
+                .eql([1,
                     {
-                        "type": "number",
-                        "value": "123",
+                        "type": "comma",
+                        "value": ",",
+                    },
+                ]);
+        });
+        it('test tokenizeQuotes', () =>
+        {
+            let tokenizer = new Tokenizer();
+            expect(tokenizer.tokenizeQuotes('"', 0))
+                .to
+                .eql([1,
+                    {
+                        "type": "quotes",
+                        "value": "\"",
                     },
                 ]);
         });
@@ -47,22 +68,10 @@ describe('Tokenizer', () =>
             let tokenizer = new Tokenizer();
             expect(tokenizer.tokenizeKeyWord('hello $world', 6))
                 .to
-                .eql([12,
+                .eql([6,
                     {
                         "type": "keyword",
                         "value": "$world",
-                    },
-                ]);
-        });
-        it('test tokenizeFunction', () =>
-        {
-            let tokenizer = new Tokenizer();
-            expect(tokenizer.tokenizeFunction('hello $world()', 6))
-                .to
-                .eql([13,
-                    {
-                        "type": "function",
-                        "value": "world",
                     },
                 ]);
         });
@@ -78,37 +87,23 @@ describe('Tokenizer', () =>
                     },
                 ]);
         });
-        it('test tokenizeWords', () =>
-        {
-            let tokenizer = new Tokenizer();
-            expect(tokenizer.tokenizeWords('"hello world"', 0))
-                .to
-                .eql([13,
-                    {
-                        "type": "string",
-                        "value": "hello world",
-                    },
-                ]);
-        });
-        it('test tokenizeWhiteSpace', () =>
-        {
-            let tokenizer = new Tokenizer();
-            expect(tokenizer.tokenizeWhiteSpace(' ', 0))
-                .to
-                .eql([1,
-                    null,
-                ]);
-        });
         it('test tokenizer with keywords', () =>
         {
             let tokenizer = new Tokenizer();
-            let tokens = tokenizer.tokenizer('$loop("mein name ist $username", "3")');
-            expect(tokenizer.checktokens(tokens))
+            expect(tokenizer.tokenizer('$loop("mein name ist $username", "abc")'))
                 .to
                 .eql([
                     {
-                        "type": "function",
-                        "value": "loop"
+                        "type": "keyword",
+                        "value": "$loop"
+                    },
+                    {
+                        "type": "bracket_open",
+                        "value": "("
+                    },
+                    {
+                        "type": "quotes",
+                        "value": "\""
                     },
                     {
                         "type": "word",
@@ -127,11 +122,27 @@ describe('Tokenizer', () =>
                         "value": "$username"
                     },
                     {
-                        "type": "string",
-                        "value": "3"
+                        "type": "quotes",
+                        "value": "\""
                     },
                     {
-                        "type": "paren",
+                        "type": "comma",
+                        "value": ","
+                    },
+                    {
+                        "type": "quotes",
+                        "value": "\""
+                    },
+                    {
+                        "type": "word",
+                        "value": "abc"
+                    },
+                    {
+                        "type": "quotes",
+                        "value": "\""
+                    },
+                    {
+                        "type": "bracket_close",
                         "value": ")"
                     }
                 ]);
