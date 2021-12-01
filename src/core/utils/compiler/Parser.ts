@@ -1,19 +1,10 @@
 import {Token} from "./Tokenizer";
 
-export type ParsedType = 'NumberLiteral' | 'StringLiteral' | 'CallExpression';
+export type ParsedType = 'StringLiteral' | 'CallExpression' | 'function' | 'keyword';
 export type Parsed = { value: string; type: ParsedType; params?: []};
 export interface ParsedObject {position: number; item: Parsed};
 
 export class Parser {
-
-    parseNumber (tokens: Token[], current: number): ParsedObject {
-        return {
-            position: current + 1,
-            item: {
-                type: 'NumberLiteral',
-                value: tokens[current].value
-            }};
-    }
 
     parseString (tokens: Token[], current: number): ParsedObject {
         return {
@@ -27,23 +18,22 @@ export class Parser {
         return {
             position: current + 1,
             item: {
-                type: 'CallExpression',
-                value: tokens[current].value,
-                params: [],
+                type: 'keyword',
+                value: tokens[current].value
             }};
     }
 
-    parseExpression (tokens: Token[], current: number) {
+    parseFunction (tokens: Token[], current: number) {
         let counter = current;
         let token = tokens[counter];
         let node = {
-            type: 'CallExpression',
+            type: 'function',
             value: token.value,
             params: [],
         };
 
-        counter = counter + 1;
-        while (counter < tokens.length && !(token.type === 'paren' && token.value ===')')) {
+        counter = counter + 2;
+        while (counter < tokens.length && token.type !== 'bracket_close') {
             let parsed = this.parseToken(tokens, counter);
             counter = parsed.position;
             let param = parsed.item;
@@ -55,20 +45,42 @@ export class Parser {
         return {position: counter < tokens.length ? counter : tokens.length, item: node};
     }
 
+    parseParameter (tokens: Token[], current: number) {
+        let counter = current + 1;
+        let token = tokens[counter];
+        let node = [];
+
+        while (counter < tokens.length && token.type !== 'quotes') {
+            let parsed = this.parseToken(tokens, counter);
+            counter = parsed.position;
+            let param = parsed.item;
+
+            node.push(param);
+            token = tokens[counter];
+        }
+
+        counter = counter + 1;
+        return {position: counter < tokens.length ? counter : tokens.length, item: node};
+    }
+
     parseToken (tokens, current) {
         let token: Token = tokens[current];
-        if (token.type === 'number') {
-            return this.parseNumber(tokens, current);
-        }
-        if (token.type === 'string' || token.type === 'word') {
+        let lastToken: Token = tokens[current - 1];
+        let nextToken: Token = tokens[current + 1];
+
+        if (token.type === 'word') {
             return this.parseString(tokens, current);
+        }
+        if ((token.type === 'keyword' && nextToken.type === 'bracket_open') || token.type === 'bracket_close') {
+            return this.parseFunction(tokens, current);
         }
         if (token.type === 'keyword') {
             return this.parseKeyWord(tokens, current);
         }
-        if (tokens.type === 'function') {
-            return this.parseExpression(tokens, current);
+        if (token.type === 'quotes'){
+            return this.parseParameter(tokens, current);
         }
+
         throw new TypeError(token.type);
     }
 

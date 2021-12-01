@@ -8,53 +8,21 @@ describe('Parser', () =>
 {
     describe('test parser', () =>
     {
-        it('test parseNumber', () =>
-        {
-            let parser = new Parser();
-            expect(parser.parseNumber([
-                {"type": "number", "value": "42"}],
-                0
-            ))
-                .to
-                .eql({
-                    position: 1,
-                    item: {
-                        "type": "NumberLiteral", "value": "42"
-                    }
-                });
-        });
         it('test parseString (string)', () =>
         {
             let parser = new Parser();
             expect(parser.parseString([
-                    {"type": "string", "value": "Hello World!"}],
+                    {"type": "word", "value": "hello"}],
                 0
             ))
                 .to
                 .eql({
                     position: 1,
                     item: {
-                        "type": "StringLiteral", "value": "Hello World!"
+                        "type": "StringLiteral", "value": "hello"
                     }
                 });
         });
-        it('test parseString (word)', () =>
-        {
-            let parser = new Parser();
-            expect(parser.parseString([
-                    {"type": "word", "value": "Hello!"}],
-                0
-            ))
-                .to
-                .eql({
-                    position: 1,
-                    item: {
-                        "type": "StringLiteral", "value": "Hello!"
-                    }
-                });
-        });
-
-
         it('test parseKeyWord', () =>
         {
             let parser = new Parser();
@@ -66,7 +34,7 @@ describe('Parser', () =>
                 .eql(
                     {
                         "item": {
-                            "type": "CallExpression",
+                            "type": "keyword",
                             "value": "$loop",
                             "params": []
                         },
@@ -74,53 +42,88 @@ describe('Parser', () =>
                     }
                 );
         });
-
-        it('test parseExpression 3', () =>
+        it('test function', () =>
         {
             let parser = new Parser();
             let tokens: Token[] = [
-                {"type": "function", "value": "loop"},
-                {"type": "word", "value": "mein"},
-                {"type": "word", "value": "name"},
-                {"type": "word", "value": "ist"},
-                {"type": "keyword", "value": "$username"},
-                {"type": "string", "value": "3"},
-                {"type": "paren", "value": ")"}
+                {"type": "keyword", "value": "$loop"},
+                {"type": "bracket_open", "value": "("}
             ]
-
-            expect(parser.parseExpression(tokens, 0))
+            expect(parser.parseFunction(tokens, 0))
                 .to
                 .eql(
                     {
                         "item": {
-                            "type": "CallExpression",
-                            "value": "loop",
+                            "type": "function",
+                            "value": "$loop",
+                            "params": []
+                        },
+                        "position": 2
+                    }
+                );
+        });
+        it('test parseToken 1', () =>
+        {
+            let parser = new Parser();
+            let tokens: Token[] = [
+                {"type": "keyword","value": "$loop"},
+                {"type": "bracket_open","value": "("},
+                {"type": "quotes","value": "\""},
+                {"type": "word","value": "mein"},
+                {"type": "word","value": "name"},
+                {"type": "quotes","value": "\""},
+                {"type": "bracket_close","value": ")"}
+            ]
+
+            expect(parser.parseToken(tokens, 0))
+                .to
+                .eql(
+                    {
+                        "item": {
+                            "type": "function",
+                            "value": "$loop",
                             "params": [
-                                {
-                                    "type": "StringLiteral",
-                                    "value": "mein"
-                                },
-                                {
-                                    "type": "StringLiteral",
-                                    "value": "name"
-                                },
-                                {
-                                    "type": "StringLiteral",
-                                    "value": "ist"
-                                },
-                                {
-                                    "type": "CallExpression",
-                                    "value": "$username",
-                                    "params": []
-                                },
-                                {
-                                    "type": "StringLiteral",
-                                    "value": "3"
-                                }
+                                [
+                                    {
+                                        "type": "StringLiteral",
+                                        "value": "mein"
+                                    },
+                                    {
+                                        "type": "StringLiteral",
+                                        "value": "name"
+                                    }
+                                ]
                             ]
                         },
-                        "position": 6
+                        "position": 6,
                     }
+                );
+        });
+
+
+        it('test parseToken 2', () =>
+        {
+            let parser = new Parser();
+            let tokens: Token[] = [
+                {"type": "keyword","value": "$loop"},
+                {"type": "bracket_open","value": "("},
+                {"type": "quotes","value": "\""},
+                {"type": "word","value": "mein"},
+                {"type": "word","value": "name"},
+                {"type": "word","value": "ist"},
+                {"type": "keyword","value": "$username"},
+                {"type": "quotes","value": "\""},
+                {"type": "comma","value": ","},
+                {"type": "quotes","value": "\""},
+                {"type": "word","value": "abc"},
+                {"type": "quotes","value": "\""},
+                {"type": "bracket_close","value": ")"}
+            ]
+
+            expect(parser.parseToken(tokens, 0))
+                .to
+                .eql(
+                    {}
                 );
         });
     });
