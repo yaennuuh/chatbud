@@ -147,5 +147,15 @@ describe('Tokenizer', () =>
                     }
                 ]);
         });
+
+
+
+        it('test tokenizer with keywords', () =>
+        {
+            let tokenizer = new Tokenizer();
+            expect(tokenizer.tokenizer('hallo $alert("$username", "abc") du $random'))
+                .to
+                .eql([]);
+        });
     });
 });

@@ -1,4 +1,4 @@
-import {Token} from "./Tokenizer";
+import {Token, TokenType} from "./Tokenizer";
 
 export type ParsedType = 'StringLiteral' | 'CallExpression' | 'function' | 'keyword';
 export type Parsed = { value: string; type: ParsedType; params?: []};
@@ -42,6 +42,10 @@ export class Parser {
             token = tokens[counter];
         }
 
+        if(counter < tokens.length && tokens[counter].type === 'bracket_close'){
+            counter = counter + 1;
+        }
+
         return {position: counter < tokens.length ? counter : tokens.length, item: node};
     }
 
@@ -60,18 +64,28 @@ export class Parser {
         }
 
         counter = counter + 1;
+
+        if(counter < tokens.length && tokens[counter].type === 'comma'){
+            counter = counter + 1;
+        }
+
         return {position: counter < tokens.length ? counter : tokens.length, item: node};
     }
 
     parseToken (tokens, current) {
         let token: Token = tokens[current];
         let lastToken: Token = tokens[current - 1];
-        let nextToken: Token = tokens[current + 1];
+        // let nextToken: Token = tokens[current + 1];
+        let nextTokenType: TokenType = 'end';
+
+        if(current + 1 < tokens.length){
+            nextTokenType = tokens[current + 1].type
+        }
 
         if (token.type === 'word') {
             return this.parseString(tokens, current);
         }
-        if ((token.type === 'keyword' && nextToken.type === 'bracket_open') || token.type === 'bracket_close') {
+        if ((token.type === 'keyword' && nextTokenType === 'bracket_open') || token.type === 'bracket_close') {
             return this.parseFunction(tokens, current);
         }
         if (token.type === 'keyword') {

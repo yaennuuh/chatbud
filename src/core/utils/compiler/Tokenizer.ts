@@ -1,5 +1,5 @@
 
-export type TokenType = 'bracket_open' | 'bracket_close' | 'word' | 'text' | 'keyword' | 'comma' | 'quotes';
+export type TokenType = 'bracket_open' | 'bracket_close' | 'word' | 'text' | 'keyword' | 'comma' | 'quotes' | 'end';
 export interface Token { value: string; type: TokenType};
 export type TokenObject = [number, Token] | [number, {}]
 

@@ -123,7 +123,139 @@ describe('Parser', () =>
             expect(parser.parseToken(tokens, 0))
                 .to
                 .eql(
-                    {}
+                    {
+                        "item": {
+                            "type": "function",
+                            "value": "$loop",
+                            "params": [
+                                [
+                                    {
+                                        "type": "StringLiteral",
+                                        "value": "mein"
+                                    },
+                                    {
+                                        "type": "StringLiteral",
+                                        "value": "name"
+                                    },
+                                    {
+                                        "type": "StringLiteral",
+                                        "value": "ist"
+                                    },
+                                    {
+                                        "type": "keyword",
+                                        "value": "$username"
+                                    },
+                                ],
+                                [
+                                    {
+                                        "type": "StringLiteral",
+                                        "value": "abc",
+                                    },
+                                ],
+                            ],
+                        },
+                        "position": 12
+                    }
+                );
+        });
+
+
+        it('test parseToken xxx', () =>
+        {
+            let parser = new Parser();
+            let tokens: Token[] = [
+                {
+                    "type": "word",
+                    "value": "hallo"
+                },
+                {
+                    "type": "keyword",
+                    "value": "$alert"
+                },
+                {
+                    "type": "bracket_open",
+                    "value": "("
+                },
+                {
+                    "type": "quotes",
+                    "value": "\""
+                },
+                {
+                    "type": "keyword",
+                    "value": "$username"
+                },
+                {
+                    "type": "quotes",
+                    "value": "\""
+                },
+                {
+                    "type": "comma",
+                    "value": ","
+                },
+                {
+                    "type": "quotes",
+                    "value": "\""
+                },
+                {
+                    "type": "word",
+                    "value": "abc"
+                },
+                {
+                    "type": "quotes",
+                    "value": "\""
+                },
+                {
+                    "type": "bracket_close",
+                    "value": ")"
+                },
+                {
+                    "type": "word",
+                    "value": "du"
+                },
+                {
+                    "type": "keyword",
+                    "value": "$random"
+                }
+            ]
+
+            expect(parser.parseProgram(tokens))
+                .to
+                .eql(
+                    {
+                        "type": "Program",
+                        "body": [
+                            {
+                                "type": "StringLiteral",
+                                "value": "hallo"
+                            },
+                            {
+                                "type": "function",
+                                "value": "$alert",
+                                "params": [
+                                    [
+                                        {
+                                            "type": "keyword",
+                                            "value": "$username"
+                                        }
+                                    ],
+                                    [
+                                        {
+                                            "type": "StringLiteral",
+                                            "value": "abc"
+                                        }]
+                                ]
+                            },
+                            {
+                                "type": "StringLiteral",
+                                "value": "du"
+                            },
+                            {
+                                "type": "keyword",
+                                "value": "$random"
+                            }
+                        ]
+                    }
+
                 );
         });
     });
