@@ -35,8 +35,7 @@ describe('Parser', () =>
                     {
                         "item": {
                             "type": "keyword",
-                            "value": "$loop",
-                            "params": []
+                            "value": "$loop"
                         },
                         "position": 1
                     }
@@ -95,7 +94,7 @@ describe('Parser', () =>
                                 ]
                             ]
                         },
-                        "position": 6,
+                        "position": 7,
                     }
                 );
         });
@@ -154,68 +153,30 @@ describe('Parser', () =>
                                 ],
                             ],
                         },
-                        "position": 12
+                        "position": 13
                     }
                 );
         });
 
 
-        it('test parseToken xxx', () =>
+        it('test tokenizer with keywords x', () =>
         {
             let parser = new Parser();
             let tokens: Token[] = [
-                {
-                    "type": "word",
-                    "value": "hallo"
-                },
-                {
-                    "type": "keyword",
-                    "value": "$alert"
-                },
-                {
-                    "type": "bracket_open",
-                    "value": "("
-                },
-                {
-                    "type": "quotes",
-                    "value": "\""
-                },
-                {
-                    "type": "keyword",
-                    "value": "$username"
-                },
-                {
-                    "type": "quotes",
-                    "value": "\""
-                },
-                {
-                    "type": "comma",
-                    "value": ","
-                },
-                {
-                    "type": "quotes",
-                    "value": "\""
-                },
-                {
-                    "type": "word",
-                    "value": "abc"
-                },
-                {
-                    "type": "quotes",
-                    "value": "\""
-                },
-                {
-                    "type": "bracket_close",
-                    "value": ")"
-                },
-                {
-                    "type": "word",
-                    "value": "du"
-                },
-                {
-                    "type": "keyword",
-                    "value": "$random"
-                }
+                {"type": "word", "value": "hallo"},
+                {"type": "keyword", "value": "$alert"},
+                {"type": "bracket_open", "value": "("},
+                {"type": "quotes", "value": "\""},
+                {"type": "keyword", "value": "$username"},
+                {"type": "quotes", "value": "\""},
+                {"type": "comma", "value": ","},
+                {"type": "quotes", "value": "\""},
+                {"type": "word", "value": "abc"},
+                {"type": "keyword", "value": "$points"},
+                {"type": "quotes", "value": "\""},
+                {"type": "bracket_close", "value": ")"},
+                {"type": "word", "value": "du"},
+                {"type": "keyword", "value": "$random"}
             ]
 
             expect(parser.parseProgram(tokens))
@@ -224,38 +185,72 @@ describe('Parser', () =>
                     {
                         "type": "Program",
                         "body": [
-                            {
-                                "type": "StringLiteral",
-                                "value": "hallo"
-                            },
-                            {
-                                "type": "function",
-                                "value": "$alert",
-                                "params": [
-                                    [
-                                        {
-                                            "type": "keyword",
-                                            "value": "$username"
-                                        }
-                                    ],
-                                    [
-                                        {
-                                            "type": "StringLiteral",
-                                            "value": "abc"
-                                        }]
+                            {"type": "StringLiteral", "value": "hallo"},
+                            {"type": "function", "value": "$alert", "params": [
+                                [
+                                    {"type": "keyword", "value": "$username"}
+                                ],
+                                [
+                                    {"type": "StringLiteral", "value": "abc"},
+                                    {"type": "keyword", "value": "$points"}
                                 ]
-                            },
-                            {
-                                "type": "StringLiteral",
-                                "value": "du"
-                            },
-                            {
-                                "type": "keyword",
-                                "value": "$random"
-                            }
+                            ]},
+                            {"type": "StringLiteral", "value": "du"},
+                            {"type": "keyword", "value": "$random"}
                         ]
                     }
+                );
+        });
 
+        it('test parseToken xx', () =>
+        {
+            let parser = new Parser();
+            let tokens: Token[] = [
+                {"type": "word", "value": "hallo"},
+                {"type": "keyword", "value": "$alert"},
+                {"type": "bracket_open", "value": "("},
+                {"type": "quotes", "value": "\""},
+                {"type": "keyword", "value": "$username"},
+                {"type": "quotes", "value": "\""},
+                {"type": "comma", "value": ","},
+                {"type": "quotes", "value": "\""},
+                {"type": "word", "value": "abc"},
+                {"type": "keyword", "value": "$points"},
+                {"type": "bracket_open", "value": "("},
+                {"type": "quotes", "value": "\""},
+                {"type": "word", "value": "a"},
+                {"type": "quotes", "value": "\""},
+                {"type": "bracket_close", "value": ")"},
+                {"type": "quotes", "value": "\""},
+                {"type": "bracket_close", "value": ")"},
+                {"type": "word", "value": "du"},
+                {"type": "keyword", "value": "$random"}
+            ]
+
+            expect(parser.parseProgram(tokens))
+                .to
+                .eql(
+                    {
+                        "type": "Program",
+                        "body": [
+                            {"type": "StringLiteral", "value": "hallo"},
+                            {"type": "function", "value": "$alert", "params": [
+                                    [
+                                        {"type": "keyword", "value": "$username"}
+                                    ],
+                                    [
+                                        {"type": "StringLiteral", "value": "abc"},
+                                        {"type": "function", "value": "$points", "params": [
+                                            [
+                                                {"type": "StringLiteral", "value": "a"}
+                                            ]
+                                        ]}
+                                    ]
+                                ]},
+                            {"type": "StringLiteral", "value": "du"},
+                            {"type": "keyword", "value": "$random"}
+                        ]
+                    }
                 );
         });
     });

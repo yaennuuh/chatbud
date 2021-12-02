@@ -150,12 +150,54 @@ describe('Tokenizer', () =>
 
 
 
-        it('test tokenizer with keywords', () =>
+        it('test tokenizer with keywords x', () =>
         {
             let tokenizer = new Tokenizer();
-            expect(tokenizer.tokenizer('hallo $alert("$username", "abc") du $random'))
+            expect(tokenizer.tokenizer('hallo $alert("$username", "abc $points") du $random'))
                 .to
-                .eql([]);
+                .eql([
+                    {"type": "word", "value": "hallo"},
+                    {"type": "keyword", "value": "$alert"},
+                    {"type": "bracket_open", "value": "("},
+                    {"type": "quotes", "value": "\""},
+                    {"type": "keyword", "value": "$username"},
+                    {"type": "quotes", "value": "\""},
+                    {"type": "comma", "value": ","},
+                    {"type": "quotes", "value": "\""},
+                    {"type": "word", "value": "abc"},
+                    {"type": "keyword", "value": "$points"},
+                    {"type": "quotes", "value": "\""},
+                    {"type": "bracket_close", "value": ")"},
+                    {"type": "word", "value": "du"},
+                    {"type": "keyword", "value": "$random"}
+                ]);
+        });
+        it('test tokenizer with keywords xx', () =>
+        {
+            let tokenizer = new Tokenizer();
+            expect(tokenizer.tokenizer('hallo $alert("$username", "abc $points("a")") du $random'))
+                .to
+                .eql([
+                    {"type": "word", "value": "hallo"},
+                    {"type": "keyword", "value": "$alert"},
+                    {"type": "bracket_open", "value": "("},
+                    {"type": "quotes", "value": "\""},
+                    {"type": "keyword", "value": "$username"},
+                    {"type": "quotes", "value": "\""},
+                    {"type": "comma", "value": ","},
+                    {"type": "quotes", "value": "\""},
+                    {"type": "word", "value": "abc"},
+                    {"type": "keyword", "value": "$points"},
+                    {"type": "bracket_open", "value": "("},
+                    {"type": "quotes", "value": "\""},
+                    {"type": "word", "value": "a"},
+                    {"type": "quotes", "value": "\""},
+                    {"type": "bracket_close", "value": ")"},
+                    {"type": "quotes", "value": "\""},
+                    {"type": "bracket_close", "value": ")"},
+                    {"type": "word", "value": "du"},
+                    {"type": "keyword", "value": "$random"}
+                ]);
         });
     });
 });
