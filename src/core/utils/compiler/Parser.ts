@@ -1,6 +1,6 @@
 import {Token, TokenType} from "./Tokenizer";
 
-export type ParsedType = 'StringLiteral' | 'CallExpression' | 'function' | 'keyword';
+export type ParsedType = 'StringLiteral' | 'function' | 'keyword';
 export type Parsed = { value: string; type: ParsedType; params?: []};
 export interface ParsedObject {position: number; item: Parsed};
 
