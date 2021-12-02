@@ -1,19 +1,15 @@
 export class Emitter {
 
-    emitString = node =>  `${node.value}`
+    emitString = node =>  ` ${node.value}`
 
     emitProgram = node =>  node.body.map(exp => this.emitter(exp)).join(' ');
-
-    emitExpression1 = node => `${node.value}${node.params ? node.params.forEach((val) => {
-        val.map(this.emitter).join(', ');
-    }) : ''}`
 
     emitExpression = node => {
         let inner = '';
 
         if(node.params != undefined && node.params.length > 0){
             node.params.forEach((val) => {
-                inner = inner + val.map(this.emitter).join(', ');
+                inner = inner + val.map(this.emitter).join(' ');
             })
         }
 
@@ -30,7 +26,7 @@ export class Emitter {
             node.value = 'gugus';
         }
 
-        return `${node.value} ${inner}`
+        return `${node.value}${inner}`
     }
 
     emitter = node => {
