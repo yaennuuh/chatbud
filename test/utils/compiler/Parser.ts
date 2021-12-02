@@ -214,7 +214,7 @@ describe('Parser', () =>
                 {"type": "quotes", "value": "\""},
                 {"type": "comma", "value": ","},
                 {"type": "quotes", "value": "\""},
-                {"type": "word", "value": "abc"},
+                {"type": "word", "value": "abc :)"},
                 {"type": "keyword", "value": "$points"},
                 {"type": "bracket_open", "value": "("},
                 {"type": "quotes", "value": "\""},
@@ -223,7 +223,7 @@ describe('Parser', () =>
                 {"type": "bracket_close", "value": ")"},
                 {"type": "quotes", "value": "\""},
                 {"type": "bracket_close", "value": ")"},
-                {"type": "word", "value": "du"},
+                {"type": "word", "value": "(\"du\") :)"},
                 {"type": "keyword", "value": "$random"}
             ]
 
@@ -239,7 +239,7 @@ describe('Parser', () =>
                                         {"type": "keyword", "value": "$username"}
                                     ],
                                     [
-                                        {"type": "StringLiteral", "value": "abc"},
+                                        {"type": "StringLiteral", "value": "abc :)"},
                                         {"type": "function", "value": "$points", "params": [
                                             [
                                                 {"type": "StringLiteral", "value": "a"}
@@ -247,7 +247,7 @@ describe('Parser', () =>
                                         ]}
                                     ]
                                 ]},
-                            {"type": "StringLiteral", "value": "du"},
+                            {"type": "StringLiteral", "value": "(\"du\") :)"},
                             {"type": "keyword", "value": "$random"}
                         ]
                     }
