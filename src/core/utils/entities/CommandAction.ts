@@ -1,33 +1,118 @@
 import { ICommandAction } from "./ICommandAction";
 
 export class CommandAction implements ICommandAction {
-    private id: string;
-    private pluginId: string;
-    private functionName: string;
-    private fieldId: string;
-    private requiredConditions: string[];
+    private _id: string = '';
+    private _pluginId: string = '';
+    private _actionFunction: string = '';
+    private _order: number = 0;
+    private _fieldType: string = '';
+    private _fieldTitle: string = '';
+    private _fieldValue: string = '';
+    private _fieldDataFunction: string = '';
+    private _requiredConditionFunctions: string[] = [];
 
-    constructor(id: string, pluginId: string, functionName: string, fieldId?: string, requiredConditions?: string[]) {
-        this.id = id;
-        this.pluginId = pluginId;
-        this.functionName = functionName;
-        this.fieldId = fieldId;
-        this.requiredConditions = requiredConditions ? (typeof requiredConditions === "string" ? [requiredConditions] : requiredConditions) : [];
+    constructor(action?: Object) {
+        if (action) {
+            this.id = action['id'];
+            this.pluginId = action['pluginId'];
+            this.actionFunction = action['actionFunction'];
+            this.order = action['order'];
+            this.fieldType = action['fieldType'];
+            this.fieldTitle = action['fieldTitle'];
+            this.fieldValue = action['fieldValue'];
+            this.fieldDataFunction = action['fieldDataFunction'];
+            this.requiredConditionFunctions = action['requiredConditionFunctions'];
+        }
     }
 
-    getId(): string {
-        return this.id;
+    public fromDocument(document: Object): ICommandAction {
+        let commandAction = new CommandAction();
+        commandAction.id = document['id'];
+        commandAction.pluginId = document['pluginId'];
+        commandAction.actionFunction = document['actionFunction'];
+        commandAction.order = document['order'];
+        commandAction.fieldType = document['fieldType'];
+        commandAction.fieldTitle = document['fieldTitle'];
+        commandAction.fieldValue = document['fieldValue'];
+        commandAction.fieldDataFunction = document['fieldDataFunction'];
+        commandAction.requiredConditionFunctions = document['requiredConditionFunctions'];
+        return commandAction;
     }
-    getPluginId(): string {
-        return this.pluginId;
+
+    public toDocument(commandAction: ICommandAction): Object {
+        let document = {};
+        document['id'] = commandAction.id;
+        document['pluginId'] = commandAction.pluginId;
+        document['actionFunction'] = commandAction.actionFunction;
+        document['order'] = commandAction.order;
+        document['fieldType'] = commandAction.fieldType;
+        document['fieldTitle'] = commandAction.fieldTitle;
+        document['fieldValue'] = commandAction.fieldValue;
+        document['fieldDataFunction'] = commandAction.fieldDataFunction;
+        document['requiredConditionFunctions'] = commandAction.requiredConditionFunctions;
+        return document;
     }
-    getRequiredConditions(): string[] {
-        return this.requiredConditions;
+
+    public get id(): string {
+        return this._id;
     }
-    getFunctionName(): string {
-        return this.functionName;
+    public set id(value: string) {
+        this._id = value;
     }
-    getFieldId(): string {
-        return this.fieldId;
+
+    public get pluginId(): string {
+        return this._pluginId;
+    }
+    public set pluginId(value: string) {
+        this._pluginId = value;
+    }
+
+    public get actionFunction(): string {
+        return this._actionFunction;
+    }
+    public set actionFunction(value: string) {
+        this._actionFunction = value;
+    }
+
+    public get order(): number {
+        return this._order;
+    }
+    public set order(value: number) {
+        this._order = value;
+    }
+
+    public get fieldType(): string {
+        return this._fieldType;
+    }
+    public set fieldType(value: string) {
+        this._fieldType = value;
+    }
+
+    public get fieldTitle(): string {
+        return this._fieldTitle;
+    }
+    public set fieldTitle(value: string) {
+        this._fieldTitle = value;
+    }
+
+    public get fieldValue(): string {
+        return this._fieldValue;
+    }
+    public set fieldValue(value: string) {
+        this._fieldValue = value;
+    }
+
+    public get fieldDataFunction(): string {
+        return this._fieldDataFunction;
+    }
+    public set fieldDataFunction(value: string) {
+        this._fieldDataFunction = value;
+    }
+
+    public get requiredConditionFunctions(): string[] {
+        return this._requiredConditionFunctions;
+    }
+    public set requiredConditionFunctions(value: string[]) {
+        this._requiredConditionFunctions = value;
     }
 }

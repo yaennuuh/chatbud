@@ -53,6 +53,16 @@ export class PluginManager implements IPluginManager {
         let commandConfigs = [];
         _.each(_.concat(corePluginConfigs, customPluginConfigs), (config) => {
             if (config.hasOwnProperty('command')) {
+                config.command.actions = config.command.actions?.map(action => {
+                    action.pluginId = config.name;
+                    action.fieldValue = '';
+                    return action;
+                });
+                config.command.conditions = config.command.conditions?.map(condition => {
+                    condition.pluginId = config.name;
+                    condition.fieldValue = '';
+                    return condition;
+                });
                 commandConfigs.push({
                     plugin: config.name,
                     command: config.command
