@@ -11,6 +11,7 @@ import { Event } from "../../core/events/Event";
 import { EventData } from "../../core/events/EventData";
 import { ConnectorHelper } from "../../core/connectors/ConnectorHelper";
 import { TwitchPrivateMessage } from "twitch-chat-client/lib/StandardCommands/TwitchPrivateMessage";
+import { EventDataTwitch } from "../../core/events/EventDataTwitch";
 
 class TwitchConnector implements IConnector {
     coreBot: CoreBot = CoreBot.getInstance();
@@ -40,12 +41,12 @@ class TwitchConnector implements IConnector {
 
     register(connectorHelper: ConnectorHelper): string[] {
         this.connectorHelper = connectorHelper;
-        return ['twitch-send-chat-message-as-streamer'];
+        return ['twitch-send-chat-message'];
     }
 
     execute(event: IEvent): void {
         if (this.chatClient && this.channelName) {
-            this.chatClient.say(this.channelName, event.data.message);
+            this.chatClient.say(this.channelName, event.message);
         }
     }
 
@@ -64,8 +65,8 @@ class TwitchConnector implements IConnector {
         return this.apiClient.kraken.channels.getMyChannel();
     }
 
-    createClip = async () => {        
-        this.apiClient.helix.clips.createClip({channelId: this.userId});
+    createClip = async () => {
+        this.apiClient.helix.clips.createClip({ channelId: this.userId });
     }
 
     isChannelLive = async (): Promise<boolean> => {
@@ -73,17 +74,17 @@ class TwitchConnector implements IConnector {
         return !!stream;
     }
 
-    createClipForUserByName = async (username: string) => {        
+    createClipForUserByName = async (username: string) => {
         let user: User = await this.apiClient.kraken.users.getUserByName(username);
         let userChannel: Channel = await user.getChannel();
-        this.apiClient.helix.clips.createClip({channelId: userChannel.id});
+        this.apiClient.helix.clips.createClip({ channelId: userChannel.id });
     }
 
     getChannelPointsRewards = async (): Promise<string[]> => {
         return this.getUser().then(async (user: HelixUser) => {
             let customRewards: HelixCustomReward[] = await this.apiClient.helix.channelPoints.getCustomRewards(user);
             return _.map(customRewards, (reward) => { return reward.title });
-        });        
+        });
     }
 
     getChannel = async (): Promise<HelixChannel> => {
@@ -117,7 +118,7 @@ class TwitchConnector implements IConnector {
         this.connected = false;
     }
 
-    initializeListeners = async(): Promise<void> => {
+    initializeListeners = async (): Promise<void> => {
         await this.initializePubSub();
         await this.listenToChannelRedeem();
         await this.initializeChatListener();
@@ -129,7 +130,7 @@ class TwitchConnector implements IConnector {
             channels: [channel]
         });
         await this.chatClient.connect();
-        
+
         // messages
         const onMessage = this.chatClient.onMessage(this.twitchEventHandlerMessage);
         this.twitchListeners.push(onMessage);
@@ -174,37 +175,33 @@ class TwitchConnector implements IConnector {
 
     twitchEventHandlerMessage = (channel, user, message, msg: TwitchPrivateMessage): void => {
         //if (msg.userInfo.isBroadcaster) return;
-        const eventData = new EventData(message, msg);
-        
-        eventData.displayName = msg.userInfo.displayName;
-        eventData.username = msg.userInfo.userName;
-        eventData.userId = msg.userInfo.userId;
-        eventData.emotes = msg.parseEmotes();
-        eventData.broadcaster = msg.userInfo.isBroadcaster;
-        eventData.mod = eventData.broadcaster || msg.userInfo.isMod;
-        eventData.subscriber = eventData.broadcaster || msg.userInfo.isSubscriber;
-        eventData.founder = eventData.broadcaster || msg.userInfo.isFounder;
-        eventData.vip = eventData.broadcaster || msg.userInfo.isVip;
+        const eventDataTwitch = new EventDataTwitch(message, msg);
 
-        CoreBot.getInstance().notifyPluginsOnEventBusIn(new Event('twitch-chat-message', eventData));
+        eventDataTwitch.displayName = msg.userInfo.displayName;
+        eventDataTwitch.username = msg.userInfo.userName;
+        eventDataTwitch.userId = msg.userInfo.userId;
+        eventDataTwitch.emotes = msg.parseEmotes();
+        eventDataTwitch.broadcaster = msg.userInfo.isBroadcaster;
+        eventDataTwitch.mod = eventDataTwitch.broadcaster || msg.userInfo.isMod;
+        eventDataTwitch.subscriber = eventDataTwitch.broadcaster || msg.userInfo.isSubscriber;
+        eventDataTwitch.founder = eventDataTwitch.broadcaster || msg.userInfo.isFounder;
+        eventDataTwitch.vip = eventDataTwitch.broadcaster || msg.userInfo.isVip;
+
+        CoreBot.getInstance().notifyPluginsOnEventBusIn(new Event('twitch-chat-message', new EventData({ twitch: eventDataTwitch })));
     }
 
     async listenToChannelRedeem() {
         const listener = await this.pubSubClient.onRedemption(this.userId, (message: PubSubRedemptionMessage) => {
-            
-            const eventData = new EventData(message.message);
-            eventData.userId = message.userId;
-            eventData.displayName = message.userDisplayName;
-            eventData.twitchChannelReedem = message;
 
-            CoreBot.getInstance().notifyPluginsOnEventBusIn(new Event('twitch-channel-reedem', eventData));
+            const eventDataTwitch = new EventDataTwitch(message.message);
+            eventDataTwitch.userId = message.userId;
+            eventDataTwitch.displayName = message.userDisplayName;
+            eventDataTwitch.twitchChannelReedem = message;
+
+            CoreBot.getInstance().notifyPluginsOnEventBusIn(new Event('twitch-channel-reedem', new EventData({ twitch: eventDataTwitch })));
         });
         this.listenerList.push(listener);
         console.log('channel redeem ready');
-    }
-
-    sendEventToTwitchAsBot(message: string, originalEvent: IEvent) {
-        CoreBot.getInstance().notifyNotifiableOnEventBusOut(new Event('twitch-send-chat-message', new EventData(message)), originalEvent);
     }
 
     stop(): void {

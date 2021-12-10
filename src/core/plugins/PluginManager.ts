@@ -65,7 +65,8 @@ export class PluginManager implements IPluginManager {
                 });
                 commandConfigs.push({
                     plugin: config.name,
-                    command: config.command
+                    command: config.command,
+                    pluginDisplayName: config['display-name']
                 });
             }
         });

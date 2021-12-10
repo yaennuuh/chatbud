@@ -1,6 +1,5 @@
 import { CommandAction } from "./CommandAction";
 import { CommandCondition } from "./CommandCondition";
-import { CommandField } from "./CommandField";
 import { CommandType } from "./CommandTypeEnum";
 import { ICommand } from "./ICommand";
 import { ICommandAction } from "./ICommandAction";
@@ -40,7 +39,6 @@ export class Command implements ICommand {
     }
 
     public toDocument(command: ICommand): Object {
-        console.log('command incoming', command);
         let document = {};
         document['_id'] = command.id;
         document['commandType'] = command.commandType;
@@ -49,7 +47,6 @@ export class Command implements ICommand {
         document['actions'] = command.actions;
         document['conditions'] = command.conditions;
         document['description'] = command.description;
-        console.log('document outgoing', document);
         return document;
     }
 

@@ -5,6 +5,8 @@ export interface ICommandAction {
     set id(value: string);
     get pluginId(): string;
     set pluginId(value: string);
+    get platform(): string;
+    set platform(value: string);
     get actionFunction(): string;
     set actionFunction(value: string);
     get order(): number;

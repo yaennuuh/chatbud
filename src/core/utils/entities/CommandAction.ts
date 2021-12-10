@@ -3,6 +3,7 @@ import { ICommandAction } from "./ICommandAction";
 export class CommandAction implements ICommandAction {
     private _id: string = '';
     private _pluginId: string = '';
+    private _platform: string = '';
     private _actionFunction: string = '';
     private _order: number = 0;
     private _fieldType: string = '';
@@ -15,6 +16,7 @@ export class CommandAction implements ICommandAction {
         if (action) {
             this.id = action['id'];
             this.pluginId = action['pluginId'];
+            this._platform = action['platform'];
             this.actionFunction = action['actionFunction'];
             this.order = action['order'];
             this.fieldType = action['fieldType'];
@@ -29,6 +31,7 @@ export class CommandAction implements ICommandAction {
         let commandAction = new CommandAction();
         commandAction.id = document['id'];
         commandAction.pluginId = document['pluginId'];
+        commandAction.platform = document['platform'];
         commandAction.actionFunction = document['actionFunction'];
         commandAction.order = document['order'];
         commandAction.fieldType = document['fieldType'];
@@ -43,6 +46,7 @@ export class CommandAction implements ICommandAction {
         let document = {};
         document['id'] = commandAction.id;
         document['pluginId'] = commandAction.pluginId;
+        document['platform'] = commandAction.platform;
         document['actionFunction'] = commandAction.actionFunction;
         document['order'] = commandAction.order;
         document['fieldType'] = commandAction.fieldType;
@@ -65,6 +69,13 @@ export class CommandAction implements ICommandAction {
     }
     public set pluginId(value: string) {
         this._pluginId = value;
+    }
+
+    public get platform(): string {
+        return this._platform;
+    }
+    public set platform(value: string) {
+        this._platform = value;
     }
 
     public get actionFunction(): string {
