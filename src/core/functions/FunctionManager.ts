@@ -22,8 +22,9 @@ export class FunctionManager implements IFunctionManager {
         if (this.instance == null) {
             this.instance = new FunctionManager();
         }
-        
-        FunctionManager.instance.resourcesPath = CoreHelper.getInstance().getResourcesPath('functions');
+
+        const resourcesPath = CoreHelper.getInstance()?.getResourcesPath('functions');
+        FunctionManager.instance.resourcesPath = resourcesPath ? resourcesPath : '';
 
         return this.instance;
     }
@@ -57,6 +58,13 @@ export class FunctionManager implements IFunctionManager {
         const params = _.split(stringToWork.trim().substring(0, stringToWork.lastIndexOf(']')), ',');
         const content = stringToWork.substring(stringToWork.lastIndexOf(']') + 1, stringToWork.length);
         return await functionInstance.execute(params, content, packages, originalEvent);
+    }
+
+    async sendToFunction2(functionKey: string, packages: string[]): Promise<string> {
+        const functionInstance: any = this.functionMap.get(functionKey);
+        // return await functionInstance.execute(packages, originalEvent);
+
+        return await functionInstance.execute(packages);
     }
 
     private async installDependency(functionPath: string) {

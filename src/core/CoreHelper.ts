@@ -5,7 +5,7 @@ import { app } from 'electron';
 
 export class CoreHelper implements ICoreHelper {
     private static instance: CoreHelper;
-    private dataPathFolder = `${app.getPath('userData')}/configs`;
+    private dataPathFolder = `${app ? app.getPath('userData') : '.'}/configs`;
     private dataPath = `${this.dataPathFolder}/configuration.yaml`;
 
     private constructor() {

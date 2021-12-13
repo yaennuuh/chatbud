@@ -1,40 +1,36 @@
+import {FunctionManager} from "../../functions/FunctionManager";
+
+
 export class Emitter {
 
-    emitString = node =>  ` ${node.value}`
+    emitString = node =>  `${node.value}`;
 
-    emitProgram = node =>  node.body.map(exp => this.emitter(exp)).join(' ');
+    emitProgram = async node => (await Promise.all(node.body.map(async exp => await this.emitter(exp)))).join(' ');
 
-    emitExpression = node => {
-        let inner = '';
+    emitExpression = async (node): Promise<string> => {
 
-        if(node.params != undefined && node.params.length > 0){
-            node.params.forEach((val) => {
-                inner = inner + val.map(this.emitter).join(' ');
-            })
-        }
+        const functionManager = FunctionManager.getInstance();
 
-        if(node.value == '$alert'){
-            node.value = '!!!';
-        }
-        if(node.value == '$username'){
-            node.value = 'barrex';
-        }
-        if(node.value == '$points'){
-            node.value = '10';
-        }
-        if(node.value == '$random'){
-            node.value = 'gugus';
-        }
+        if (functionManager.getFunctionKeyWords().find((keyWord: string) => keyWord === node.value.substring(1))) {
 
-        return `${node.value}${inner}`
+
+            return await functionManager.sendToFunction2(node.value.substring(1), node.params);
+
+        } else {
+            return Promise.resolve(node.value);
+        }
     }
 
-    emitter = node => {
+    emitter = async node => {
         switch (node.type) {
-            case 'Program': return this.emitProgram(node);
-            case 'StringLiteral': return this.emitString(node);
-            case 'function': return this.emitExpression(node);
-            case 'keyword': return this.emitExpression(node);
+            case 'Program':
+                return await this.emitProgram(node);
+            case 'StringLiteral':
+                return this.emitString(node);
+            case 'function':
+                return await this.emitExpression(node);
+            case 'keyword':
+                return await this.emitExpression(node);
             default:
                 throw new TypeError(node.type);
         }
