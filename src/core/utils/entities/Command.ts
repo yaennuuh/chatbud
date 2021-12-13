@@ -1,119 +1,103 @@
 import { CommandAction } from "./CommandAction";
 import { CommandCondition } from "./CommandCondition";
-import { CommandField } from "./CommandField";
 import { CommandType } from "./CommandTypeEnum";
 import { ICommand } from "./ICommand";
 import { ICommandAction } from "./ICommandAction";
 import { ICommandCondition } from "./ICommandCondition";
-import { ICommandField } from "./ICommandField";
 
 export class Command implements ICommand {
-    private documentId: string;
-    private command: string;
-    private conditions: ICommandCondition[];
-    private actions: ICommandAction[];
-    private fields: ICommandField[];
-    private description: string;
-    private active: boolean;
-    private commandType: CommandType;
+    private _id: string;
+    private _commandType: CommandType = CommandType.COMMAND;
+    private _command: string = '';
+    private _active: boolean = true;
+    private _actions: ICommandAction[] = [];
+    private _conditions: ICommandCondition[] = [];
+    private _description: string = '';
 
-    constructor(active?: boolean, commandType?: CommandType, documentId?: string) {
-        this.documentId = !!documentId ? documentId : null;
-        this.command = '';
-        this.conditions = [];
-        this.actions = [];
-        this.fields = [];
-        this.description = '';
-        this.active = !!active ? active : false;
-        this.commandType = !!commandType ? commandType : CommandType.COMMAND;
-    }
-
-    getDocumentId = (): string => {
-        return this.documentId;
-    }
-    setDocumentId = (documentId: string): void => {
-        this.documentId = documentId;
+    constructor(command?: Object) {
+        if (command) {
+            this.id = command['_id'];
+            this.commandType = command['commandType'];
+            this.command = command['command'];
+            this.active = command['active'];
+            this.actions = command['actions'];
+            this.conditions = command['conditions'];
+            this.description = command['description'];
+        }
     }
 
-    getCommand = (): string => {
-        return this.command;
-    }
-    setCommand = (command: string): void => {
-        this.command = command;
-    }
-
-    getDescription = (): string => {
-        return this.description;
-    }
-    setDescription = (description: string): void => {
-        this.description = description;
+    public fromDocument(document: Object): ICommand {
+        let command = new Command();
+        command.id = document['_id'];
+        command.commandType = document['commandType'];
+        command.command = document['command'];
+        command.active = document['active'];
+        command.actions = document['actions'].map((action: Object) => new CommandAction(action));
+        command.conditions = document['conditions'].map((condition: Object) => new CommandCondition(condition));
+        command.description = document['description'];
+        return command;
     }
 
-    isActive = (): boolean => {
-        return this.active;
-    }
-    setIsActive = (active: boolean): void => {
-        this.active = active;
-    }
-
-    getCommandType = (): CommandType => {
-        return this.commandType;
-    }
-    setCommandType = (commandType: CommandType): void => {
-        this.commandType = commandType;
+    public toDocument(command: ICommand): Object {
+        let document = {};
+        document['_id'] = command.id;
+        document['commandType'] = command.commandType;
+        document['command'] = command.command;
+        document['active'] = command.active;
+        document['actions'] = command.actions;
+        document['conditions'] = command.conditions;
+        document['description'] = command.description;
+        return document;
     }
 
-    createNewCondition = (id: string, pluginId: string, functionName: string, fieldId?: string): ICommandCondition => {
-        return new CommandCondition(id, pluginId, functionName, fieldId);
-    }
-    getConditions = (): ICommandCondition[] => {
-        return this.conditions;
-    }
-    setConditions = (conditions: ICommandCondition[]): void => {
-        this.conditions = conditions;
-    }
-    addCondition = (condition: ICommandCondition): void => {
-        this.conditions.push(condition);
-    }
-    removeCondition = (condition: ICommandCondition): void => {
-        this.conditions = this.conditions.filter(function(filterCondition, index, arr){ 
-            return filterCondition.getPluginId() != condition.getPluginId() || filterCondition.getId() != condition.getId();
-        });
+    public addActionToCommand(action: ICommandAction): void {
+        this._actions.push(action);
     }
 
-    createNewAction = (id: string, pluginId: string, functionName: string, fieldId?: string, conditions?: string[]): ICommandAction => {
-        return new CommandAction(id, pluginId, functionName, fieldId, conditions);
-    }
-    getActions = (): ICommandAction[] => {
-        return this.actions;
-    }
-    setActions = (actions: ICommandAction[]): void => {
-        this.actions = actions;
-    }
-    addAction = (action: ICommandAction): void => {
-        this.actions.push(action);
-    }
-    removeAction = (action: ICommandAction): void => {
-        this.actions = this.actions.filter(function(filterAction, index, arr){ 
-            return filterAction.getPluginId() != action.getPluginId() || filterAction.getId() != action.getId();
-        });
+    public addConditionToCommand(condition: ICommandCondition): void {
+        this._conditions.push(condition);
     }
 
-    createNewField = (id: string, pluginId: string, value: string): ICommandField => {
-        return new CommandField(id, pluginId, value);
+    public get id(): string {
+        return this._id;
     }
-    getFields = (): ICommandField[] => {
-        return this.fields;
+    public set id(value: string) {
+        this._id = value;
     }
-    setFields = (fields: ICommandField[]): void => {
-        this.fields = fields;
+    public get commandType(): CommandType {
+        return this._commandType;
     }
-    addField = (field: ICommandField): void => {
-        this.fields.push(field);
+    public set commandType(value: CommandType) {
+        this._commandType = value;
     }
-    removeField = (field: ICommandField): void => {
-        this.fields = this.fields.filter(function(filterField, index, arr){ 
-            return filterField.getPluginId() != field.getPluginId() || filterField.getId() != field.getId();
-        });
+    public get command(): string {
+        return this._command;
+    }
+    public set command(value: string) {
+        this._command = value;
+    }
+    public get active(): boolean {
+        return this._active;
+    }
+    public set active(value: boolean) {
+        this._active = value;
+    }
+    public get actions(): ICommandAction[] {
+        return this._actions;
+    }
+    public set actions(value: ICommandAction[]) {
+        this._actions = value;
+    }
+    public get conditions(): ICommandCondition[] {
+        return this._conditions;
+    }
+    public set conditions(value: ICommandCondition[]) {
+        this._conditions = value;
+    }
+    public get description(): string {
+        return this._description;
+    }
+    public set description(value: string) {
+        this._description = value;
     }
 }

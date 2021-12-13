@@ -1,8 +1,0 @@
-name: CommandsManagerPlugin
-display-name: Commands Manager
-ui-html: ui.html
-ui-js: ui.js
-plugin-js: plugin.js
-plugin-api-js: api.js
-data-yaml: data.yaml
-help: dies ist ein test für den commands manager
