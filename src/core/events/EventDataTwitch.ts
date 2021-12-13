@@ -1,7 +1,6 @@
-import { ChatBitsBadgeUpgradeInfo, ChatCommunitySubInfo, ChatRaidInfo, ChatSubExtendInfo, ChatSubGiftInfo, ChatSubGiftUpgradeInfo, ChatSubInfo, ChatSubUpgradeInfo } from "twitch-chat-client/lib";
-import { TwitchPrivateMessage } from "twitch-chat-client/lib/StandardCommands/TwitchPrivateMessage";
-import { ChatPrimeCommunityGiftInfo } from "twitch-chat-client/lib/UserNotices/ChatPrimeCommunityGiftInfo";
-import { PubSubBitsMessage, PubSubRedemptionMessage, PubSubSubscriptionMessage } from "twitch-pubsub-client/lib";
+import { ChatBitsBadgeUpgradeInfo, ChatRaidInfo } from "@twurple/chat";
+import { TwitchPrivateMessage } from "@twurple/chat/lib/commands/TwitchPrivateMessage";
+import { PubSubBitsMessage, PubSubRedemptionMessage, PubSubSubscriptionMessage } from "@twurple/pubsub";
 import { IEventDataTwitch } from "./IEventDataTwitch";
 
 export class EventDataTwitch implements IEventDataTwitch {

@@ -1,18 +1,16 @@
 import { IConnector } from "../../core/connectors/IConnector";
 import { CoreBot } from "../../core/CoreBot";
 import { IEvent } from "../../core/events/IEvent";
-import { ElectronAuthProvider } from 'twitch-electron-auth-provider';
-import { ApiClient, Channel, HelixChannel, HelixCustomReward, HelixStream, HelixUser, PrivilegedChannel, PrivilegedUser, User } from 'twitch';
-import { PubSubBitsMessage, PubSubClient, PubSubSubscriptionMessage } from 'twitch-pubsub-client';
-import { ChatBitsBadgeUpgradeInfo, ChatClient, ChatCommunitySubInfo, ChatRaidInfo, ChatSubExtendInfo, ChatSubGiftInfo, ChatSubGiftUpgradeInfo, ChatSubInfo, ChatSubUpgradeInfo, ChatUser, UserNotice } from 'twitch-chat-client';
-import { PubSubRedemptionMessage } from 'twitch-pubsub-client';
 import * as _ from 'lodash';
 import { Event } from "../../core/events/Event";
 import { EventData } from "../../core/events/EventData";
 import { ConnectorHelper } from "../../core/connectors/ConnectorHelper";
-import { TwitchPrivateMessage } from "twitch-chat-client/lib/StandardCommands/TwitchPrivateMessage";
 import { EventDataTwitch } from "../../core/events/EventDataTwitch";
-import { ChatPrimeCommunityGiftInfo } from "twitch-chat-client/lib/UserNotices/ChatPrimeCommunityGiftInfo";
+import { ElectronAuthProvider } from "@twurple/auth-electron";
+import { ApiClient, HelixChannel, HelixClipCreateParams, HelixCustomReward, HelixStream, HelixUser } from "@twurple/api";
+import { PubSubBitsMessage, PubSubClient, PubSubRedemptionMessage, PubSubSubscriptionMessage } from "@twurple/pubsub";
+import { ChatBitsBadgeUpgradeInfo, ChatClient, ChatRaidInfo, ChatUser, UserNotice } from "@twurple/chat";
+import { TwitchPrivateMessage } from "@twurple/chat/lib/commands/TwitchPrivateMessage";
 
 class TwitchConnector implements IConnector {
     coreBot: CoreBot = CoreBot.getInstance();
@@ -62,30 +60,31 @@ class TwitchConnector implements IConnector {
         return this.connected;
     }
 
-    getOwnChannel = async (): Promise<PrivilegedChannel> => {
-        return this.apiClient.kraken.channels.getMyChannel();
-    }
-
-    createClip = async () => {
-        this.apiClient.helix.clips.createClip({ channelId: this.userId });
+    getOwnChannel = async (): Promise<HelixChannel> => {
+        return this.apiClient.channels.getChannelInfo(this.userId);
     }
 
     isChannelLive = async (): Promise<boolean> => {
-        let stream: HelixStream = await this.apiClient.helix.streams.getStreamByUserId(this.userId);
-        return !!stream;
+        return !!await this.getOwnStream();
     }
 
-    createClipForUserByName = async (username: string) => {
-        let user: User = await this.apiClient.kraken.users.getUserByName(username);
-        let userChannel: Channel = await user.getChannel();
-        this.apiClient.helix.clips.createClip({ channelId: userChannel.id });
+    getOwnStream = async (): Promise<HelixStream> => {
+        return this.apiClient.streams.getStreamByUserId(this.userId);
     }
 
-    getChannelPointsRewards = async (): Promise<string[]> => {
-        return this.getUser().then(async (user: HelixUser) => {
-            let customRewards: HelixCustomReward[] = await this.apiClient.helix.channelPoints.getCustomRewards(user);
-            return _.map(customRewards, (reward) => { return reward.title });
-        });
+    getStreamByUsername = async (username: string): Promise<HelixStream> => {
+        return this.apiClient.streams.getStreamByUserName(username);
+    }
+
+    createClip = async (): Promise<void> => {
+        let helixClipCreateParams: HelixClipCreateParams = {
+            channelId: (await this.getOwnChannel()).id
+        };
+        this.apiClient.clips.createClip(helixClipCreateParams);
+    }
+
+    getChannelPointsRewards = async (): Promise<HelixCustomReward[]> => {
+        return this.apiClient.channelPoints.getCustomRewards(this.userId);
     }
 
     getChannel = async (): Promise<HelixChannel> => {
@@ -112,7 +111,7 @@ class TwitchConnector implements IConnector {
     disconnect = (): void => {
         this.stop();
         this.unbind();
-        this.authProvider.setAccessToken(null);
+        // CORRECT? this.authProvider.setAccessToken(null);
         this.pubSubClient = undefined;
         this.apiClient = undefined;
         this.authProvider = undefined;
@@ -123,13 +122,14 @@ class TwitchConnector implements IConnector {
         await this.initializePubSub();
         await this.listenToChannelRedeem();
         await this.listenToBitsCheer();
-        await this.listenToSubscription();
+        //await this.listenToSubscription();
         await this.initializeChatListener();
     }
 
     initializeChatListener = async (): Promise<void> => {
         const channel = (await this.getUser()).name;
-        this.chatClient = new ChatClient(this.authProvider, {
+        this.chatClient = new ChatClient({
+            authProvider: this.authProvider,
             channels: [channel]
         });
         await this.chatClient.connect();
@@ -208,7 +208,7 @@ class TwitchConnector implements IConnector {
 
     initializePubSub = async (): Promise<void> => {
         this.pubSubClient = new PubSubClient();
-        this.userId = await this.pubSubClient.registerUserListener(this.apiClient);
+        this.userId = await this.pubSubClient.registerUserListener(this.authProvider);
     }
 
     twitchEventHandlerMessage = (channel, user, message, msg: TwitchPrivateMessage): void => {
