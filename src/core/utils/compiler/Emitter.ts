@@ -1,19 +1,28 @@
-import {FunctionManager} from "../../functions/FunctionManager";
+import { FunctionManager } from "../../functions/FunctionManager";
 
 
 export class Emitter {
 
-    emitString = node =>  `${node.value}`;
+    emitString = (node): Promise<string> => {
+        return Promise.resolve(`${node.value}`);
+    };
 
-    emitProgram = async node => (await Promise.all(node.body.map(async exp => await this.emitter(exp)))).join(' ');
+    emitProgram = async (node): Promise<string> => {
+
+        let mappedShit = await Promise.all(node.body.map(async (exp) => {
+            return await this.emitter(exp);
+        }));
+
+        let joinedShit = mappedShit.join(' ');
+
+        return Promise.resolve(joinedShit);
+    };
 
     emitExpression = async (node): Promise<string> => {
 
         const functionManager = FunctionManager.getInstance();
 
         if (functionManager.getFunctionKeyWords().find((keyWord: string) => keyWord === node.value.substring(1))) {
-
-
             return await functionManager.sendToFunction2(node.value.substring(1), node.params);
 
         } else {
@@ -21,16 +30,16 @@ export class Emitter {
         }
     }
 
-    emitter = async node => {
+    emitter = (node): Promise<string> => {
         switch (node.type) {
             case 'Program':
-                return await this.emitProgram(node);
+                return this.emitProgram(node);
             case 'StringLiteral':
                 return this.emitString(node);
             case 'function':
-                return await this.emitExpression(node);
+                return this.emitExpression(node);
             case 'keyword':
-                return await this.emitExpression(node);
+                return this.emitExpression(node);
             default:
                 throw new TypeError(node.type);
         }

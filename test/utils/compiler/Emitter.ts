@@ -1,6 +1,6 @@
 import { expect } from 'chai';
-import {Emitter} from "../../../src/core/utils/compiler/Emitter";
-import {FunctionManager} from "../../../src/core/functions/FunctionManager";
+import { Emitter } from "../../../src/core/utils/compiler/Emitter";
+import { FunctionManager } from "../../../src/core/functions/FunctionManager";
 
 class DummyFunction {
 
@@ -16,18 +16,15 @@ class DummyFunction {
 }
 
 
-describe('Emitter', () =>
-{
-    describe('test emitter', () =>
-    {
+describe('Emitter', () => {
+    describe('test emitter', () => {
         before(() => {
 
             const functionManager = FunctionManager.getInstance();
             functionManager.registerFunction('dummy', new DummyFunction())
         })
 
-        it('test emitString', () =>
-        {
+        it('test emitString', () => {
             let emitter = new Emitter();
             expect(emitter.emitString({
                 "type": "StringLiteral",
@@ -37,31 +34,30 @@ describe('Emitter', () =>
                 .eql("Hello World!");
         });
 
-        it('test emitter simple', () =>
-        {
+        it('test emitter simple', async () => {
             let emitter = new Emitter();
 
-            emitter.emitter({
+            let emitted = await emitter.emitter({
                 "type": "Program",
                 "body": [
-                    {"type": "StringLiteral", "value": "hallo"},
-                    {"type": "function", "value": "$dummy", "params": [
+                    { "type": "StringLiteral", "value": "hallo" },
+                    {
+                        "type": "function", "value": "$dummy", "params": [
                             [
-                                {"type": "keyword", "value": "$username"}
+                                { "type": "keyword", "value": "$username" }
                             ],
                             [
-                                {"type": "StringLiteral", "value": "you got"},
-                                {"type": "keyword", "value": "$points"}
+                                { "type": "StringLiteral", "value": "you got" },
+                                { "type": "keyword", "value": "$points" }
                             ]
-                        ]},
-                    {"type": "StringLiteral", "value": "du"},
-                    {"type": "keyword", "value": "$random"}
+                        ]
+                    },
+                    { "type": "StringLiteral", "value": "du" },
+                    { "type": "keyword", "value": "$random" }
                 ]
-            }).then((asdf) => {
-                expect(asdf)
-                    .to
-                    .eql({});
-            })
+            });
+
+            expect(emitted).to.eql('hallo -dummy- du $random');
 
 
         });
