@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { Emitter } from "../../../src/core/utils/compiler/Emitter";
+import { Resolver } from "../../../src/core/utils/compiler/Resolver";
 import { FunctionManager } from "../../../src/core/functions/FunctionManager";
 
 class DummyFunction {
@@ -8,36 +8,32 @@ class DummyFunction {
         return "dummy";
     }
 
-    // execute(params: string[], originalEvent: any, helper: any): string {
     execute(params: string[]): string {
-
         return '-dummy-';
     }
 }
 
 
-describe('Emitter', () => {
-    describe('test emitter', () => {
+describe('Resolver', () => {
+    describe('test Resolver', () => {
         before(() => {
-
             const functionManager = FunctionManager.getInstance();
             functionManager.registerFunction('dummy', new DummyFunction())
         })
 
-        it('test emitString', () => {
-            let emitter = new Emitter();
-            expect(emitter.emitString({
+        it('test emitString', async () => {
+
+            let s = await Resolver.getInstance().resolveItem({
                 "type": "StringLiteral",
                 "value": "Hello World!",
-            }))
-                .to
-                .eql("Hello World!");
+            });
+
+            expect(s).to.eql("Hello World!");
         });
 
-        it('test emitter simple', async () => {
-            let emitter = new Emitter();
+        it('test Resolver simple', async () => {
 
-            let emitted = await emitter.emitter({
+            let emitted = await Resolver.getInstance().resolve({
                 "type": "Program",
                 "body": [
                     { "type": "StringLiteral", "value": "hallo" },
@@ -58,8 +54,6 @@ describe('Emitter', () => {
             });
 
             expect(emitted).to.eql('hallo -dummy- du $random');
-
-
         });
     });
 });

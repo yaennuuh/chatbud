@@ -1,7 +1,8 @@
 import {Token, TokenType} from "./Tokenizer";
 
-export type ParsedType = 'StringLiteral' | 'function' | 'keyword';
-export type Parsed = { value: string; type: ParsedType; params?: []};
+export type ParsedType = 'Program' | 'StringLiteral' | 'function' | 'keyword';
+export type Parsed = { value: string; type: ParsedType; params?: string[]};
+export type ParsedProgramm = {type: ParsedType; body: Parsed[]};
 export interface ParsedObject {position: number; item: Parsed};
 
 export class Parser {
@@ -54,7 +55,7 @@ export class Parser {
         let token = tokens[counter];
         let node = [];
 
-        while (counter < tokens.length && token.type !== 'quotes') {
+        while (counter < tokens.length && tokens[counter].type !== 'quotes') {
             let parsed = this.parseToken(tokens, counter);
             counter = parsed.position;
             let param = parsed.item;
@@ -96,11 +97,16 @@ export class Parser {
         }
 
         throw new TypeError(token.type);
+        // return {
+        //     position: current + 1,
+        //     item: {type: 'StringLiteral',
+        //         value: 'fuck you',
+        //     }};
     }
 
-    parseProgram(tokens) {
+    parseProgram(tokens): ParsedProgramm {
         let current = 0;
-        let ast = {
+        let ast: ParsedProgramm = {
             type: 'Program',
             body: [],
         };
