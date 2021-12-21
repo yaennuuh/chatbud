@@ -1,4 +1,4 @@
-import { ChatBitsBadgeUpgradeInfo, ChatRaidInfo } from "@twurple/chat";
+import { ChatBitsBadgeUpgradeInfo, ChatCommunitySubInfo, ChatRaidInfo } from "@twurple/chat";
 import { TwitchPrivateMessage } from "@twurple/chat/lib/commands/TwitchPrivateMessage";
 import { PubSubBitsMessage, PubSubRedemptionMessage, PubSubSubscriptionMessage } from "@twurple/pubsub";
 import { IEventDataTwitch } from "./IEventDataTwitch";
@@ -29,6 +29,7 @@ export class EventDataTwitch implements IEventDataTwitch {
     timeoutDuration?: number;
     bannedUser?: string;
     bitsBadeUpgradeInfo?: ChatBitsBadgeUpgradeInfo;
+    communitySubGiftInfo?: ChatCommunitySubInfo;
     
     twitchChannelReedem?: PubSubRedemptionMessage;
     bitsCheer?: PubSubBitsMessage;

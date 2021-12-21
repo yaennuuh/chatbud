@@ -24,6 +24,10 @@ class TwitchConnectorApi {
         return this.connector.getOwnChannel();
     }
 
+    getTotalFollows = async(userId: string): Promise<number> => {
+        return this.connector.getTotalFollows(userId);
+    }
+
     getChannelPointsRewards = async(): Promise<HelixCustomReward[]> => {
         return await this.connector.getChannelPointsRewards();
     }

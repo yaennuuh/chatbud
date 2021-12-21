@@ -33,13 +33,18 @@ class TwitchConnectorUI {
         this.showUserInformation(channel);
     }
 
-    showUserInformation = (channel: any): void => {
+    showUserInformation = async (channel: any): Promise<void> => {
+        const broadcaster = await channel.getBroadcaster();
+        const game = await channel.getGame();
+        const follows = await this.api.getTotalFollows(broadcaster.id);
         document.getElementById("userinformation").style.display = "block";
-        (<HTMLImageElement>document.getElementById("user-information-logo")).src = channel.logo;
-        document.getElementById("user-information-name").innerHTML = channel.displayName;
-        document.getElementById("user-information-followers").innerHTML = channel.followers;
-        document.getElementById("user-information-views").innerHTML = channel.views;
-        document.getElementById("user-information-broadcaster-type").innerHTML = channel.broadcasterType;
+        (<HTMLImageElement>document.getElementById("user-information-logo")).src = broadcaster.profilePictureUrl;
+        document.getElementById("user-information-name").innerHTML = broadcaster.displayName;
+        document.getElementById("user-information-description").innerHTML = broadcaster.description;
+        document.getElementById("user-information-followers").innerHTML = follows;
+        document.getElementById("user-information-views").innerHTML = broadcaster.views;
+        document.getElementById("user-information-broadcaster-type").innerHTML = broadcaster.broadcasterType;
+        console.log(JSON.stringify(game));
     }
 
     hideUserInformation = (): void => {
