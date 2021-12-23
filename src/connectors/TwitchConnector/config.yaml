@@ -1,6 +1,0 @@
-name: TwitchConnector
-display-name: Twitch
-webcomponent-tag: chatbud-twitch-connector
-webcomponent-script: webcomponent.js
-connector-js: connector.js
-connector-api-js: api.js
