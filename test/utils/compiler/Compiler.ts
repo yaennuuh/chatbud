@@ -59,7 +59,7 @@ describe('Compiler', () =>
         });
 
         it('test compile nested function', async () => {
-            let s = await Compiler.getInstance().compileString('$dummy("first $dummy("second $username", "secondError")", "firstError")');
+            let s = await Compiler.getInstance().compileString('$dummy("first, $dummy("second $username" , "secondError")", "firstError")');
             expect(s).to.eql("my params: 'hallo sam', 'error'");
         });
     });
