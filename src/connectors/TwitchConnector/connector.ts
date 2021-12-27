@@ -1,18 +1,17 @@
 import { IConnector } from "../../core/connectors/IConnector";
 import { CoreBot } from "../../core/CoreBot";
 import { IEvent } from "../../core/events/IEvent";
-import { ElectronAuthProvider } from 'twitch-electron-auth-provider';
-import { ApiClient, Channel, HelixChannel, HelixCustomReward, HelixStream, HelixUser, PrivilegedChannel, PrivilegedUser, User } from 'twitch';
-import { PubSubBitsMessage, PubSubClient, PubSubSubscriptionMessage } from 'twitch-pubsub-client';
-import { ChatBitsBadgeUpgradeInfo, ChatClient, ChatCommunitySubInfo, ChatRaidInfo, ChatSubExtendInfo, ChatSubGiftInfo, ChatSubGiftUpgradeInfo, ChatSubInfo, ChatSubUpgradeInfo, ChatUser, UserNotice } from 'twitch-chat-client';
-import { PubSubRedemptionMessage } from 'twitch-pubsub-client';
 import * as _ from 'lodash';
 import { Event } from "../../core/events/Event";
 import { EventData } from "../../core/events/EventData";
 import { ConnectorHelper } from "../../core/connectors/ConnectorHelper";
-import { TwitchPrivateMessage } from "twitch-chat-client/lib/StandardCommands/TwitchPrivateMessage";
 import { EventDataTwitch } from "../../core/events/EventDataTwitch";
-import { ChatPrimeCommunityGiftInfo } from "twitch-chat-client/lib/UserNotices/ChatPrimeCommunityGiftInfo";
+import { ElectronAuthProvider } from "@twurple/auth-electron";
+import { ApiClient, HelixChannel, HelixClip, HelixClipCreateParams, HelixCustomReward, HelixStream, HelixUser } from "@twurple/api";
+import { PubSubBitsMessage, PubSubClient, PubSubRedemptionMessage, PubSubSubscriptionMessage } from "@twurple/pubsub";
+import { ChatBitsBadgeUpgradeInfo, ChatClient, ChatCommunitySubInfo, ChatRaidInfo, ChatUser, UserNotice } from "@twurple/chat";
+import { TwitchPrivateMessage } from "@twurple/chat/lib/commands/TwitchPrivateMessage";
+import { async } from "rxjs";
 
 class TwitchConnector implements IConnector {
     coreBot: CoreBot = CoreBot.getInstance();
@@ -28,13 +27,18 @@ class TwitchConnector implements IConnector {
     scopes: string[] = [
         'bits:read',
         'channel:read:redemptions',
-        'channel:manage:redemptions',
         'channel:read:subscriptions',
+        'channel:manage:redemptions',
+        'channel_subscriptions',
+        'channel:moderate',
         'chat:edit',
-        'chat:read'
+        'chat:read',
+        'whispers:edit',
+        'whispers:read'
     ];
     data;
     channelName;
+    subGiftCounts = new Map<string | undefined, number>();
 
     async start(): Promise<void> {
         await this.startFunction();
@@ -62,30 +66,63 @@ class TwitchConnector implements IConnector {
         return this.connected;
     }
 
-    getOwnChannel = async (): Promise<PrivilegedChannel> => {
-        return this.apiClient.kraken.channels.getMyChannel();
+    getOwnChannel = async (): Promise<HelixChannel> => {
+        return this.apiClient.channels.getChannelInfo(this.userId);
     }
 
-    createClip = async () => {
-        this.apiClient.helix.clips.createClip({ channelId: this.userId });
+    getTotalFollows = async (userId: string): Promise<number> => {
+        let follows = await this.apiClient.users.getFollows({
+            followedUser: userId,
+            limit: 1,
+        });
+        return follows.total;
+    }
+
+    getSubscriptions = async (userId: string): Promise<any> => {
+        const subs = await this.apiClient.subscriptions.getSubscriptionsPaginated(userId).getAll();
+        const tier1SubCount = subs.reduce((result, sub) => result + (sub.tier === '1000' ? 1 : 0), 0);
+        const tier2SubCount = subs.reduce((result, sub) => result + (sub.tier === '2000' ? 1 : 0), 0);
+        const tier3SubCount = subs.reduce((result, sub) => result + (sub.tier === '3000' ? 1 : 0), 0);
+        const totalSubCount = subs.length;
+        return {
+            tier1: tier1SubCount,
+            tier2: tier2SubCount,
+            tier3: tier3SubCount,
+            totalSubCount
+        };
     }
 
     isChannelLive = async (): Promise<boolean> => {
-        let stream: HelixStream = await this.apiClient.helix.streams.getStreamByUserId(this.userId);
-        return !!stream;
+        return !!await this.getOwnStream();
     }
 
-    createClipForUserByName = async (username: string) => {
-        let user: User = await this.apiClient.kraken.users.getUserByName(username);
-        let userChannel: Channel = await user.getChannel();
-        this.apiClient.helix.clips.createClip({ channelId: userChannel.id });
+    getOwnStream = async (): Promise<HelixStream> => {
+        return this.apiClient.streams.getStreamByUserId(this.userId);
     }
 
-    getChannelPointsRewards = async (): Promise<string[]> => {
-        return this.getUser().then(async (user: HelixUser) => {
-            let customRewards: HelixCustomReward[] = await this.apiClient.helix.channelPoints.getCustomRewards(user);
-            return _.map(customRewards, (reward) => { return reward.title });
-        });
+    getStreamByUsername = async (username: string): Promise<HelixStream> => {
+        return this.apiClient.streams.getStreamByUserName(username);
+    }
+
+    createClip = async (): Promise<void> => {
+        let helixClipCreateParams: HelixClipCreateParams = {
+            channelId: (await this.getOwnChannel()).id
+        };
+        this.apiClient.clips.createClip(helixClipCreateParams);
+    }
+
+    getClipForUser = async(userId: string): Promise<any> => {
+        const clips = await this.apiClient.clips.getClipsForBroadcasterPaginated(userId).getAll();
+        return {
+            numberOfClips: clips.length,
+            mostViewedClip: clips.reduce((prev, current) => (prev.views > current.views) ? prev : current),
+            totalClipViews: clips.map(clip => clip.views).reduce((partial_sum, a) => partial_sum + a, 0),
+            latestClip: clips[clips.length-1]
+        };
+    }
+
+    getChannelPointsRewards = async (): Promise<HelixCustomReward[]> => {
+        return this.apiClient.channelPoints.getCustomRewards(this.userId);
     }
 
     getChannel = async (): Promise<HelixChannel> => {
@@ -112,7 +149,7 @@ class TwitchConnector implements IConnector {
     disconnect = (): void => {
         this.stop();
         this.unbind();
-        this.authProvider.setAccessToken(null);
+        // CORRECT? this.authProvider.setAccessToken(null);
         this.pubSubClient = undefined;
         this.apiClient = undefined;
         this.authProvider = undefined;
@@ -129,7 +166,8 @@ class TwitchConnector implements IConnector {
 
     initializeChatListener = async (): Promise<void> => {
         const channel = (await this.getUser()).name;
-        this.chatClient = new ChatClient(this.authProvider, {
+        this.chatClient = new ChatClient({
+            authProvider: this.authProvider,
             channels: [channel]
         });
         await this.chatClient.connect();
@@ -181,6 +219,17 @@ class TwitchConnector implements IConnector {
                 twitch: eventDataTwitch
             })));
         });
+        this.chatClient.onCommunitySub((channel: string, user: string, subInfo: ChatCommunitySubInfo, msg: UserNotice) => {
+            const eventDataTwitch = this._mapChatUserToEventDataTwitch(msg.userInfo, new EventDataTwitch(msg.message.value));
+            eventDataTwitch.emotes = msg.parseEmotes();
+            const previousGiftCount = this.subGiftCounts.get(msg.userInfo.userId) ?? 0;
+            this.subGiftCounts.set(msg.userInfo.userId, previousGiftCount + subInfo.count);
+            subInfo.count += previousGiftCount;
+            eventDataTwitch.communitySubGiftInfo = subInfo;
+            CoreBot.getInstance().notifyPluginsOnEventBusIn(new Event('twitch-community-sub-gift', new EventData({
+                twitch: eventDataTwitch
+            })));
+        });
         this.chatClient.onTimeout((channel: string, user: string, duration: number) => {
             const eventDataTwitch = new EventDataTwitch('');
             eventDataTwitch.timeoutedUser = user;
@@ -208,7 +257,7 @@ class TwitchConnector implements IConnector {
 
     initializePubSub = async (): Promise<void> => {
         this.pubSubClient = new PubSubClient();
-        this.userId = await this.pubSubClient.registerUserListener(this.apiClient);
+        this.userId = await this.pubSubClient.registerUserListener(this.authProvider);
     }
 
     twitchEventHandlerMessage = (channel, user, message, msg: TwitchPrivateMessage): void => {
@@ -218,7 +267,7 @@ class TwitchConnector implements IConnector {
         CoreBot.getInstance().notifyPluginsOnEventBusIn(new Event('twitch-chat-message', new EventData({ twitch: eventDataTwitch })));
     }
 
-    async listenToChannelRedeem() {
+    async listenToChannelRedeem(): Promise<void> {
         const listener = await this.pubSubClient.onRedemption(this.userId, (message: PubSubRedemptionMessage) => {
 
             const eventDataTwitch = new EventDataTwitch(message.message);
@@ -231,7 +280,7 @@ class TwitchConnector implements IConnector {
         this.listenerList.push(listener);
         console.log('channel redeem ready');
     }
-    async listenToBitsCheer() {
+    async listenToBitsCheer(): Promise<void> {
         const listener = await this.pubSubClient.onBits(this.userId, (message: PubSubBitsMessage) => {
 
             const eventDataTwitch = new EventDataTwitch(message.message);
@@ -245,15 +294,19 @@ class TwitchConnector implements IConnector {
         console.log('channel bits ready');
     }
 
-    async listenToSubscription() {
+    async listenToSubscription(): Promise<void> {
         const listener = await this.pubSubClient.onSubscription(this.userId, (message: PubSubSubscriptionMessage) => {
+            const previousGiftCount = this.subGiftCounts.get(message.gifterId) ?? 0;
+            if (previousGiftCount > 0) {
+                this.subGiftCounts.set(message.gifterId, previousGiftCount - 1);
+            } else {
+                const eventDataTwitch = new EventDataTwitch(message.message?.message);
+                eventDataTwitch.userId = message.gifterId;
+                eventDataTwitch.displayName = message.gifterDisplayName;
+                eventDataTwitch.subscription = message;
 
-            const eventDataTwitch = new EventDataTwitch(message.message?.message);
-            eventDataTwitch.userId = message.userId;
-            eventDataTwitch.displayName = message.userDisplayName;
-            eventDataTwitch.subscription = message;
-
-            CoreBot.getInstance().notifyPluginsOnEventBusIn(new Event('twitch-subscription', new EventData({ twitch: eventDataTwitch })));
+                CoreBot.getInstance().notifyPluginsOnEventBusIn(new Event('twitch-subscription', new EventData({ twitch: eventDataTwitch })));
+            }
         });
         this.listenerList.push(listener);
         console.log('channel subs ready');

@@ -42,6 +42,12 @@ export class ConnectorManager implements IConnectorManager {
         });
     }
 
+    public unloadConnectors(): void {
+        this.connectorApi = new Map();
+        this.connectors = new Map();
+        this.connectorHelpers = new Map();
+    }
+
     public loadConnectorConfigByName(connectorName: string): any {
         const configFiles: string[] = glob.sync(`${__dirname}/../../connectors/${connectorName}/config.yaml`, null);
         if (fs.existsSync(configFiles[0])) {

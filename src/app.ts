@@ -22,12 +22,11 @@ globalAny['pluginManager'] = PluginManager.getInstance();
 globalAny['connectorManager'] = ConnectorManager.getInstance();
 globalAny['coreHelper'] = CoreHelper.getInstance();
 
-const loadAllConnectors = () => {
-    const connectorManager: IConnectorManager = ConnectorManager.getInstance();
-    connectorManager.loadConnectors();
-}
-
 const loadAll = () => {
+    const connectorManager: IConnectorManager = ConnectorManager.getInstance();
+    connectorManager.unloadConnectors();
+    connectorManager.loadConnectors();
+
     const pluginManager: IPluginManager = PluginManager.getInstance();
     pluginManager.unloadAllPlugins();
     pluginManager.loadCorePlugins();
@@ -47,7 +46,6 @@ ipcMain.on('reload-application', loadAll);
 
 setTimeout(() => {
     if (Main.mainWindow.webContents.getURL().indexOf('loading.html') != -1) {
-        loadAllConnectors();
         loadAll();
     }
 }, 5000);

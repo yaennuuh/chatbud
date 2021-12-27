@@ -56,21 +56,22 @@ function addItemToDropdown(dropdownItem, config, resourcesPath) {
         itemATag.appendChild(document.createTextNode(name));
         itemElement.appendChild(itemATag);
         itemElement.addEventListener('click', () => {
-            if (config && config.hasOwnProperty('stencil-tag') && config.hasOwnProperty('stencil') && config.hasOwnProperty('stencil-esm')) {
-                let stencilContainer = document.getElementById('stencil-container');
-                stencilContainer.innerHTML = '';
-
-                var script2 = document.createElement("script");
+            if (config && config.hasOwnProperty('webcomponent-tag') && config.hasOwnProperty('webcomponent-script')) {
+                let webcomponentContainer = document.getElementById('webcomponent-container');
+                webcomponentContainer.innerHTML = '';
+                
+                /*var script2 = document.createElement("script");
                 script2.type = "module";
-                script2.src = resourcesPath + '/' + config['name'] + '/' + config['stencil-esm'];
-                stencilContainer.appendChild(script2);
+                let test = resourcesPath + '/' + config['name'] + '/' + config['webcomponent-script'];
+                script2.src = test.split('.js')[0].concat('.esm.js');
+                webcomponentContainer.appendChild(script2);*/
 
                 var script = document.createElement("script");
-                script.noModule = true;
-                script.src = resourcesPath + '/' + config['name'] + '/' + config['stencil'];
-                stencilContainer.appendChild(script);
+                //script.noModule = true;
+                script.src = resourcesPath + '/' + config['name'] + '/' + config['webcomponent-script'];
+                webcomponentContainer.appendChild(script);
 
-                loadStencilTag(config);
+                loadWebcomponentTag(config);
             } else {
                 loadCustomTag('custom', config['name']);
             }
@@ -81,6 +82,7 @@ function addItemToDropdown(dropdownItem, config, resourcesPath) {
 }
 
 function loadCustomTag(prefix, tagName) {
+    document.getElementById('webcomponent-container').innerHTML = '';
     currentPlugin = tagName;
     currentPluginType = prefix;
     tagName = _.kebabCase(prefix + '-' + tagName);
@@ -90,7 +92,7 @@ function loadCustomTag(prefix, tagName) {
         document.createElement(tagName));
 }
 
-async function loadStencilTag(config) {
+async function loadWebcomponentTag(config) {
     let content = document.getElementById('content');
     content.innerHTML = '';
     /*const pluginManager = remote.getGlobal('pluginManager');
@@ -99,8 +101,8 @@ async function loadStencilTag(config) {
             return pluginManager.getPluginHelperByName(pluginName)
         }
     };*/
-    let stencilTag = document.createElement(config['stencil-tag']);
-    content.appendChild(stencilTag);
+    let webcomponentTag = document.createElement(config['webcomponent-tag']);
+    content.appendChild(webcomponentTag);
 }
 
 function createWebComponent(pageName) {
@@ -202,13 +204,10 @@ function loadConnectorConfigs(resourcesPath) {
             const file = fs.readFileSync(configPath, 'utf8');
             const config = YAML.parse(file);
 
-            if (config &&
-                config.hasOwnProperty('name') &&
-                ((config.hasOwnProperty('ui-html') &&
-                    config.hasOwnProperty('ui-js')) ||
-                    (config.hasOwnProperty('stencil-tag') &&
-                        config.hasOwnProperty('stencil') &&
-                        config.hasOwnProperty('stencil-esm'))
+            if (config && config.hasOwnProperty('name') &&
+                (
+                    (config.hasOwnProperty('ui-html') && config.hasOwnProperty('ui-js')) ||
+                    (config.hasOwnProperty('webcomponent-tag') && config.hasOwnProperty('webcomponent-script'))
                 )
             ) {
                 // Load plugin helper once so it's available
@@ -332,15 +331,11 @@ function loadPluginConfigs(resourcesPath) {
             const file = fs.readFileSync(configPath, 'utf8')
             const parsedConfig = YAML.parse(file);
 
-            if (parsedConfig &&
-                parsedConfig.hasOwnProperty('name') &&
-                ((parsedConfig.hasOwnProperty('ui-html') &&
-                    parsedConfig.hasOwnProperty('ui-js')) ||
-                    (parsedConfig.hasOwnProperty('stencil-tag') &&
-                        parsedConfig.hasOwnProperty('stencil') &&
-                        parsedConfig.hasOwnProperty('stencil-esm'))
-                )
-            ) {
+            if (parsedConfig && parsedConfig.hasOwnProperty('name') &&
+                (
+                    (parsedConfig.hasOwnProperty('ui-html') && parsedConfig.hasOwnProperty('ui-js')) ||
+                    (parsedConfig.hasOwnProperty('webcomponent-tag') && parsedConfig.hasOwnProperty('webcomponent-script'))
+            )) {
                 // Load plugin helper once so it's available
                 const pluginManager = remote.getGlobal('pluginManager');
                 pluginManager.loadPluginHelper(parsedConfig);
