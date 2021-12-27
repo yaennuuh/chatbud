@@ -52,22 +52,19 @@ export class FunctionManager implements IFunctionManager {
         return Array.from(this.functionMap.keys());
     }
 
-    async sendToFunction(functionKey: string, packages: string[], originalEvent: IEvent): Promise<string[]> {
+    // async sendToFunction(functionKey: string, packages: string[], originalEvent: IEvent): Promise<string[]> {
+    //     const functionInstance: any = this.functionMap.get(functionKey);
+    //     const firstPack = packages.shift();
+    //     const stringToWork = firstPack.substring(functionKey.length+3, firstPack.length - (functionKey.length+4));
+    //     const params = _.split(stringToWork.trim().substring(0, stringToWork.lastIndexOf(']')), ',');
+    //     const content = stringToWork.substring(stringToWork.lastIndexOf(']') + 1, stringToWork.length);
+    //     return await functionInstance.execute(params, content, packages, originalEvent);
+    // }
+
+    async sendToFunction(functionKey: string, parsedItems: string[], originalEvent: IEvent): Promise<string> {
         const functionInstance: any = this.functionMap.get(functionKey);
-        const firstPack = packages.shift();
-        const stringToWork = firstPack.substring(functionKey.length+3, firstPack.length - (functionKey.length+4));
-        const params = _.split(stringToWork.trim().substring(0, stringToWork.lastIndexOf(']')), ',');
-        const content = stringToWork.substring(stringToWork.lastIndexOf(']') + 1, stringToWork.length);
-        return await functionInstance.execute(params, content, packages, originalEvent);
-    }
 
-    async sendToFunction2(functionKey: string, parsedItems: string[]): Promise<string> {
-        const functionInstance: any = this.functionMap.get(functionKey);
-        // return await functionInstance.execute(packages, originalEvent);
-
-
-
-        return await functionInstance.execute(parsedItems);
+        return await functionInstance.execute(parsedItems, originalEvent);
     }
 
     private async installDependency(functionPath: string) {

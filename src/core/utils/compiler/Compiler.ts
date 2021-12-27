@@ -1,6 +1,7 @@
 import {Tokenizer} from "./Tokenizer";
 import {Parsed, Parser} from "./Parser";
 import {Resolver} from "./Resolver";
+import {IEvent} from "../../events/IEvent";
 
 export class Compiler {
 
@@ -16,10 +17,10 @@ export class Compiler {
         return this.instance;
     }
 
-    public async compileString(input: string): Promise<string> {
+    public async compileString(input: string, originalEvent: IEvent): Promise<string> {
         let tokens = new Tokenizer().tokenizer(input);
         let program = new Parser().parseProgram(tokens);
-        let output = Resolver.getInstance().resolve(program);
+        let output = Resolver.getInstance().resolve(program, originalEvent);
 
         // 'fix fertiger string';
         return output;

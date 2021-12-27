@@ -1,5 +1,6 @@
 import { FunctionManager } from "../../functions/FunctionManager";
 import {Parsed, ParsedProgramm} from "./Parser";
+import {IEvent} from "../../events/IEvent";
 
 export class Resolver {
     private static instance: Resolver;
@@ -18,9 +19,9 @@ export class Resolver {
         return Promise.resolve(`${parsedItem.value}`);
     }
 
-    private async resolveProgram (parsedItem: ParsedProgramm): Promise<string>{
+    private async resolveProgram (parsedItem: ParsedProgramm, originalEvent: IEvent): Promise<string>{
         let mappedShit = await Promise.all(parsedItem.body.map(async (exp) => {
-            return await this.resolveItem(exp);
+            return await this.resolveItem(exp, originalEvent);
         }));
 
         let joinedShit = mappedShit.join(' ');
@@ -28,7 +29,7 @@ export class Resolver {
         return Promise.resolve(joinedShit);
     }
 
-    private async resolveExpression (parsedItem: Parsed): Promise<string>{
+    private async resolveExpression (parsedItem: Parsed, originalEvent: IEvent): Promise<string>{
         const functionManager = FunctionManager.getInstance();
 
         if (functionManager.getFunctionKeyWords().find((keyWord: string) => keyWord === parsedItem.value.substring(1))) {
@@ -36,7 +37,7 @@ export class Resolver {
 
             let strings = parsedItem.params ? this.joinParamsToString(parsedItem.params) : [];
 
-            return await functionManager.sendToFunction2(parsedItem.value.substring(1), strings);
+            return await functionManager.sendToFunction(parsedItem.value.substring(1), strings, originalEvent);
 
         } else {
             return Promise.resolve(parsedItem.value);
@@ -77,23 +78,23 @@ export class Resolver {
         return tmp.join(' ');
     }
 
-    public resolve(parsedItem: ParsedProgramm): Promise<string>{
+    public resolve(parsedItem: ParsedProgramm, originalEvent: IEvent): Promise<string>{
         switch (parsedItem.type) {
             case 'Program':
-                return this.resolveProgram(parsedItem);
+                return this.resolveProgram(parsedItem, originalEvent);
             default:
                 throw new TypeError(parsedItem.type);
         }
     }
 
-    public resolveItem(parsedItem: Parsed): Promise<string>{
+    public resolveItem(parsedItem: Parsed, originalEvent: IEvent): Promise<string>{
         switch (parsedItem.type) {
             case 'StringLiteral':
                 return this.resolveString(parsedItem);
             case 'function':
-                return this.resolveExpression(parsedItem);
+                return this.resolveExpression(parsedItem, originalEvent);
             case 'keyword':
-                return this.resolveExpression(parsedItem);
+                return this.resolveExpression(parsedItem, originalEvent);
             default:
                 throw new TypeError(parsedItem.type);
         }
