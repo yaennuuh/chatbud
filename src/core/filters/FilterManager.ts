@@ -53,7 +53,7 @@ export class FilterManager implements IFilterManager {
 
     applyFilter(filterKeyword: string, event: IEvent, originalEvent: IEvent): string {
         const filterInstance: any = this.filterMap.get(filterKeyword);
-        return event.data.message.split(`$${filterKeyword}`).join(filterInstance.getReplaceString(event, originalEvent));
+        return event.message.split(`$${filterKeyword}`).join(filterInstance.getReplaceString(event, originalEvent));
     }
 
     private async installDependency(functionPath: string) {

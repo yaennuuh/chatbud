@@ -1,4 +1,4 @@
-import { async } from "rxjs";
+import { HelixCustomReward } from "@twurple/api";
 
 class TwitchConnectorApi {
 
@@ -24,8 +24,20 @@ class TwitchConnectorApi {
         return this.connector.getOwnChannel();
     }
 
-    getChannelPointsRewards = async(): Promise<string[]> => {
+    getTotalFollows = async(userId: string): Promise<number> => {
+        return this.connector.getTotalFollows(userId);
+    }
+
+    getSubscriptions = async(userId: string): Promise<any> => {
+        return this.connector.getSubscriptions(userId);
+    }
+
+    getChannelPointsRewards = async(): Promise<HelixCustomReward[]> => {
         return await this.connector.getChannelPointsRewards();
+    }
+
+    getClipForUser = async(userId: string): Promise<any> => {
+        return this.connector.getClipForUser(userId);
     }
 
     createClip = () => {

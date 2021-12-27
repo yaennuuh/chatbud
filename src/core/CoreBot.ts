@@ -58,22 +58,22 @@ export class CoreBot implements ICoreBot {
     }
 
     async notifyNotifiableOnEventBusOut(event: IEvent, originalEvent: IEvent): Promise<void> {
-        let splittedMessage = originalEvent?.data?.message?.split(' ');
-        let commandResponse = (' ' + event.data.message).slice(1);
+        let splittedMessage = event?.message?.split(' ');
+        let commandResponse = (' ' + event.message).slice(1);
         for (let index = 1; index < splittedMessage?.length; index++) {
             const element = splittedMessage[index];
             if (commandResponse.indexOf(`$${index}`) != -1) {
                 commandResponse = commandResponse.split(`$${index}`).join(element);
             }
         }
-        event.data.message = commandResponse;
+        event.message = commandResponse;
 
         let filterKeywordList = this.filterManager.getFilterKeyWords();
 
         if (filterKeywordList && filterKeywordList.length) {
             _.each(filterKeywordList, (filterKeyword) => {
-                if (event.data.message.indexOf(filterKeyword) != -1) {
-                    event.data.message = this.filterManager.applyFilter(filterKeyword, event, originalEvent);
+                if (event.message.indexOf(filterKeyword) != -1) {
+                    event.message = this.filterManager.applyFilter(filterKeyword, event, originalEvent);
                 }
             });
         }
@@ -81,9 +81,9 @@ export class CoreBot implements ICoreBot {
         let functionKeywordList = this.functionManager.getFunctionKeyWords();
 
         if (functionKeywordList && functionKeywordList.length) {
-            let packages: string[] = this.packaginator(event.data.message, functionKeywordList);
+            let packages: string[] = this.packaginator(event.message, functionKeywordList);
 
-            event.data.message = await this.dispatchPackages(packages, functionKeywordList, '', event);
+            event.message = await this.dispatchPackages(packages, functionKeywordList, '', event);
         }
 
         this.eventBusOut.notify(event);

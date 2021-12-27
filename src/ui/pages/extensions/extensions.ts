@@ -39,7 +39,7 @@ class CoreExtensionsPageUI {
                         return YAML.parse(file);
                     }
                 });
-                this._populateTable('plugins', pluginConfigs.flatMap(config => {
+                this._populateTable('plugins', pluginConfigs.map(config => {
                     return {
                         identifier: config['name'],
                         name: config['display-name']
@@ -59,7 +59,7 @@ class CoreExtensionsPageUI {
 
     loadFunctionsList = () => {
         if (this.functionsPath?.length) {
-            this._populateTable('functions', fs.readdirSync(this.functionsPath).flatMap(name => {
+            this._populateTable('functions', fs.readdirSync(this.functionsPath).map(name => {
                 return {
                     identifier: name,
                     name: name
@@ -78,7 +78,7 @@ class CoreExtensionsPageUI {
 
     loadFiltersList = () => {
         if (this.filtersPath?.length) {
-            this._populateTable('filters', fs.readdirSync(this.filtersPath).flatMap(name => {
+            this._populateTable('filters', fs.readdirSync(this.filtersPath).map(name => {
                 return {
                     identifier: name,
                     name: name
@@ -97,7 +97,7 @@ class CoreExtensionsPageUI {
 
     loadDatabasesList = () => {
         if (this.databasesPath?.length) {
-            this._populateTable('databases', fs.readdirSync(this.databasesPath).flatMap(name => {
+            this._populateTable('databases', fs.readdirSync(this.databasesPath).map(name => {
                 return {
                     identifier: name,
                     name: name
