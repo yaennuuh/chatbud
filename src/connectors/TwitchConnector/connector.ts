@@ -7,10 +7,11 @@ import { EventData } from "../../core/events/EventData";
 import { ConnectorHelper } from "../../core/connectors/ConnectorHelper";
 import { EventDataTwitch } from "../../core/events/EventDataTwitch";
 import { ElectronAuthProvider } from "@twurple/auth-electron";
-import { ApiClient, HelixChannel, HelixClipCreateParams, HelixCustomReward, HelixStream, HelixUser } from "@twurple/api";
+import { ApiClient, HelixChannel, HelixClip, HelixClipCreateParams, HelixCustomReward, HelixStream, HelixUser } from "@twurple/api";
 import { PubSubBitsMessage, PubSubClient, PubSubRedemptionMessage, PubSubSubscriptionMessage } from "@twurple/pubsub";
 import { ChatBitsBadgeUpgradeInfo, ChatClient, ChatCommunitySubInfo, ChatRaidInfo, ChatUser, UserNotice } from "@twurple/chat";
 import { TwitchPrivateMessage } from "@twurple/chat/lib/commands/TwitchPrivateMessage";
+import { async } from "rxjs";
 
 class TwitchConnector implements IConnector {
     coreBot: CoreBot = CoreBot.getInstance();
@@ -26,6 +27,7 @@ class TwitchConnector implements IConnector {
     scopes: string[] = [
         'bits:read',
         'channel:read:redemptions',
+        'channel:read:subscriptions',
         'channel:manage:redemptions',
         'channel_subscriptions',
         'channel:moderate',
@@ -76,6 +78,20 @@ class TwitchConnector implements IConnector {
         return follows.total;
     }
 
+    getSubscriptions = async (userId: string): Promise<any> => {
+        const subs = await this.apiClient.subscriptions.getSubscriptionsPaginated(userId).getAll();
+        const tier1SubCount = subs.reduce((result, sub) => result + (sub.tier === '1000' ? 1 : 0), 0);
+        const tier2SubCount = subs.reduce((result, sub) => result + (sub.tier === '2000' ? 1 : 0), 0);
+        const tier3SubCount = subs.reduce((result, sub) => result + (sub.tier === '3000' ? 1 : 0), 0);
+        const totalSubCount = subs.length;
+        return {
+            tier1: tier1SubCount,
+            tier2: tier2SubCount,
+            tier3: tier3SubCount,
+            totalSubCount
+        };
+    }
+
     isChannelLive = async (): Promise<boolean> => {
         return !!await this.getOwnStream();
     }
@@ -93,6 +109,16 @@ class TwitchConnector implements IConnector {
             channelId: (await this.getOwnChannel()).id
         };
         this.apiClient.clips.createClip(helixClipCreateParams);
+    }
+
+    getClipForUser = async(userId: string): Promise<any> => {
+        const clips = await this.apiClient.clips.getClipsForBroadcasterPaginated(userId).getAll();
+        return {
+            numberOfClips: clips.length,
+            mostViewedClip: clips.reduce((prev, current) => (prev.views > current.views) ? prev : current),
+            totalClipViews: clips.map(clip => clip.views).reduce((partial_sum, a) => partial_sum + a, 0),
+            latestClip: clips[clips.length-1]
+        };
     }
 
     getChannelPointsRewards = async (): Promise<HelixCustomReward[]> => {
