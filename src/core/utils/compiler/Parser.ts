@@ -1,7 +1,7 @@
 import {Token, TokenType} from "./Tokenizer";
 
 export type ParsedType = 'Program' | 'StringLiteral' | 'function' | 'keyword';
-export type Parsed = { value: string; type: ParsedType; params?: string[]};
+export type Parsed = { value: string; type: ParsedType; params?: Parsed[][]};
 export type ParsedProgramm = {type: ParsedType; body: Parsed[]};
 export interface ParsedObject {position: number; item: Parsed};
 
@@ -86,7 +86,7 @@ export class Parser {
         if (token.type === 'word') {
             return this.parseString(tokens, current);
         }
-        if ((token.type === 'keyword' && nextTokenType === 'bracket_open') || token.type === 'bracket_close') {
+        if (token.type === 'keyword' && nextTokenType === 'bracket_open') {
             return this.parseFunction(tokens, current);
         }
         if (token.type === 'keyword') {
