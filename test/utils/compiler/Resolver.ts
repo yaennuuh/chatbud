@@ -39,13 +39,8 @@ describe('Resolver', () => {
                     { "type": "StringLiteral", "value": "hallo" },
                     {
                         "type": "function", "value": "$dummy", "params": [
-                            [
-                                { "type": "keyword", "value": "$username" }
-                            ],
-                            [
-                                { "type": "StringLiteral", "value": "you got" },
-                                { "type": "keyword", "value": "$points" }
-                            ]
+                            "$username",
+                            "you got $points",
                         ]
                     },
                     { "type": "StringLiteral", "value": "du" },

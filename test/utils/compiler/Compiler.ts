@@ -22,10 +22,11 @@ class DummyFunction {
 
     async execute(parsedItems: string[]): Promise<string> {
 
-        if (parsedItems) {
+        if (parsedItems && parsedItems.length > 0) {
             let val1 = await CompilerHelper.getInstance().resolveParameter(parsedItems[0]);
             let val2 = await CompilerHelper.getInstance().resolveParameter(parsedItems[1]);
             return `my params: '${val1}', '${val2}'`;
+            return `my params {}`;
         }
 
         return '~dummy~';

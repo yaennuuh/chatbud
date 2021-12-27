@@ -51,7 +51,7 @@ export class Tokenizer {
 
     tokenizeQuotes = (input: string, current: number) => this.tokenizeCharacter('quotes', '"', input, current);
 
-    tokenizeWord = (input: string, current: number) => this.tokenizePattern("word", /[a-z]/i, input, current);
+    tokenizeWord = (input: string, current: number) => this.tokenizePattern("word", /[a-zA-Z0-9,]/i, input, current);
 
     tokenizeKeyWord = (input: string, current: number) => this.tokenizeKeyWordPattern("keyword", '$', /[a-z]/i, input, current);
 
