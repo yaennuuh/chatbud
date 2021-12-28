@@ -41,18 +41,18 @@ export class CommandManagementHelper {
         return new Command(document);
     }
 
-    getCommandByNameAndType = async (commandName: string, commandType: string, ): Promise<ICommand> => {
-        const document = await this.database.findOne({ command: { $regex: new RegExp('^'+commandName+'$', 'i') }, active: true, commandType: commandType });
+    getCommandByNameAndType = async (commandName: string, commandType: string,): Promise<ICommand> => {
+        const document = await this.database.findOne({ command: { $regex: new RegExp('^' + this.escapeRegExp(commandName) + '$', 'i') }, active: true, commandType: commandType });
         return new Command(document);
     }
 
-    getCommandsByNameAndType = async (commandName: string, commandType: string, ): Promise<ICommand[]> => {
-        const documents = await this.database.find({ command: { $regex: new RegExp('^'+commandName+'$', 'i') }, active: true, commandType: commandType });
+    getCommandsByNameAndType = async (commandName: string, commandType: string,): Promise<ICommand[]> => {
+        const documents = await this.database.find({ command: { $regex: new RegExp('^' + this.escapeRegExp(commandName) + '$', 'i') }, active: true, commandType: commandType });
         return documents.map(document => new Command(document));
     }
 
     updateCommand = async (command: ICommand): Promise<void> => {
-        let document = command.toDocument(command);
+        let document = command.toDocument();
 
         if (command.id !== null && command.id !== undefined && command.id.length) {
             await this.database.update({ '_id': command.id }, { $set: document });
@@ -65,5 +65,9 @@ export class CommandManagementHelper {
         if (id !== null && id !== undefined && id.length) {
             await this.database.remove({ "_id": id }, {});
         }
+    }
+
+    escapeRegExp = (text): string => {
+        return text.replace(new RegExp(/[-[\]{}()*+?.,\\^$|#\s]/g), '\\$&');
     }
 }
