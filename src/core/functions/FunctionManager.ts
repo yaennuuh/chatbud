@@ -6,7 +6,7 @@ import { IEvent } from "../events/IEvent";
 import * as LivePluginManager from "live-plugin-manager";
 import * as fs from 'fs';
 import * as YAML from 'yaml';
-import {Parsed} from "../utils/compiler/Parser";
+import { CompilerHelper } from "../utils/compiler/CompilerHelper";
 
 export class FunctionManager implements IFunctionManager {
     private static instance: FunctionManager;
@@ -52,19 +52,9 @@ export class FunctionManager implements IFunctionManager {
         return Array.from(this.functionMap.keys());
     }
 
-    // async sendToFunction(functionKey: string, packages: string[], originalEvent: IEvent): Promise<string[]> {
-    //     const functionInstance: any = this.functionMap.get(functionKey);
-    //     const firstPack = packages.shift();
-    //     const stringToWork = firstPack.substring(functionKey.length+3, firstPack.length - (functionKey.length+4));
-    //     const params = _.split(stringToWork.trim().substring(0, stringToWork.lastIndexOf(']')), ',');
-    //     const content = stringToWork.substring(stringToWork.lastIndexOf(']') + 1, stringToWork.length);
-    //     return await functionInstance.execute(params, content, packages, originalEvent);
-    // }
-
     async sendToFunction(functionKey: string, parsedItems: string[], originalEvent: IEvent): Promise<string> {
         const functionInstance: any = this.functionMap.get(functionKey);
-
-        return await functionInstance.execute(parsedItems, originalEvent);
+        return await functionInstance.execute(parsedItems, originalEvent, CompilerHelper.getInstance());
     }
 
     private async installDependency(functionPath: string) {

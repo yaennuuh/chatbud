@@ -1,5 +1,5 @@
+import { IEvent } from "../../events/IEvent";
 import {Compiler} from "./Compiler";
-import {Parsed} from "./Parser";
 
 export class CompilerHelper {
     private static instance: CompilerHelper;
@@ -14,7 +14,7 @@ export class CompilerHelper {
         return this.instance;
     }
 
-    public resolveParameter(parsedItem: string): Promise<string> {
-        return Compiler.getInstance().compileString(parsedItem);
+    public resolveParameter(parsedItem: string, originalEvent: IEvent): Promise<string> {
+        return Compiler.getInstance().compileString(parsedItem, originalEvent);
     }
 }

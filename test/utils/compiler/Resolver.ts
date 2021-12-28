@@ -26,7 +26,7 @@ describe('Resolver', () => {
             let s = await Resolver.getInstance().resolveItem({
                 "type": "StringLiteral",
                 "value": "Hello World!",
-            });
+            }, null);
 
             expect(s).to.eql("Hello World!");
         });
@@ -37,16 +37,11 @@ describe('Resolver', () => {
                 "type": "Program",
                 "body": [
                     { "type": "StringLiteral", "value": "hallo" },
-                    {
-                        "type": "function", "value": "$dummy", "params": [
-                            "$username",
-                            "you got $points",
-                        ]
-                    },
+                    { "type": "function", "value": "$dummy" },
                     { "type": "StringLiteral", "value": "du" },
                     { "type": "keyword", "value": "$random" }
                 ]
-            });
+            }, null);
 
             expect(emitted).to.eql('hallo -dummy- du $random');
         });
