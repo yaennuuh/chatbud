@@ -26,27 +26,25 @@ export class Command implements ICommand {
         }
     }
 
-    public fromDocument(document: Object): ICommand {
-        let command = new Command();
-        command.id = document['_id'];
-        command.commandType = document['commandType'];
-        command.command = document['command'];
-        command.active = document['active'];
-        command.actions = document['actions'].map((action: Object) => new CommandAction(action));
-        command.conditions = document['conditions'].map((condition: Object) => new CommandCondition(condition));
-        command.description = document['description'];
-        return command;
+    public fromDocument(document: Object): void {
+        this.id = document['_id'];
+        this.commandType = document['commandType'];
+        this.command = document['command'];
+        this.active = document['active'];
+        this.actions = document['actions'];
+        this.conditions = document['conditions'];
+        this.description = document['description'];
     }
 
-    public toDocument(command: ICommand): Object {
+    public toDocument(): Object {
         let document = {};
-        document['_id'] = command.id;
-        document['commandType'] = command.commandType;
-        document['command'] = command.command;
-        document['active'] = command.active;
-        document['actions'] = command.actions;
-        document['conditions'] = command.conditions;
-        document['description'] = command.description;
+        document['_id'] = this.id;
+        document['commandType'] = this.commandType;
+        document['command'] = this.command;
+        document['active'] = this.active;
+        document['actions'] = this.actions;
+        document['conditions'] = this.conditions;
+        document['description'] = this.description;
         return document;
     }
 

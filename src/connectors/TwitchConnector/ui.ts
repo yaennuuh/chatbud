@@ -44,7 +44,6 @@ class TwitchConnectorUI {
         document.getElementById("user-information-followers").innerHTML = follows;
         document.getElementById("user-information-views").innerHTML = broadcaster.views;
         document.getElementById("user-information-broadcaster-type").innerHTML = broadcaster.broadcasterType;
-        console.log(JSON.stringify(game));
     }
 
     hideUserInformation = (): void => {

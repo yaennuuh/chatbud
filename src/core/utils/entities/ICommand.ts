@@ -3,8 +3,8 @@ import { ICommandAction } from "./ICommandAction";
 import { ICommandCondition } from "./ICommandCondition";
 
 export interface ICommand {
-    fromDocument(document: Object): ICommand;
-    toDocument(command: ICommand): Object;
+    fromDocument(document: Object): void;
+    toDocument(): Object;
     addActionToCommand(action: ICommandAction): void;
     addConditionToCommand(condition: ICommandCondition): void;
     get id(): string;
