@@ -69,6 +69,7 @@ describe('Parser', () =>
                 {"type": "bracket_open","value": "("},
                 {"type": "quotes","value": "\""},
                 {"type": "word","value": "mein"},
+                {"type": "space","value": " "},
                 {"type": "word","value": "name"},
                 {"type": "quotes","value": "\""},
                 {"type": "bracket_close","value": ")"}
@@ -89,12 +90,16 @@ describe('Parser', () =>
                                     },
                                     {
                                         "type": "StringLiteral",
+                                        "value": " "
+                                    },
+                                    {
+                                        "type": "StringLiteral",
                                         "value": "name"
                                     }
                                 ]
                             ]
                         },
-                        "position": 7,
+                        "position": 8,
                     }
                 );
         });

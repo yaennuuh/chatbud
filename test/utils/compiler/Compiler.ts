@@ -1,7 +1,6 @@
 import { expect } from 'chai';
 import {Compiler} from "../../../src/core/utils/compiler/Compiler";
 import {FunctionManager} from "../../../src/core/functions/FunctionManager";
-import {CompilerHelper} from "../../../src/core/utils/compiler/CompilerHelper";
 import { IEvent } from '../../../src/core/events/IEvent';
 
 class DummyFunction2 {
@@ -27,7 +26,6 @@ class DummyFunction {
             let val1 = await functionHelper.resolveParameter(parsedItems[0], originalEvent);
             let val2 = await functionHelper.resolveParameter(parsedItems[1], originalEvent);
             return `my params: '${val1}', '${val2}'`;
-            return `my params {}`;
         }
 
         return '~dummy~';
@@ -61,7 +59,17 @@ describe('Compiler', () =>
 
         it('test compile nested function', async () => {
             let s = await Compiler.getInstance().compileString('$dummy("first, $dummy("second $username" , "secondError")", "firstError")', null);
-            expect(s).to.eql("my params: 'hallo sam', 'error'");
+            expect(s).to.eql("my params: 'first, my params: 'second sam', 'secondError'', 'firstError'");
+        });
+
+        it('test compile special chars', async () => {
+            let s = await Compiler.getInstance().compileString('$dummy("müslüm@sonerzeichen.ch", "$?!-_1+-*/")', null);
+            expect(s).to.eql("my params: 'müslüm@sonerzeichen.ch', '$?!-_1+-*/'");
+        });
+
+        it('test compile double functions', async () => {
+            let s = await Compiler.getInstance().compileString('$dummy("1 und 1", "1")$dummy("2", "2 und 2 und 2") gugus', null);
+            expect(s).to.eql("my params: '1 und 1', '1'my params: '2', '2 und 2 und 2' gugus");
         });
     });
 });

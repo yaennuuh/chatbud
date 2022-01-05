@@ -83,7 +83,7 @@ export class Parser {
             nextTokenType = tokens[current + 1].type
         }
 
-        if (token.type === 'word' || token.type === 'comma') {
+        if (token.type === 'word' || token.type === 'comma' || token.type === 'space') {
             return this.parseString(tokens, current);
         }
         if (token.type === 'keyword' && nextTokenType === 'bracket_open') {

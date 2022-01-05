@@ -21,13 +21,16 @@ export class Resolver {
     }
 
     private async resolveProgram (parsedItem: ParsedProgramm, originalEvent: IEvent): Promise<string>{
-        let mappedShit = await Promise.all(parsedItem.body.map(async (exp) => {
-            return await this.resolveItem(exp, originalEvent);
+        let mappedShit = await Promise.all(parsedItem.body.map(async (exp, index) => {
+            const val = await this.resolveItem(exp, originalEvent);
+            // const addSpace = exp.type == "StringLiteral" && index < parsedItem.body.length - 1;
+            // return addSpace ? val + ' ' : val;
+            return val;
         }));
 
-        let joinedShit = mappedShit.join(' ');
+        // let joinedShit = mappedShit.join('');
 
-        return Promise.resolve(joinedShit);
+        return Promise.resolve(mappedShit.join(''));
     }
 
     private async resolveExpression (parsedItem: Parsed, originalEvent: IEvent): Promise<string>{
@@ -50,7 +53,9 @@ export class Resolver {
 
         if (params){
             for (const param of params) {
-                res.push(this.paramToString(param));
+                if(Array.isArray(param)){
+                    res.push(this.paramToString(param));
+                }
             }
         }
 
@@ -76,7 +81,7 @@ export class Resolver {
             }
         })
 
-        return tmp.join(' ');
+        return tmp.join('');
     }
 
     public resolve(parsedItem: ParsedProgramm, originalEvent: IEvent): Promise<string>{

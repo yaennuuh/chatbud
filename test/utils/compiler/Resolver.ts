@@ -37,8 +37,11 @@ describe('Resolver', () => {
                 "type": "Program",
                 "body": [
                     { "type": "StringLiteral", "value": "hallo" },
+                    { "type": "StringLiteral", "value": " " },
                     { "type": "function", "value": "$dummy" },
+                    { "type": "StringLiteral", "value": " " },
                     { "type": "StringLiteral", "value": "du" },
+                    { "type": "StringLiteral", "value": " " },
                     { "type": "keyword", "value": "$random" }
                 ]
             }, null);
