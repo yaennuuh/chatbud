@@ -30,15 +30,15 @@ describe('Tokenizer', () =>
                     },
                 ]);
         });
-        it('test tokenizeWhiteSpace', () =>
-        {
-            let tokenizer = new Tokenizer();
-            expect(tokenizer.tokenizeWhiteSpace(' ', 0))
-                .to
-                .eql([1,
-                    null,
-                ]);
-        });
+        // it('test tokenizeWhiteSpace', () =>
+        // {
+        //     let tokenizer = new Tokenizer();
+        //     expect(tokenizer.tokenizeWhiteSpace(' ', 0))
+        //         .to
+        //         .eql([1,
+        //             null,
+        //         ]);
+        // });
         it('test tokenizeComma', () =>
         {
             let tokenizer = new Tokenizer();
