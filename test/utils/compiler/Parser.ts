@@ -1,5 +1,4 @@
 import { expect } from 'chai';
-import {Compiler} from "../../../src/core/utils/compiler/Compiler";
 import {Parser} from "../../../src/core/utils/compiler/Parser";
 import {Token} from "../../../src/core/utils/compiler/Tokenizer";
 

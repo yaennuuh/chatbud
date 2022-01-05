@@ -76,7 +76,6 @@ export class Parser {
     parseToken (tokens, current) {
         let token: Token = tokens[current];
         let lastToken: Token = tokens[current - 1];
-        // let nextToken: Token = tokens[current + 1];
         let nextTokenType: TokenType = 'end';
 
         if(current + 1 < tokens.length){

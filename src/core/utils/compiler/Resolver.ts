@@ -1,7 +1,6 @@
 import { FunctionManager } from "../../functions/FunctionManager";
 import {Parsed, ParsedProgramm} from "./Parser";
 import {IEvent} from "../../events/IEvent";
-import { CompilerHelper } from "./CompilerHelper";
 
 export class Resolver {
     private static instance: Resolver;
