@@ -256,6 +256,9 @@ class TwitchConnector implements IConnector {
             this.subGiftCounts.set(msg.userInfo.userId, previousGiftCount + subInfo.count);
             subInfo.count += previousGiftCount;
             eventDataTwitch.communitySubGiftInfo = subInfo;
+
+            // reload subscriptions list?
+
             CoreBot.getInstance().notifyPluginsOnEventBusIn(new Event('twitch-community-sub-gift', new EventData({
                 twitch: eventDataTwitch
             })));
@@ -332,8 +335,17 @@ class TwitchConnector implements IConnector {
             } else {
                 const eventDataTwitch = new EventDataTwitch(message.message?.message);
                 eventDataTwitch.userId = message.gifterId;
+                eventDataTwitch.username = message.userName;
                 eventDataTwitch.displayName = message.gifterDisplayName;
+                eventDataTwitch.subscriptionTier = message.subPlan;
                 eventDataTwitch.subscription = message;
+
+                eventDataTwitch.subscribersList = [{
+                    userId: message.userId,
+                    username: message.userName,
+                    giftedFrom: message.gifterId,
+                    subscriptionTier: message.subPlan,
+                }];
 
                 CoreBot.getInstance().notifyPluginsOnEventBusIn(new Event('twitch-subscription', new EventData({ twitch: eventDataTwitch })));
             }

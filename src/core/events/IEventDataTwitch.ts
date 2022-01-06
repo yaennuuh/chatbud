@@ -1,4 +1,4 @@
-import { ChattersList } from "@twurple/api/lib";
+import { ChattersList, HelixSubscription } from "@twurple/api/lib";
 import { ChatBitsBadgeUpgradeInfo, ChatRaidInfo } from "@twurple/chat";
 import { TwitchPrivateMessage } from "@twurple/chat/lib/commands/TwitchPrivateMessage";
 import { PubSubBitsMessage, PubSubRedemptionMessage, PubSubSubscriptionMessage } from "@twurple/pubsub";
@@ -36,4 +36,7 @@ export interface IEventDataTwitch {
     subscription?: PubSubSubscriptionMessage;
 
     chattersList?: ChattersList;
+    subscribersList?: any[];
+    subscriptionTier?: string;
+    isChannelLive?: boolean;
 }

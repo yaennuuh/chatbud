@@ -37,7 +37,8 @@ export class EventDataTwitch implements IEventDataTwitch {
     subscription?: PubSubSubscriptionMessage;
 
     chattersList?: ChattersList;
-    subscribersList?: HelixSubscription[];
+    subscribersList?: any[];
+    subscriptionTier?: string;
     isChannelLive?: boolean;
 
     constructor(message: string, twitchMessage?: TwitchPrivateMessage) {
