@@ -1,4 +1,5 @@
 import { HelixCustomReward } from "@twurple/api";
+import { async } from "rxjs";
 
 class TwitchConnectorApi {
 
@@ -38,6 +39,10 @@ class TwitchConnectorApi {
 
     getClipForUser = async(userId: string): Promise<any> => {
         return this.connector.getClipForUser(userId);
+    }
+
+    getAllChatters = async(channelName: string): Promise<any> => {
+        return this.connector.getAllChatters(channelName);
     }
 
     createClip = () => {

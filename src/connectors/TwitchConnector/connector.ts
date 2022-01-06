@@ -39,6 +39,7 @@ class TwitchConnector implements IConnector {
     data;
     channelName;
     subGiftCounts = new Map<string | undefined, number>();
+    chattersTimer;
 
     async start(): Promise<void> {
         await this.startFunction();
@@ -68,6 +69,10 @@ class TwitchConnector implements IConnector {
 
     getOwnChannel = async (): Promise<HelixChannel> => {
         return this.apiClient.channels.getChannelInfo(this.userId);
+    }
+
+    getAllChatters = async (channelName: string): Promise<any> => {
+        return (await this.apiClient.unsupported.getChatters(channelName));
     }
 
     getTotalFollows = async (userId: string): Promise<number> => {
@@ -134,6 +139,7 @@ class TwitchConnector implements IConnector {
     }
 
     async connect() {
+        this.disconnect();
         this.authProvider = new ElectronAuthProvider({
             clientId: 'yfbmeopj35p9rkz0aiq3mugvqt24iu',
             redirectUri: 'http://localhost/callback'
@@ -149,6 +155,7 @@ class TwitchConnector implements IConnector {
     disconnect = (): void => {
         this.stop();
         this.unbind();
+        clearInterval(this.chattersTimer);
         // CORRECT? this.authProvider.setAccessToken(null);
         this.pubSubClient = undefined;
         this.apiClient = undefined;
@@ -158,10 +165,33 @@ class TwitchConnector implements IConnector {
 
     initializeListeners = async (): Promise<void> => {
         await this.initializePubSub();
+        await this.initializeSubscriptions();
         await this.listenToChannelRedeem();
         await this.listenToBitsCheer();
         await this.listenToSubscription();
         await this.initializeChatListener();
+        
+        this.chattersTimer = setInterval( async () => {
+            let chattersList = await this.apiClient.unsupported.getChatters(this.userId);
+            
+            const eventDataTwitch = new EventDataTwitch('');
+            eventDataTwitch.chattersList = chattersList;
+            eventDataTwitch.isChannelLive = await this.isChannelLive();
+            CoreBot.getInstance().notifyPluginsOnEventBusIn(new Event('twitch-chatters-list', new EventData({
+                twitch: eventDataTwitch
+            })));
+        }, 5 * 1000 * 60);
+    }
+
+    initializeSubscriptions = async (): Promise<void> => {
+        const subs = await this.apiClient.subscriptions.getSubscriptionsPaginated(this.userId).getAll();
+        
+        const eventDataTwitch = new EventDataTwitch('');
+        eventDataTwitch.subscribersList = subs;
+
+        CoreBot.getInstance().notifyPluginsOnEventBusIn(new Event('twitch-subscriber-list', new EventData({
+            twitch: eventDataTwitch
+        })));
     }
 
     initializeChatListener = async (): Promise<void> => {

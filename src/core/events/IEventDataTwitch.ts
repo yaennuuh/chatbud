@@ -1,3 +1,4 @@
+import { ChattersList } from "@twurple/api/lib";
 import { ChatBitsBadgeUpgradeInfo, ChatRaidInfo } from "@twurple/chat";
 import { TwitchPrivateMessage } from "@twurple/chat/lib/commands/TwitchPrivateMessage";
 import { PubSubBitsMessage, PubSubRedemptionMessage, PubSubSubscriptionMessage } from "@twurple/pubsub";
@@ -33,4 +34,6 @@ export interface IEventDataTwitch {
     twitchChannelReedem?: PubSubRedemptionMessage;
     bitsCheer?: PubSubBitsMessage;
     subscription?: PubSubSubscriptionMessage;
+
+    chattersList?: ChattersList;
 }
