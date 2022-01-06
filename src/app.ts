@@ -20,24 +20,38 @@ globalAny['pluginManager'] = PluginManager.getInstance();
 globalAny['connectorManager'] = ConnectorManager.getInstance();
 globalAny['coreHelper'] = CoreHelper.getInstance();
 
-const loadAll = () => {
+const loadConnectors = () => {
     const connectorManager: IConnectorManager = ConnectorManager.getInstance();
     connectorManager.unloadConnectors();
     connectorManager.loadConnectors();
+}
 
+const loadPlugins = () => {
     const pluginManager: IPluginManager = PluginManager.getInstance();
     pluginManager.unloadAllPlugins();
     pluginManager.loadCorePlugins();
     pluginManager.loadPlugins();
+}
 
+const loadFunctions = () => {
     const functionManager: IFunctionManager = FunctionManager.getInstance();
     functionManager.unloadFunctions();
     functionManager.loadFunctions();
+}
+
+const loadAll = () => {
+
+    loadConnectors();
+    loadPlugins();
+    loadFunctions();
     
     Main.mainWindow.loadURL('file://' + __dirname + '/ui/main.html');
 }
 
-ipcMain.on('reload-application', loadAll);
+ipcMain.on('reload-application', () => {
+    loadPlugins();
+    loadFunctions();
+});
 
 setTimeout(() => {
     if (Main.mainWindow.webContents.getURL().indexOf('loading.html') != -1) {
