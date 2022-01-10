@@ -1,6 +1,7 @@
 import { FunctionManager } from "../../functions/FunctionManager";
 import {Parsed, ParsedProgramm} from "./Parser";
 import {IEvent} from "../../events/IEvent";
+import {isArray} from "util";
 
 export class Resolver {
     private static instance: Resolver;
@@ -65,20 +66,24 @@ export class Resolver {
 
         let tmp: string[] = [];
 
-        param.forEach(value => {
-            tmp.push(value.value);
+        if(isArray(param)) {
+            param.forEach(value => {
+                tmp.push(value.value);
 
-            if(value.type == "function") {
-                tmp.push("(");
+                if (value.type == "function") {
+                    tmp.push("(");
 
-                value.params.forEach(value1 => {
-                    tmp.push('"');
-                    tmp.push(this.paramToString(value1));
-                    tmp.push('"');
-                })
-                tmp.push(")");
-            }
-        })
+                    value.params.forEach(value1 => {
+                        tmp.push('"');
+                        tmp.push(this.paramToString(value1));
+                        tmp.push('"');
+                    })
+                    tmp.push(")");
+                }
+            })
+        } else {
+            tmp.push(param)
+        }
 
         return tmp.join('');
     }

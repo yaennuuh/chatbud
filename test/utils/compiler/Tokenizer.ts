@@ -113,12 +113,24 @@ describe('Tokenizer', () =>
                         "value": "mein"
                     },
                     {
+                        "type": "space",
+                        "value": " "
+                    },
+                    {
                         "type": "word",
                         "value": "name"
                     },
                     {
+                        "type": "space",
+                        "value": " "
+                    },
+                    {
                         "type": "word",
                         "value": "ist"
+                    },
+                    {
+                        "type": "space",
+                        "value": " "
                     },
                     {
                         "type": "keyword",
@@ -131,6 +143,10 @@ describe('Tokenizer', () =>
                     {
                         "type": "comma",
                         "value": ","
+                    },
+                    {
+                        "type": "space",
+                        "value": " "
                     },
                     {
                         "type": "quotes",
@@ -160,18 +176,23 @@ describe('Tokenizer', () =>
                 .to
                 .eql([
                     {"type": "word", "value": "hallo"},
+                    {"type": "space", "value": " "},
                     {"type": "keyword", "value": "$alert"},
                     {"type": "bracket_open", "value": "("},
                     {"type": "quotes", "value": "\""},
                     {"type": "keyword", "value": "$username"},
                     {"type": "quotes", "value": "\""},
                     {"type": "comma", "value": ","},
+                    {"type": "space", "value": " "},
                     {"type": "quotes", "value": "\""},
                     {"type": "word", "value": "abc"},
+                    {"type": "space", "value": " "},
                     {"type": "keyword", "value": "$points"},
                     {"type": "quotes", "value": "\""},
                     {"type": "bracket_close", "value": ")"},
+                    {"type": "space", "value": " "},
                     {"type": "word", "value": "du"},
+                    {"type": "space", "value": " "},
                     {"type": "keyword", "value": "$random"}
                 ]);
         });
@@ -182,14 +203,17 @@ describe('Tokenizer', () =>
                 .to
                 .eql([
                     {"type": "word", "value": "hallo"},
+                    {"type": "space", "value": " "},
                     {"type": "keyword", "value": "$alert"},
                     {"type": "bracket_open", "value": "("},
                     {"type": "quotes", "value": "\""},
                     {"type": "keyword", "value": "$username"},
                     {"type": "quotes", "value": "\""},
                     {"type": "comma", "value": ","},
+                    {"type": "space", "value": " "},
                     {"type": "quotes", "value": "\""},
                     {"type": "word", "value": "abc"},
+                    {"type": "space", "value": " "},
                     {"type": "keyword", "value": "$points"},
                     {"type": "bracket_open", "value": "("},
                     {"type": "quotes", "value": "\""},
@@ -198,7 +222,9 @@ describe('Tokenizer', () =>
                     {"type": "bracket_close", "value": ")"},
                     {"type": "quotes", "value": "\""},
                     {"type": "bracket_close", "value": ")"},
+                    {"type": "space", "value": " "},
                     {"type": "word", "value": "du"},
+                    {"type": "space", "value": " "},
                     {"type": "keyword", "value": "$random"}
                 ]);
         });
