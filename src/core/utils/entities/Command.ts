@@ -81,7 +81,7 @@ export class Command implements ICommand {
         this._active = value;
     }
     public get actions(): ICommandAction[] {
-        return this._actions;
+        return this._actions.sort((a, b) => a.order - b.order);;
     }
     public set actions(value: ICommandAction[]) {
         this._actions = value;

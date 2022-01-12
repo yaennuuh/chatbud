@@ -172,7 +172,7 @@ class TwitchConnector implements IConnector {
         await this.initializeChatListener();
         
         this.chattersTimer = setInterval( async () => {
-            let chattersList = await this.apiClient.unsupported.getChatters(this.userId);
+            let chattersList = await this.apiClient.unsupported.getChatters('itsbarrex');
             
             const eventDataTwitch = new EventDataTwitch('');
             eventDataTwitch.chattersList = chattersList;
@@ -180,7 +180,7 @@ class TwitchConnector implements IConnector {
             CoreBot.getInstance().notifyPluginsOnEventBusIn(new Event('twitch-chatters-list', new EventData({
                 twitch: eventDataTwitch
             })));
-        }, 5 * 1000 * 60);
+        }, 15000 + (0 * 1000 * 60));
     }
 
     initializeSubscriptions = async (): Promise<void> => {

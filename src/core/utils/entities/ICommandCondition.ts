@@ -17,6 +17,8 @@ export interface ICommandCondition {
     set fieldDataFunction(value: string);
     get automaticActionFunctions(): string[];
     set automaticActionFunctions(value: string[]);
+    get customId(): string;
+    set customId(value: string);
     fromDocument(document: Object): ICommandCondition;
     toDocument(commandCondition: ICommandCondition): Object;
 }

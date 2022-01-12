@@ -56,11 +56,13 @@ export class PluginManager implements IPluginManager {
                 config.command.actions = config.command.actions?.map(action => {
                     action.pluginId = config.name;
                     action.fieldValue = '';
+                    action.customId = `${action.pluginId}-${action.id}-${action.order}`;
                     return action;
                 });
                 config.command.conditions = config.command.conditions?.map(condition => {
                     condition.pluginId = config.name;
                     condition.fieldValue = '';
+                    condition.customId = `${condition.pluginId}-${condition.id}`;
                     return condition;
                 });
                 commandConfigs.push({

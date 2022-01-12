@@ -10,6 +10,7 @@ export class CommandCondition implements ICommandCondition {
     private _fieldValue: string = '';
     private _fieldDataFunction: string = '';
     private _automaticActionFunctions: string[] = [];
+    private _customId: string = '';
 
     constructor(condition?: Object) {
         if (condition) {
@@ -22,6 +23,7 @@ export class CommandCondition implements ICommandCondition {
             this.fieldValue = condition['fieldValue'];
             this.fieldDataFunction = condition['fieldDataFunction'];
             this.automaticActionFunctions = condition['automaticActionFunctions'];
+            this.customId = condition['customId'];
         }
     }
 
@@ -36,6 +38,7 @@ export class CommandCondition implements ICommandCondition {
         commandCondition.fieldValue = document['fieldValue'];
         commandCondition.fieldDataFunction = document['fieldDataFunction'];
         commandCondition.automaticActionFunctions = document['automaticActionFunctions'];
+        commandCondition.customId = document['customId'];
         return commandCondition;
     }
 
@@ -50,6 +53,7 @@ export class CommandCondition implements ICommandCondition {
         document['fieldValue'] = commandCondition.fieldValue;
         document['fieldDataFunction'] = commandCondition.fieldDataFunction;
         document['automaticActionFunctions'] = commandCondition.automaticActionFunctions;
+        document['customId'] = commandCondition.customId;
         return document;
     }
 
@@ -101,11 +105,18 @@ export class CommandCondition implements ICommandCondition {
     public set fieldDataFunction(value: string) {
         this._fieldDataFunction = value;
     }    
-
+    
     public get automaticActionFunctions(): string[] {
         return this._automaticActionFunctions;
     }
     public set automaticActionFunctions(value: string[]) {
         this._automaticActionFunctions = value;
     }
+    
+    public get customId(): string {
+        return this._customId;
+    }
+    public set customId(value: string) {
+        this._customId = value;
+    }    
 }

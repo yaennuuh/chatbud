@@ -1,4 +1,5 @@
 import { IEvent } from "../../events/IEvent";
+import { PluginManager } from "../../plugins/PluginManager";
 import {Compiler} from "./Compiler";
 
 export class CompilerHelper {
@@ -16,5 +17,9 @@ export class CompilerHelper {
 
     public resolveParameter(parsedItem: string, originalEvent: IEvent): Promise<string> {
         return Compiler.getInstance().compileString(parsedItem, originalEvent);
+    }
+
+    public getPluginApiByName = (pluginName: string): any => {
+        return PluginManager.getInstance().getPluginApiByName(pluginName);
     }
 }

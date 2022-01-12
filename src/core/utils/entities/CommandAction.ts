@@ -11,6 +11,7 @@ export class CommandAction implements ICommandAction {
     private _fieldValue: string = '';
     private _fieldDataFunction: string = '';
     private _requiredConditionFunctions: string[] = [];
+    private _customId: string = '';
 
     constructor(action?: Object) {
         if (action) {
@@ -24,6 +25,7 @@ export class CommandAction implements ICommandAction {
             this.fieldValue = action['fieldValue'];
             this.fieldDataFunction = action['fieldDataFunction'];
             this.requiredConditionFunctions = action['requiredConditionFunctions'];
+            this.customId = action['customId'];
         }
     }
 
@@ -39,6 +41,7 @@ export class CommandAction implements ICommandAction {
         commandAction.fieldValue = document['fieldValue'];
         commandAction.fieldDataFunction = document['fieldDataFunction'];
         commandAction.requiredConditionFunctions = document['requiredConditionFunctions'];
+        commandAction.customId = document['customId'];
         return commandAction;
     }
 
@@ -54,6 +57,7 @@ export class CommandAction implements ICommandAction {
         document['fieldValue'] = commandAction.fieldValue;
         document['fieldDataFunction'] = commandAction.fieldDataFunction;
         document['requiredConditionFunctions'] = commandAction.requiredConditionFunctions;
+        document['customId'] = commandAction.customId;
         return document;
     }
 
@@ -119,11 +123,18 @@ export class CommandAction implements ICommandAction {
     public set fieldDataFunction(value: string) {
         this._fieldDataFunction = value;
     }
-
+    
     public get requiredConditionFunctions(): string[] {
         return this._requiredConditionFunctions;
     }
     public set requiredConditionFunctions(value: string[]) {
         this._requiredConditionFunctions = value;
+    }
+
+    public get customId(): string {
+        return this.customId;
+    }
+    public set customId(value: string) {
+        this._customId = value;
     }
 }

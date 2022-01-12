@@ -1,5 +1,3 @@
-import { CommandAction } from "./CommandAction";
-
 export interface ICommandAction {
     get id(): string;
     set id(value: string);
@@ -21,6 +19,8 @@ export interface ICommandAction {
     set fieldDataFunction(value: string);
     get requiredConditionFunctions(): string[];
     set requiredConditionFunctions(value: string[]);
+    get customId(): string;
+    set customId(value: string);
     fromDocument(document: Object): ICommandAction;
     toDocument(commandAction: ICommandAction): Object;
 }
