@@ -68,8 +68,8 @@ describe('Compiler', () =>
         });
 
         it('test compile nested function 3', async () => {
-            let s = await Compiler.getInstance().compileString('$dummy("first, $dummy("second $username", "secondError x")", "xxx")', null);
-            expect(s).to.eql("my params: 'first, my params: 'second sam', 'secondError x'', 'xxx'");
+            let s = await Compiler.getInstance().compileString('$dummy("first, $dummy("second $username$username", "secondError x")", "xxx")', null);
+            expect(s).to.eql("my params: 'first, my params: 'second samsam', 'secondError x'', 'xxx'");
         });
 
         it('test compile special chars', async () => {
