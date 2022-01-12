@@ -23,12 +23,8 @@ export class Resolver {
     private async resolveProgram (parsedItem: ParsedProgramm, originalEvent: IEvent): Promise<string>{
         let mappedShit = await Promise.all(parsedItem.body.map(async (exp, index) => {
             const val = await this.resolveItem(exp, originalEvent);
-            // const addSpace = exp.type == "StringLiteral" && index < parsedItem.body.length - 1;
-            // return addSpace ? val + ' ' : val;
             return val;
         }));
-
-        // let joinedShit = mappedShit.join('');
 
         return Promise.resolve(mappedShit.join(''));
     }
