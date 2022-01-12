@@ -73,8 +73,13 @@ describe('Compiler', () =>
         });
 
         it('test compile special chars', async () => {
-            let s = await Compiler.getInstance().compileString('$dummy("müslüm@sonerzeichen.ch", "$?!-_1+-*/")', null);
-            expect(s).to.eql("my params: 'müslüm@sonerzeichen.ch', '$?!-_1+-*/'");
+            let s = await Compiler.getInstance().compileString('$dummy("müslüm@sonerzeichen.ch", "|$?!-_1+-*/")', null);
+            expect(s).to.eql("my params: 'müslüm@sonerzeichen.ch', '|$?!-_1+-*/'");
+        });
+
+        it('test compile special chars', async () => {
+            let s = await Compiler.getInstance().compileString('$dummy("èéà", "yeah")', null);
+            expect(s).to.eql("my params: 'èéà', 'yeah'");
         });
 
         it('test compile double functions', async () => {
