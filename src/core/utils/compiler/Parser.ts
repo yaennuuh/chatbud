@@ -1,4 +1,5 @@
 import {Token, TokenType} from "./Tokenizer";
+import {isArray} from "util";
 
 export type ParsedType = 'Program' | 'StringLiteral' | 'function' | 'keyword';
 export type Parsed = { value: string; type: ParsedType; params?: Parsed[][]};
@@ -39,7 +40,10 @@ export class Parser {
             counter = parsed.position;
             let param = parsed.item;
 
-            node.params.push(param);
+            if(isArray(param)){
+                node.params.push(param);
+            }
+
             token = tokens[counter];
         }
 
@@ -76,14 +80,13 @@ export class Parser {
     parseToken (tokens, current) {
         let token: Token = tokens[current];
         let lastToken: Token = tokens[current - 1];
-        // let nextToken: Token = tokens[current + 1];
         let nextTokenType: TokenType = 'end';
 
         if(current + 1 < tokens.length){
             nextTokenType = tokens[current + 1].type
         }
 
-        if (token.type === 'word' || token.type === 'comma') {
+        if (token.type === 'word' || token.type === 'comma' || token.type === 'space') {
             return this.parseString(tokens, current);
         }
         if (token.type === 'keyword' && nextTokenType === 'bracket_open') {

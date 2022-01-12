@@ -1,5 +1,4 @@
 import { expect } from 'chai';
-import {Compiler} from "../../../src/core/utils/compiler/Compiler";
 import {Parser} from "../../../src/core/utils/compiler/Parser";
 import {Token} from "../../../src/core/utils/compiler/Tokenizer";
 
@@ -69,6 +68,7 @@ describe('Parser', () =>
                 {"type": "bracket_open","value": "("},
                 {"type": "quotes","value": "\""},
                 {"type": "word","value": "mein"},
+                {"type": "space","value": " "},
                 {"type": "word","value": "name"},
                 {"type": "quotes","value": "\""},
                 {"type": "bracket_close","value": ")"}
@@ -89,12 +89,16 @@ describe('Parser', () =>
                                     },
                                     {
                                         "type": "StringLiteral",
+                                        "value": " "
+                                    },
+                                    {
+                                        "type": "StringLiteral",
                                         "value": "name"
                                     }
                                 ]
                             ]
                         },
-                        "position": 7,
+                        "position": 8,
                     }
                 );
         });
@@ -250,6 +254,81 @@ describe('Parser', () =>
                             {"type": "StringLiteral", "value": "(\"du\") :)"},
                             {"type": "keyword", "value": "$random"}
                         ]
+                    }
+                );
+        });
+
+        it('test parseToken xyz', () =>
+        {
+            let parser = new Parser();
+            let tokens: Token[] = [
+                {"type": "keyword", "value": "$dummy"},
+                {"type": "bracket_open", "value": "("},
+                {"type": "quotes", "value": "\""},
+                {"type": "word", "value": "first"},
+                {"type": "quotes", "value": "\""},
+                {"type": "comma", "value": ","},
+                {"type": "space", "value": " "},
+                {"type": "quotes", "value": "\""},
+                {"type": "keyword", "value": "$dummy"},
+                {"type": "bracket_open", "value": "("},
+                {"type": "quotes", "value": "\""},
+                {"type": "word", "value": "second"},
+                {"type": "space", "value": " "},
+                {"type": "keyword", "value": "$username"},
+                {"type": "quotes", "value": "\""},
+                {"type": "comma", "value": ","},
+                {"type": "space", "value": " "},
+                {"type": "quotes", "value": "\""},
+                {"type": "word", "value": "secondError"},
+                {"type": "space", "value": " "},
+                {"type": "word", "value": "x"},
+                {"type": "quotes", "value": "\""},
+                {"type": "bracket_close", "value": ")"},
+                {"type": "quotes", "value": "\""},
+                {"type": "comma", "value": ","},
+                {"type": "space", "value": " "},
+                {"type": "quotes", "value": "\""},
+                {"type": "word", "value": "firstError"},
+                {"type": "quotes", "value": "\""},
+                {"type": "bracket_close", "value": ")"}
+            ]
+
+            expect(parser.parseProgram(tokens))
+                .to
+                .eql(
+                    {
+                        "body": [
+                            {"type": "function",
+                                "value": "$dummy",
+                                "params": [
+                                    [
+                                        {"type": "StringLiteral", "value": "first"},
+                                    ],
+                                    [
+                                        {"type": "function",
+                                            "value": "$dummy",
+                                            "params": [
+                                                [
+                                                    {"type": "StringLiteral", "value": "second"},
+                                                    {"type": "StringLiteral", "value": " "},
+                                                    {"type": "keyword", "value": "$username"}
+                                                ],
+                                                [
+                                                    {"type": "StringLiteral", "value": "secondError"},
+                                                    {"type": "StringLiteral", "value": " "},
+                                                    {"type": "StringLiteral", "value": "x"}
+                                                ]
+                                            ]
+                                        }
+                                    ],
+                                    [
+                                        {"type": "StringLiteral", "value": "firstError"},
+                                    ]
+                                ]
+                            }
+                        ],
+                        "type": "Program"
                     }
                 );
         });

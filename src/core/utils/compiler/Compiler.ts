@@ -1,5 +1,5 @@
 import {Tokenizer} from "./Tokenizer";
-import {Parsed, Parser} from "./Parser";
+import {Parser} from "./Parser";
 import {Resolver} from "./Resolver";
 import {IEvent} from "../../events/IEvent";
 
@@ -25,13 +25,4 @@ export class Compiler {
         // 'fix fertiger string';
         return output;
     }
-
-    // public async compileParam(parsedItem: Parsed[]): Promise<string> {
-    //
-    //     let x = parsedItem.map(async value => {
-    //         await Resolver.getInstance().resolveItem(value)
-    //     }).join(' ');
-    //
-    //     return x
-    // }
 }

@@ -33,10 +33,13 @@ describe('Tokenizer', () =>
         it('test tokenizeWhiteSpace', () =>
         {
             let tokenizer = new Tokenizer();
-            expect(tokenizer.tokenizeWhiteSpace(' ', 0))
+            expect(tokenizer.tokenizeSpace(' ', 0))
                 .to
                 .eql([1,
-                    null,
+                    {
+                        "type": "space",
+                        "value": " ",
+                    },
                 ]);
         });
         it('test tokenizeComma', () =>
@@ -110,12 +113,24 @@ describe('Tokenizer', () =>
                         "value": "mein"
                     },
                     {
+                        "type": "space",
+                        "value": " "
+                    },
+                    {
                         "type": "word",
                         "value": "name"
                     },
                     {
+                        "type": "space",
+                        "value": " "
+                    },
+                    {
                         "type": "word",
                         "value": "ist"
+                    },
+                    {
+                        "type": "space",
+                        "value": " "
                     },
                     {
                         "type": "keyword",
@@ -128,6 +143,10 @@ describe('Tokenizer', () =>
                     {
                         "type": "comma",
                         "value": ","
+                    },
+                    {
+                        "type": "space",
+                        "value": " "
                     },
                     {
                         "type": "quotes",
@@ -157,18 +176,23 @@ describe('Tokenizer', () =>
                 .to
                 .eql([
                     {"type": "word", "value": "hallo"},
+                    {"type": "space", "value": " "},
                     {"type": "keyword", "value": "$alert"},
                     {"type": "bracket_open", "value": "("},
                     {"type": "quotes", "value": "\""},
                     {"type": "keyword", "value": "$username"},
                     {"type": "quotes", "value": "\""},
                     {"type": "comma", "value": ","},
+                    {"type": "space", "value": " "},
                     {"type": "quotes", "value": "\""},
                     {"type": "word", "value": "abc"},
+                    {"type": "space", "value": " "},
                     {"type": "keyword", "value": "$points"},
                     {"type": "quotes", "value": "\""},
                     {"type": "bracket_close", "value": ")"},
+                    {"type": "space", "value": " "},
                     {"type": "word", "value": "du"},
+                    {"type": "space", "value": " "},
                     {"type": "keyword", "value": "$random"}
                 ]);
         });
@@ -179,14 +203,17 @@ describe('Tokenizer', () =>
                 .to
                 .eql([
                     {"type": "word", "value": "hallo"},
+                    {"type": "space", "value": " "},
                     {"type": "keyword", "value": "$alert"},
                     {"type": "bracket_open", "value": "("},
                     {"type": "quotes", "value": "\""},
                     {"type": "keyword", "value": "$username"},
                     {"type": "quotes", "value": "\""},
                     {"type": "comma", "value": ","},
+                    {"type": "space", "value": " "},
                     {"type": "quotes", "value": "\""},
                     {"type": "word", "value": "abc"},
+                    {"type": "space", "value": " "},
                     {"type": "keyword", "value": "$points"},
                     {"type": "bracket_open", "value": "("},
                     {"type": "quotes", "value": "\""},
@@ -195,8 +222,48 @@ describe('Tokenizer', () =>
                     {"type": "bracket_close", "value": ")"},
                     {"type": "quotes", "value": "\""},
                     {"type": "bracket_close", "value": ")"},
+                    {"type": "space", "value": " "},
                     {"type": "word", "value": "du"},
+                    {"type": "space", "value": " "},
                     {"type": "keyword", "value": "$random"}
+                ]);
+        });
+        it('test tokenizer with keywords xx', () =>
+        {
+            let tokenizer = new Tokenizer();
+            expect(tokenizer.tokenizer('$dummy("first", "$dummy("second $username", "secondError x")", "firstError")'))
+                .to
+                .eql([
+                    {"type": "keyword", "value": "$dummy"},
+                    {"type": "bracket_open", "value": "("},
+                    {"type": "quotes", "value": "\""},
+                    {"type": "word", "value": "first"},
+                    {"type": "quotes", "value": "\""},
+                    {"type": "comma", "value": ","},
+                    {"type": "space", "value": " "},
+                    {"type": "quotes", "value": "\""},
+                    {"type": "keyword", "value": "$dummy"},
+                    {"type": "bracket_open", "value": "("},
+                    {"type": "quotes", "value": "\""},
+                    {"type": "word", "value": "second"},
+                    {"type": "space", "value": " "},
+                    {"type": "keyword", "value": "$username"},
+                    {"type": "quotes", "value": "\""},
+                    {"type": "comma", "value": ","},
+                    {"type": "space", "value": " "},
+                    {"type": "quotes", "value": "\""},
+                    {"type": "word", "value": "secondError"},
+                    {"type": "space", "value": " "},
+                    {"type": "word", "value": "x"},
+                    {"type": "quotes", "value": "\""},
+                    {"type": "bracket_close", "value": ")"},
+                    {"type": "quotes", "value": "\""},
+                    {"type": "comma", "value": ","},
+                    {"type": "space", "value": " "},
+                    {"type": "quotes", "value": "\""},
+                    {"type": "word", "value": "firstError"},
+                    {"type": "quotes", "value": "\""},
+                    {"type": "bracket_close", "value": ")"}
                 ]);
         });
     });

@@ -1,5 +1,5 @@
 
-export type TokenType = 'bracket_open' | 'bracket_close' | 'word' | 'text' | 'keyword' | 'comma' | 'quotes' | 'end';
+export type TokenType = 'bracket_open' | 'bracket_close' | 'word' | 'text' | 'keyword' | 'comma' | 'space' | 'quotes' | 'end';
 export interface Token { value: string; type: TokenType};
 export type TokenObject = [number, Token] | [number, {}]
 
@@ -29,7 +29,7 @@ export class Tokenizer {
     }
 
     private tokenizeKeyWordPattern (type: TokenType, identifier: string, regExp: RegExp, input: string, current: number): TokenObject {
-        if (input[current] === identifier) {
+        if (input[current] === identifier && /[a-zA-Z0-9]/i.test(input[current+1])) {
             let consumedChars = 1;
             let value = '';
             let sub = input.substring(current, current + identifier.length + consumedChars) // 1 consumed char + 1 to get the next one
@@ -49,16 +49,18 @@ export class Tokenizer {
 
     tokenizeComma = (input: string, current: number) => this.tokenizeCharacter('comma', ',', input, current);
 
-    tokenizeQuotes = (input: string, current: number) => this.tokenizeCharacter('quotes', '"', input, current);
+    tokenizeSpace = (input: string, current: number) => this.tokenizeCharacter('space', ' ', input, current);
 
-    tokenizeWord = (input: string, current: number) => this.tokenizePattern("word", /[a-zA-Z0-9,]/i, input, current);
+    tokenizeQuotes = (input: string, current: number) => this.tokenizeCharacter('quotes', '"', input, current);
 
     tokenizeKeyWord = (input: string, current: number) => this.tokenizeKeyWordPattern("keyword", '$', /[a-z]/i, input, current);
 
-    tokenizeWhiteSpace = (input: string, current: number) => this.skipWhiteSpace(input, current);
+    tokenizeWord = (input: string, current: number) => this.tokenizePattern("word", /[^\s"]/i, input, current);
+
+    // tokenizeWhiteSpace = (input: string, current: number) => this.skipWhiteSpace(input, current);
 
     private tokenizers = [
-        this.tokenizeWhiteSpace,
+        this.tokenizeSpace,
         this.tokenizeBracketOpen,
         this.tokenizeBracketClose,
         this.tokenizeComma,
