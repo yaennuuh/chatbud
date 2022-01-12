@@ -57,6 +57,21 @@ describe('Compiler', () =>
             expect(s).to.eql("my params: 'hallo sam', 'error'");
         });
 
+        it('test compile nested function 1', async () => {
+            let s = await Compiler.getInstance().compileString('$dummy("first", "$dummy("second $username", "secondError x")")', null);
+            expect(s).to.eql("my params: 'first', 'my params: 'second sam', 'secondError x''");
+        });
+
+        it('test compile nested function 2', async () => {
+            let s = await Compiler.getInstance().compileString('$dummy("first $dummy("second $username", "secondError x")", "xxx")', null);
+            expect(s).to.eql("my params: 'first my params: 'second sam', 'secondError x'', 'xxx'");
+        });
+
+        it('test compile nested function 3', async () => {
+            let s = await Compiler.getInstance().compileString('$dummy("first, $dummy("second $username", "secondError x")", "xxx")', null);
+            expect(s).to.eql("my params: 'first, my params: 'second sam', 'secondError x'', 'xxx'");
+        });
+
         it('test compile special chars', async () => {
             let s = await Compiler.getInstance().compileString('$dummy("müslüm@sonerzeichen.ch", "$?!-_1+-*/")', null);
             expect(s).to.eql("my params: 'müslüm@sonerzeichen.ch', '$?!-_1+-*/'");

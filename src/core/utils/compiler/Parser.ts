@@ -1,4 +1,5 @@
 import {Token, TokenType} from "./Tokenizer";
+import {isArray} from "util";
 
 export type ParsedType = 'Program' | 'StringLiteral' | 'function' | 'keyword';
 export type Parsed = { value: string; type: ParsedType; params?: Parsed[][]};
@@ -39,7 +40,10 @@ export class Parser {
             counter = parsed.position;
             let param = parsed.item;
 
-            node.params.push(param);
+            if(isArray(param)){
+                node.params.push(param);
+            }
+
             token = tokens[counter];
         }
 

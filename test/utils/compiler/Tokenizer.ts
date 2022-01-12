@@ -228,5 +228,43 @@ describe('Tokenizer', () =>
                     {"type": "keyword", "value": "$random"}
                 ]);
         });
+        it('test tokenizer with keywords xx', () =>
+        {
+            let tokenizer = new Tokenizer();
+            expect(tokenizer.tokenizer('$dummy("first", "$dummy("second $username", "secondError x")", "firstError")'))
+                .to
+                .eql([
+                    {"type": "keyword", "value": "$dummy"},
+                    {"type": "bracket_open", "value": "("},
+                    {"type": "quotes", "value": "\""},
+                    {"type": "word", "value": "first"},
+                    {"type": "quotes", "value": "\""},
+                    {"type": "comma", "value": ","},
+                    {"type": "space", "value": " "},
+                    {"type": "quotes", "value": "\""},
+                    {"type": "keyword", "value": "$dummy"},
+                    {"type": "bracket_open", "value": "("},
+                    {"type": "quotes", "value": "\""},
+                    {"type": "word", "value": "second"},
+                    {"type": "space", "value": " "},
+                    {"type": "keyword", "value": "$username"},
+                    {"type": "quotes", "value": "\""},
+                    {"type": "comma", "value": ","},
+                    {"type": "space", "value": " "},
+                    {"type": "quotes", "value": "\""},
+                    {"type": "word", "value": "secondError"},
+                    {"type": "space", "value": " "},
+                    {"type": "word", "value": "x"},
+                    {"type": "quotes", "value": "\""},
+                    {"type": "bracket_close", "value": ")"},
+                    {"type": "quotes", "value": "\""},
+                    {"type": "comma", "value": ","},
+                    {"type": "space", "value": " "},
+                    {"type": "quotes", "value": "\""},
+                    {"type": "word", "value": "firstError"},
+                    {"type": "quotes", "value": "\""},
+                    {"type": "bracket_close", "value": ")"}
+                ]);
+        });
     });
 });
