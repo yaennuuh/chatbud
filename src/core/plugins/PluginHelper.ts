@@ -49,7 +49,7 @@ export class PluginHelper implements IPluginHelper {
     }
 
     loadData = (): any => {
-        let dataPath = `${PluginManager.getInstance().resourcesPath}/${this.config['name']}/${this.config['data-yaml']}`;
+        let dataPath = `${PluginManager.getInstance().resourcesPath}/${this.config['name']}/data.yaml`;
         if (fs.existsSync(dataPath)) {
             const file = fs.readFileSync(dataPath, 'utf8')
             return YAML.parse(file);
@@ -58,7 +58,7 @@ export class PluginHelper implements IPluginHelper {
     }
 
     saveData = (data: any): void => {
-        let dataPath = `${PluginManager.getInstance().resourcesPath}/${this.config['name']}/${this.config['data-yaml']}`;
+        let dataPath = `${PluginManager.getInstance().resourcesPath}/${this.config['name']}/data.yaml`;
         fs.writeFile(dataPath, YAML.stringify(data), function (err) {
             if (err) throw err;
         });

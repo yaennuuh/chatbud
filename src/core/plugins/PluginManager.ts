@@ -106,10 +106,10 @@ export class PluginManager implements IPluginManager {
     public loadPlugin(basePath: string, config: any) {
         if (config &&
             config.hasOwnProperty('name') &&
-            config.hasOwnProperty('plugin-js') &&
+            config.hasOwnProperty('plugin') &&
             !this.plugins.has(config['name'])
         ) {
-            var pluginPath = `${basePath}/${config['name']}/${config['plugin-js']}`;
+            var pluginPath = `${basePath}/${config['name']}/${config['plugin']}`;
             if (fs.existsSync(pluginPath)) {
                 const CustomPlugin = require(pluginPath);
                 const customPluginInstance = new CustomPlugin();
@@ -168,10 +168,10 @@ export class PluginManager implements IPluginManager {
     public loadPluginApi(basePath: string, config: any): any {
         if (config &&
             config.hasOwnProperty('name') &&
-            config.hasOwnProperty('plugin-api-js') &&
+            config.hasOwnProperty('api') &&
             !this.pluginApi.has(config['name'])
         ) {
-            var pluginApiPath = `${basePath}/${config['name']}/${config['plugin-api-js']}`;
+            var pluginApiPath = `${basePath}/${config['name']}/${config['api']}`;
             if (fs.existsSync(pluginApiPath)) {
                 const CustomPluginApi = require(pluginApiPath);
                 const customPluginApiInstance = new CustomPluginApi(this.plugins.get(config['name']));
